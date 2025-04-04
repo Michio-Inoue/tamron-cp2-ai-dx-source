@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金型手配予測 - タムロン車載AI設計サイト</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <a href="index.html">
+                    <h1>タムロン車載AI設計サイト</h1>
+                </a>
+            </div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">ホーム</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- メイン -->
+    <main>
+        <section class="mold-prediction">
+            <h2 class="section-title">金型手配予測</h2>
+            <div class="prediction-container">
+                <form id="prediction-form" class="prediction-form">
+                    <div class="form-group">
+                        <label for="productId">製品ID</label>
+                        <input type="text" id="productId" name="productId" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="moldLifeShots">金型寿命ショット数</label>
+                        <input type="number" id="moldLifeShots" name="moldLifeShots" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cavityCount">キャビティ数</label>
+                        <input type="number" id="cavityCount" name="cavityCount" min="1" value="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="leadTime">金型製作リードタイム（日）</label>
+                        <input type="number" id="leadTime" name="leadTime" min="1" value="30" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="safetyStock">安全在庫日数</label>
+                        <input type="number" id="safetyStock" name="safetyStock" min="0" value="14" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>月間生産計画（製品数）</label>
+                        <div class="monthly-plan">
+                            <div class="month-input">
+                                <label for="month1">1ヶ月目</label>
+                                <input type="number" id="month1" name="month1" min="0" required>
+                            </div>
+                            <div class="month-input">
+                                <label for="month2">2ヶ月目</label>
+                                <input type="number" id="month2" name="month2" min="0" required>
+                            </div>
+                            <div class="month-input">
+                                <label for="month3">3ヶ月目</label>
+                                <input type="number" id="month3" name="month3" min="0" required>
+                            </div>
+                            <div class="month-input">
+                                <label for="month4">4ヶ月目</label>
+                                <input type="number" id="month4" name="month4" min="0" required>
+                            </div>
+                            <div class="month-input">
+                                <label for="month5">5ヶ月目</label>
+                                <input type="number" id="month5" name="month5" min="0" required>
+                            </div>
+                            <div class="month-input">
+                                <label for="month6">6ヶ月目</label>
+                                <input type="number" id="month6" name="month6" min="0" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-button">予測を実行</button>
+                </form>
+                
+                <div id="prediction-results" class="prediction-results">
+                    <!-- 予測結果がここに表示されます -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>お問い合わせ</h4>
+                <p>ご質問やご要望がございましたら、以下のメールアドレスまでご連絡ください。</p>
+                <a href="mailto:inoue@tamron" class="contact-link">メールでのお問い合わせ</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 タムロン車載AI設計サイト. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="mold-prediction.js"></script>
+</body>
+</html> 
