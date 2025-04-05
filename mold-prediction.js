@@ -198,46 +198,120 @@ function drawProductionChart(prediction) {
     // 金型寿命ラインの計算（キャビティ数を考慮）
     const moldLifeLimit = prediction.moldLifeShots * prediction.cavityCount;
     const moldLifeLines = [];
+    
+    // 各金型の寿命ラインを計算
     for (let i = 0; i < prediction.currentMoldCount; i++) {
-        moldLifeLines.push({
-            label: `${i + 1}番型寿命`,
-            data: Array(7).fill(moldLifeLimit * (i + 1)),
-            borderColor: `hsl(${i * 30}, 70%, 50%)`,
-            borderDash: [5, 5],
-            fill: false
+        const baseLimit = moldLifeLimit * (i + 1);
+        // 累計生産台数が金型寿命を超えた時点でラインを終了
+        const data = cumulativeProduction.map((production, index) => {
+            return production <= baseLimit ? baseLimit : null;
         });
+        
+        // 少なくとも1つの有効なデータポイントがある場合のみラインを追加
+        if (data.some(value => value !== null)) {
+            moldLifeLines.push({
+                label: `${i + 1}番型寿命`,
+                data: data,
+                borderColor: `hsl(${i * 30}, 70%, 50%)`,
+                borderDash: [5, 5],
+                fill: false,
+                hidden: false
+            });
+        }
     }
 
     // 手配必要時期のマーカー用データ
-    const orderMarkers = prediction.moldOrders.map(order => ({
-        label: `${order.moldNumber}番型手配`,
-        data: Array(7).fill(null).map((_, i) => 
-            i === order.monthIndex ? moldLifeLimit * (order.moldNumber - 1) : null
-        ),
-        borderColor: `hsl(${(order.moldNumber - 1) * 30}, 70%, 50%)`,
-        backgroundColor: `hsl(${(order.moldNumber - 1) * 30}, 70%, 50%)`,
-        pointStyle: 'triangle',
-        pointRadius: 10,
-        showLine: false
-    }));
+    const orderMarkers = prediction.moldOrders.map(order => {
+        const baseLimit = moldLifeLimit * (order.moldNumber - 1);
+        // 累計生産台数が金型寿命を超えていない場合のみマーカーを表示
+        if (cumulativeProduction[order.monthIndex + 1] <= baseLimit) {
+            return {
+                label: `${order.moldNumber}番型手配`,
+                data: Array(7).fill(null).map((_, i) => 
+                    i === order.monthIndex ? baseLimit : null
+                ),
+                borderColor: `hsl(${(order.moldNumber - 1) * 30}, 70%, 50%)`,
+                backgroundColor: `hsl(${(order.moldNumber - 1) * 30}, 70%, 50%)`,
+                pointStyle: 'triangle',
+                pointRadius: 10,
+                showLine: false,
+                hidden: false
+            };
+        }
+        return null;
+    }).filter(marker => marker !== null);
+
+    // 月ごとの必要金型数を計算
+    const requiredMolds = prediction.monthlyPlan.map(monthlyQty => {
+        return Math.ceil(monthlyQty / (prediction.moldLifeShots * prediction.cavityCount));
+    });
+
+    // 重複を除去したデータセットを作成
+    const uniqueDatasets = [];
+    const seenLabels = new Set();
+
+    // 月産数量（棒グラフ）
+    uniqueDatasets.push({
+        label: '月産数量',
+        data: prediction.monthlyPlan,
+        type: 'bar',
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1,
+        yAxisID: 'y1'
+    });
+
+    // 必要金型数（棒グラフ）
+    uniqueDatasets.push({
+        label: '必要金型数',
+        data: requiredMolds,
+        type: 'bar',
+        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1,
+        yAxisID: 'y2'
+    });
+
+    // 累計生産台数
+    uniqueDatasets.push({
+        label: '累計生産台数',
+        data: cumulativeProduction,
+        borderColor: '#007bff',
+        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+        fill: true,
+        tension: 0.4,
+        hidden: false,
+        yAxisID: 'y'
+    });
+
+    // 金型寿命ライン
+    moldLifeLines.forEach(line => {
+        if (!seenLabels.has(line.label)) {
+            seenLabels.add(line.label);
+            uniqueDatasets.push({
+                ...line,
+                yAxisID: 'y'
+            });
+        }
+    });
+
+    // 手配マーカー
+    orderMarkers.forEach(marker => {
+        if (!seenLabels.has(marker.label)) {
+            seenLabels.add(marker.label);
+            uniqueDatasets.push({
+                ...marker,
+                yAxisID: 'y'
+            });
+        }
+    });
 
     // グラフの描画
     new Chart(ctx, {
         type: 'line',
         data: {
             labels: ['現在', '1ヶ月目', '2ヶ月目', '3ヶ月目', '4ヶ月目', '5ヶ月目', '6ヶ月目'],
-            datasets: [
-                {
-                    label: '累計生産台数',
-                    data: cumulativeProduction,
-                    borderColor: '#007bff',
-                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                },
-                ...moldLifeLines,
-                ...orderMarkers
-            ]
+            datasets: uniqueDatasets
         },
         options: {
             responsive: true,
@@ -248,16 +322,72 @@ function drawProductionChart(prediction) {
                 },
                 tooltip: {
                     mode: 'index',
-                    intersect: false
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.dataset.label || '';
+                            const value = context.parsed.y;
+                            if (label.includes('寿命')) {
+                                return `${label}: ${value.toLocaleString()}個（最大生産可能数）`;
+                            } else if (label.includes('手配')) {
+                                return `${label}: ${value.toLocaleString()}個（手配必要時期）`;
+                            } else if (label === '月産数量') {
+                                return `${label}: ${value.toLocaleString()}個`;
+                            } else if (label === '必要金型数') {
+                                return `${label}: ${value}個`;
+                            } else {
+                                return `${label}: ${value.toLocaleString()}個`;
+                            }
+                        }
+                    }
+                },
+                legend: {
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: function(context) {
+                            const label = context.dataset ? context.dataset.label : '';
+                            if (label === '月産数量' || label === '必要金型数') {
+                                return 'rect';
+                            }
+                            return label.includes('手配') ? 'triangle' : 'line';
+                        }
+                    }
                 }
             },
             scales: {
                 y: {
-                    beginAtZero: true,
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
                     title: {
                         display: true,
-                        text: '生産台数'
+                        text: '累計生産台数'
                     }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: '月産数量'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                },
+                y2: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: '必要金型数'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    },
+                    offset: true
                 }
             }
         }
