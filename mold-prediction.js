@@ -19,6 +19,7 @@ class PredictionData {
     constructor(formData) {
         this.productId = formData.get('productId');
         this.moldLifeShots = parseInt(formData.get('moldLifeShots')) || 0;
+        this.currentMoldCount = parseInt(formData.get('currentMoldCount')) || 1;
         this.cavityCount = parseInt(formData.get('cavityCount')) || 1;
         this.leadTime = parseInt(formData.get('leadTime')) || 30;
         this.safetyStock = parseInt(formData.get('safetyStock')) || 14;
@@ -73,13 +74,13 @@ function calculateMoldRequirements(data) {
     // 累積必要金型数を計算
     const cumulativeMolds = calculateCumulativeMolds(monthlyMolds);
     
-    // 手配必要時期を計算
-    const orderDates = calculateOrderDates(cumulativeMolds, data.leadTime, data.safetyStock);
+    // 金型番号ごとの手配必要時期を計算
+    const moldOrders = calculateMoldOrders(cumulativeMolds, data.currentMoldCount, data.leadTime, data.safetyStock);
     
     return {
         monthlyMolds,
         cumulativeMolds,
-        orderDates,
+        moldOrders,
         dailyCapacity,
         moldLifeShots: data.moldLifeShots,
         cavityCount: data.cavityCount,
@@ -105,22 +106,32 @@ function calculateCumulativeMolds(monthlyMolds) {
     });
 }
 
-// 手配必要時期を計算
-function calculateOrderDates(cumulativeMolds, leadTime, safetyStock) {
+// 金型番号ごとの手配必要時期を計算
+function calculateMoldOrders(cumulativeMolds, currentMoldCount, leadTime, safetyStock) {
     const today = new Date();
+    const orders = [];
     
-    return cumulativeMolds.map((molds, index) => {
-        if (molds === 0) return null;
-        
-        const orderDate = new Date(today);
-        // 月初めから逆算して手配日を設定
-        orderDate.setMonth(today.getMonth() + index);
-        orderDate.setDate(1);
-        // リードタイムと安全在庫日数を考慮
-        orderDate.setDate(orderDate.getDate() - (leadTime + safetyStock));
-        
-        return orderDate;
+    cumulativeMolds.forEach((molds, monthIndex) => {
+        if (molds > currentMoldCount) {
+            const additionalMolds = molds - currentMoldCount;
+            for (let i = 0; i < additionalMolds; i++) {
+                const orderDate = new Date(today);
+                // 月初めから逆算して手配日を設定
+                orderDate.setMonth(today.getMonth() + monthIndex);
+                orderDate.setDate(1);
+                // リードタイムと安全在庫日数を考慮
+                orderDate.setDate(orderDate.getDate() - (leadTime + safetyStock));
+                
+                orders.push({
+                    moldNumber: currentMoldCount + i + 1,
+                    orderDate: orderDate,
+                    monthIndex: monthIndex
+                });
+            }
+        }
     });
+    
+    return orders;
 }
 
 // 予測結果の表示
@@ -138,22 +149,18 @@ function displayPredictionResults(prediction) {
     });
     html += '</div>';
     
-    // 累積必要金型数と手配時期
+    // 金型番号ごとの手配計画
     html += '<div class="result-item">';
-    html += '<h4>手配計画</h4>';
-    prediction.cumulativeMolds.forEach((molds, index) => {
-        if (molds > 0) {
-            const orderDate = prediction.orderDates[index];
-            if (orderDate) {
-                const isUrgent = orderDate < new Date();
-                html += `
-                    <div class="result-detail ${isUrgent ? 'warning' : ''}">
-                        ${index + 1}ヶ月目までの累積必要数: ${molds}個
-                        <br>手配推奨日: ${orderDate.toLocaleDateString('ja-JP')}
-                        ${isUrgent ? '<br>※至急手配が必要です' : ''}
-                    </div>`;
-            }
-        }
+    html += '<h4>金型手配計画</h4>';
+    prediction.moldOrders.forEach(order => {
+        const isUrgent = order.orderDate < new Date();
+        html += `
+            <div class="result-detail ${isUrgent ? 'warning' : ''}">
+                ${order.moldNumber}番型
+                <br>手配推奨日: ${order.orderDate.toLocaleDateString('ja-JP')}
+                <br>必要時期: ${order.monthIndex + 1}ヶ月目
+                ${isUrgent ? '<br>※至急手配が必要です' : ''}
+            </div>`;
     });
     html += '</div>';
     
@@ -161,6 +168,7 @@ function displayPredictionResults(prediction) {
     html += '<div class="result-item">';
     html += '<h4>生産能力情報</h4>';
     html += `<p class="result-detail">1日あたりの最大生産可能数: ${prediction.dailyCapacity.toLocaleString()}個</p>`;
+    html += `<p class="result-detail">1金型あたりの最大生産可能数: ${(prediction.moldLifeShots * prediction.cavityCount).toLocaleString()}個</p>`;
     html += '</div>';
 
     // グラフ表示用のキャンバス
@@ -189,12 +197,29 @@ function drawProductionChart(prediction) {
 
     // 金型寿命ラインの計算（キャビティ数を考慮）
     const moldLifeLimit = prediction.moldLifeShots * prediction.cavityCount;
-    const moldLifeLine = Array(7).fill(moldLifeLimit);
+    const moldLifeLines = [];
+    for (let i = 0; i < prediction.currentMoldCount; i++) {
+        moldLifeLines.push({
+            label: `${i + 1}番型寿命`,
+            data: Array(7).fill(moldLifeLimit * (i + 1)),
+            borderColor: `hsl(${i * 30}, 70%, 50%)`,
+            borderDash: [5, 5],
+            fill: false
+        });
+    }
 
     // 手配必要時期のマーカー用データ
-    const orderMarkers = prediction.orderDates.map(date => {
-        return date ? moldLifeLimit : null;
-    });
+    const orderMarkers = prediction.moldOrders.map(order => ({
+        label: `${order.moldNumber}番型手配`,
+        data: Array(7).fill(null).map((_, i) => 
+            i === order.monthIndex ? moldLifeLimit * (order.moldNumber - 1) : null
+        ),
+        borderColor: `hsl(${(order.moldNumber - 1) * 30}, 70%, 50%)`,
+        backgroundColor: `hsl(${(order.moldNumber - 1) * 30}, 70%, 50%)`,
+        pointStyle: 'triangle',
+        pointRadius: 10,
+        showLine: false
+    }));
 
     // グラフの描画
     new Chart(ctx, {
@@ -210,22 +235,8 @@ function drawProductionChart(prediction) {
                     fill: true,
                     tension: 0.4
                 },
-                {
-                    label: '金型寿命',
-                    data: moldLifeLine,
-                    borderColor: '#dc3545',
-                    borderDash: [5, 5],
-                    fill: false
-                },
-                {
-                    label: '手配必要時期',
-                    data: orderMarkers,
-                    borderColor: '#ffc107',
-                    backgroundColor: '#ffc107',
-                    pointStyle: 'triangle',
-                    pointRadius: 10,
-                    showLine: false
-                }
+                ...moldLifeLines,
+                ...orderMarkers
             ]
         },
         options: {
