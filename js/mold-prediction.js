@@ -88,7 +88,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     try {
-                        const data = JSON.parse(e.target.result);
+                        let data;
+                        if (file.name.endsWith('.csv')) {
+                            // CSVファイルの場合
+                            const csvText = e.target.result;
+                            const lines = csvText.split('\n');
+                            const headers = lines[0].split(',');
+                            const values = lines[1].split(',');
+                            data = {
+                                formData: {}
+                            };
+                            headers.forEach((header, index) => {
+                                data.formData[header] = values[index];
+                            });
+                        } else {
+                            // JSONファイルの場合
+                            data = JSON.parse(e.target.result);
+                        }
+                        
                         // フォームデータを復元
                         if (data.formData) {
                             for (let [key, value] of Object.entries(data.formData)) {
@@ -107,18 +124,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                 }
                             }
                         }
-                        // 予測結果を復元
-                        if (data.predictionResults) {
-                            const resultsDiv = document.getElementById('prediction-results');
-                            if (resultsDiv) {
-                                resultsDiv.innerHTML = data.predictionResults;
-                                resultsDiv.classList.add('show');
-                            }
-                        }
                         alert('データの読み込みが完了しました。');
                     } catch (error) {
-                        alert('データの読み込みに失敗しました。正しい形式のファイルを選択してください。');
                         console.error('Error loading data:', error);
+                        alert('データの読み込みに失敗しました。正しい形式のファイルを選択してください。');
                     }
                 };
                 reader.readAsText(file);
@@ -145,7 +154,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         saveFolderInput.value = folderPath;
                         // 選択したフォルダのパスをローカルストレージに保存
                         localStorage.setItem('lastSelectedFolder', folderPath);
+                        alert('保存先フォルダが選択されました: ' + folderPath + '\n\nファイルをダウンロードした後、このフォルダに移動してください。\n\nフォルダパスをコピーするには、入力フィールドをクリックしてください。');
                     }
+                } else {
+                    alert('保存先フォルダが選択されませんでした。');
                 }
                 document.body.removeChild(folderInput);
             });
@@ -188,7 +200,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     <label style="display: block; margin-bottom: 5px;">ファイル名:</label>
                     <input type="text" id="fileName" style="width: 100%; padding: 5px;" value="mold_prediction_${new Date().toISOString().replace(/[:.]/g, '-')}">
                 </div>
-                <div style="text-align: right;">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">保存形式:</label>
+                    <select id="fileFormat" style="width: 100%; padding: 5px;">
+                        <option value="json">JSON</option>
+                        <option value="csv">CSV</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px; color: #666; font-size: 0.9em;">
+                    ※データはダウンロードフォルダに保存されます<br>
+                    ※セキュリティ上の制限により保存先フォルダはダウンロードフォルダに限定されます<br>
+                    ※ユーザー自身で必要に応じて保存ファイルを移動してください
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
                     <button onclick="closeSaveModal()" style="margin-right: 10px; padding: 5px 10px;">キャンセル</button>
                     <button onclick="saveData()" style="padding: 5px 10px;">保存</button>
                 </div>
@@ -201,6 +225,13 @@ document.addEventListener('DOMContentLoaded', function() {
             window.closeSaveModal = function() {
                 document.body.removeChild(modal);
             };
+
+            // 最後に選択したフォルダを表示する処理を削除
+            const lastSelectedFolder = localStorage.getItem('lastSelectedFolder');
+            const saveFolderInput = modalContent.querySelector('#saveFolder');
+            if (saveFolderInput && lastSelectedFolder) {
+                saveFolderInput.value = lastSelectedFolder;
+            }
         });
     }
 });
@@ -1256,6 +1287,7 @@ function sendMoldOrderEmail(moldNumber, orderDate, endDate) {
 // データ保存関数
 window.saveData = function() {
     const fileName = document.getElementById('fileName').value;
+    const fileFormat = document.getElementById('fileFormat').value;
     
     if (!fileName) {
         alert('ファイル名を入力してください。');
@@ -1267,29 +1299,46 @@ window.saveData = function() {
         const formData = new FormData(predictionForm);
         const formDataObj = {};
         for (let [key, value] of formData.entries()) {
+            // 数値フィールドの場合、カンマを除去して保存
+            if (typeof value === 'string') {
+                value = value.replace(/[,\s]/g, '');
+            }
             formDataObj[key] = value;
         }
-
-        // 予測結果を取得
-        const predictionResults = document.getElementById('prediction-results').innerHTML;
 
         // 保存するデータを準備
         const saveData = {
             formData: formDataObj,
-            predictionResults: predictionResults,
             timestamp: new Date().toISOString()
         };
 
-        // データをJSON形式に変換
-        const jsonData = JSON.stringify(saveData, null, 2);
-        
-        // Blobを作成
-        const blob = new Blob([jsonData], { type: 'application/json' });
+        let blob;
+        let mimeType;
+        let extension;
+
+        switch (fileFormat) {
+            case 'csv':
+                // CSV形式に変換
+                const csvData = convertToCSV(saveData);
+                blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+                mimeType = 'text/csv';
+                extension = 'csv';
+                break;
+            default:
+                // JSON形式
+                const jsonData = JSON.stringify(saveData, null, 2);
+                blob = new Blob([jsonData], { type: 'application/json' });
+                mimeType = 'application/json';
+                extension = 'json';
+        }
         
         // ダウンロードリンクを作成
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `${fileName}.json`;
+        
+        // ファイル名を設定
+        const downloadFileName = `${fileName}.${extension}`;
+        a.download = downloadFileName;
         
         // ダウンロードを実行
         document.body.appendChild(a);
@@ -1304,4 +1353,29 @@ window.saveData = function() {
         console.error('データの保存中にエラーが発生しました:', error);
         alert('データの保存中にエラーが発生しました。');
     }
-}; 
+};
+
+// CSV形式に変換する関数
+function convertToCSV(data) {
+    const headers = Object.keys(data.formData);
+    const values = headers.map(header => data.formData[header]);
+    
+    // ヘッダー行とデータ行を作成
+    const csvContent = [
+        headers.join(','),
+        values.join(',')
+    ].join('\n');
+    
+    return csvContent;
+}
+
+// Excel形式に変換する関数
+function convertToExcel(data) {
+    // Excelファイルの作成
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet([data.formData]);
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    
+    // バイナリデータとして書き出し
+    return XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+} 
