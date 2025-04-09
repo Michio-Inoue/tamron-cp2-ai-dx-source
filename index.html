@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タムロン車載設計DXサイト</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .under-construction {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+        .product-card {
+            position: relative;
+        }
+        .icon-container {
+            width: 200px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 100px;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <h1>タムロン車載設計DXサイト</h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="検索">
+                <button>検索</button>
+            </div>
+            <nav class="header-nav">
+                <a href="#">ログイン</a>
+                <a href="#">メニュー</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- メイン -->
+    <main>
+        <section class="main-banner">
+            <h2>コンテンツ</h2>
+        </section>
+
+        <section class="products">
+            <div class="product-grid">
+                <div class="product-card">
+                    <div class="under-construction">工事中</div>
+                    <div class="icon-container">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>FMEAデータベース</h3>
+                    <p class="description">過去のFMEA分析データを効率的に検索・活用できるデータベースシステムです。類似製品の故障モードや対策を簡単に参照できます。</p>
+                    <a href="fmea.html"><button class="view-content">アクセス</button></a>
+                </div>
+                <div class="product-card">
+                    <div class="icon-container">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>部品データグラフ化</h3>
+                    <p class="description">TOF部品データを視覚的にグラフ化。トレンド分析や比較検討が容易に行えます。</p>
+                    <a href="tof-data.html"><button class="view-content">アクセス</button></a>
+                </div>
+                <div class="product-card">
+                    <div class="under-construction">工事中</div>
+                    <div class="icon-container">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI-DRBFM</h3>
+                    <p class="description">AIを活用して設計変更点の影響を分析。潜在的なリスクを自動で抽出し、効率的なDRBFM実施をサポートします。</p>
+                    <a href="ai-drbfm.html"><button class="view-content">アクセス</button></a>
+                </div>
+                <div class="product-card">
+                    <div class="under-construction">工事中</div>
+                    <div class="icon-container">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3>設計ツールマップ</h3>
+                    <p class="description">設計プロセスで使用する各種ツールの関連性を可視化。最適なツールの選択と効率的な設計フローを支援します。</p>
+                    <a href="tool-map.html"><button class="view-content">アクセス</button></a>
+                </div>
+                <div class="product-card">
+                    <div class="icon-container">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>金型手配AI予測</h3>
+                    <p class="description">AIを活用して金型の手配時期を予測。6か月前から通知アラームを表示し、金型枠取りのタイミングを最適化します。</p>
+                    <a href="mold-prediction.html"><button class="view-content">アクセス</button></a>
+                </div>
+                <div class="product-card">
+                    <div class="under-construction">工事中</div>
+                    <div class="icon-container">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <h3>Data Manager at 3D-Model</h3>
+                    <p class="description">3次元モデル上に量産管理SPCグラフを表示し、重要寸法個所の変動を視覚的に表示します。</p>
+                    <a href="3d-dimension.html"><button class="view-content">アクセス</button></a>
+                </div>
+                <div class="product-card">
+                    <div class="under-construction">工事中</div>
+                    <div class="icon-container">
+                        <i class="fas fa-ruler-combined"></i>
+                    </div>
+                    <h3>客先外観寸法自動判定</h3>
+                    <p class="description">3次元モデルから客先外観寸法を自動で判定し、仕様との照合を行います。設計品質の向上と効率化を実現します。</p>
+                    <a href="auto-dimension.html"><button class="view-content">アクセス</button></a>
+                </div>
+                <div class="form-group">
+                    <h3>月間生産計画</h3>
+                    <div class="monthly-plan-grid">
+                        <div class="monthly-plan-item">
+                            <label>1ヶ月目:</label>
+                            <input type="number" name="month1" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>2ヶ月目:</label>
+                            <input type="number" name="month2" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>3ヶ月目:</label>
+                            <input type="number" name="month3" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>4ヶ月目:</label>
+                            <input type="number" name="month4" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>5ヶ月目:</label>
+                            <input type="number" name="month5" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>6ヶ月目:</label>
+                            <input type="number" name="month6" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>7ヶ月目:</label>
+                            <input type="number" name="month7" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>8ヶ月目:</label>
+                            <input type="number" name="month8" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>9ヶ月目:</label>
+                            <input type="number" name="month9" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>10ヶ月目:</label>
+                            <input type="number" name="month10" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>11ヶ月目:</label>
+                            <input type="number" name="month11" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>12ヶ月目:</label>
+                            <input type="number" name="month12" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>13ヶ月目:</label>
+                            <input type="number" name="month13" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>14ヶ月目:</label>
+                            <input type="number" name="month14" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>15ヶ月目:</label>
+                            <input type="number" name="month15" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>16ヶ月目:</label>
+                            <input type="number" name="month16" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>17ヶ月目:</label>
+                            <input type="number" name="month17" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>18ヶ月目:</label>
+                            <input type="number" name="month18" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>19ヶ月目:</label>
+                            <input type="number" name="month19" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>20ヶ月目:</label>
+                            <input type="number" name="month20" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>21ヶ月目:</label>
+                            <input type="number" name="month21" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>22ヶ月目:</label>
+                            <input type="number" name="month22" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>23ヶ月目:</label>
+                            <input type="number" name="month23" min="0" required>
+                        </div>
+                        <div class="monthly-plan-item">
+                            <label>24ヶ月目:</label>
+                            <input type="number" name="month24" min="0" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>お問い合わせ</h4>
+                <p>ご質問やご要望がございましたら、以下のメールアドレスまでご連絡ください。</p>
+                <p>Email: <a href="mailto:inoue@tamron">inoue@tamron</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 タムロン車載設計DXサイト. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

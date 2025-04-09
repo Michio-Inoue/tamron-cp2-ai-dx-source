@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-DRBFM | タムロン車載設計DXサイト</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .content-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .drbfm-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .drop-zone {
+            flex: 1;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+
+        .drop-zone p {
+            margin: 0.5rem 0;
+        }
+
+        .sub-text {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .file-select-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .file-select-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .selected-file {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            display: block;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #ddd;
+            min-height: 2rem;
+        }
+
+        .selected-file i {
+            margin-right: 0.5rem;
+            color: #007bff;
+        }
+
+        .selected-file span {
+            vertical-align: middle;
+        }
+
+        .control-button {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-button:hover {
+            background-color: #f8f9fa;
+        }
+
+        .control-button.primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+
+        .control-button.primary:hover {
+            background-color: #0056b3;
+        }
+
+        .drbfm-table {
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .ai-column {
+            background-color: #e3f2fd;
+        }
+
+        .ai-analysis-detail {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .ai-analysis-detail h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .analysis-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .consideration-points,
+        .recommended-actions {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .consideration-points h4,
+        .recommended-actions h4 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <h1>タムロン車載設計DXサイト</h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="検索">
+                <button>検索</button>
+            </div>
+            <nav class="header-nav">
+                <a href="#">ログイン</a>
+                <a href="#">メニュー</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- メイン -->
+    <main>
+        <section id="input" class="content-section">
+            <h2>AI-DRBFM分析</h2>
+            <div class="drbfm-controls">
+                <div class="drop-zone" id="dropZone">
+                    <p>DRBFMエクセルファイルをドラッグ＆ドロップ</p>
+                    <p class="sub-text">または</p>
+                    <label for="fileInput" class="file-select-btn">ファイルを選択</label>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                    <div id="selectedFileName" class="selected-file" style="display: none;"></div>
+                </div>
+                <button class="control-button" id="exportExcel">エクセル出力</button>
+                <button class="control-button primary" id="runAiAnalysis">AI分析実行</button>
+            </div>
+
+            <div class="drbfm-table">
+                <table class="drbfm-table">
+                    <thead>
+                        <tr>
+                            <th>部品名称</th>
+                            <th>変更内容</th>
+                            <th>変更理由</th>
+                            <th>変更ランク</th>
+                            <th>部品の機能</th>
+                            <th>部品の故障・心配な点</th>
+                            <th>心配点はどのような場合になぜ生じるのか</th>
+                        </tr>
+                    </thead>
+                    <tbody id="drbfmTableBody">
+                        <!-- データはJavaScriptで動的に追加 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- AI分析結果の詳細表示エリア -->
+            <div class="ai-analysis-detail" id="aiAnalysisDetail">
+                <h3>AI分析詳細</h3>
+                <div class="analysis-content">
+                    <div class="consideration-points">
+                        <h4>追加考慮すべき点</h4>
+                        <ul id="considerationList">
+                            <!-- AIが提案する考慮点をJSで動的に追加 -->
+                        </ul>
+                    </div>
+                    <div class="recommended-actions">
+                        <h4>推奨される評価・検討項目</h4>
+                        <ul id="actionsList">
+                            <!-- AIが提案する行動をJSで動的に追加 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>お問い合わせ</h4>
+                <p>ご質問やご要望がございましたら、以下のメールアドレスまでご連絡ください。</p>
+                <p>Email: <a href="mailto:inoue@tamron">inoue@tamron</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 タムロン車載設計DXサイト. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="ai-drbfm.js"></script>
+</body>
+</html>

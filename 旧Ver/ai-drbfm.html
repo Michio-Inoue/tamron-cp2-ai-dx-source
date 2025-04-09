@@ -1,0 +1,49 @@
+<!-- 既存のコードの中で、input sectionを以下のように更新 -->
+<section id="input" class="content-section">
+    <div class="drbfm-controls">
+        <div class="drop-zone" id="dropZone">
+            <p>DRBFMエクセルファイルをドラッグ＆ドロップ</p>
+            <p class="sub-text">または</p>
+            <button class="file-select-btn" id="fileSelect">ファイルを選択</button>
+            <input type="file" id="fileInput" accept=".xlsx,.xls" hidden>
+        </div>
+        <button class="control-button" id="exportExcel">エクセル出力</button>
+        <button class="control-button primary" id="runAiAnalysis">AI分析実行</button>
+    </div>
+
+    <div class="drbfm-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>変更内容</th>
+                    <th>変更に関わる心配点</th>
+                    <th>現在の対策</th>
+                    <th class="ai-column">AI分析結果</th>
+                </tr>
+            </thead>
+            <tbody id="drbfmTableBody">
+                <!-- データはJavaScriptで動的に追加 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- AI分析結果の詳細表示エリア -->
+    <div class="ai-analysis-detail" id="aiAnalysisDetail">
+        <h3>AI分析詳細</h3>
+        <div class="analysis-content">
+            <div class="consideration-points">
+                <h4>追加考慮すべき点</h4>
+                <ul id="considerationList">
+                    <!-- AIが提案する考慮点をJSで動的に追加 -->
+                </ul>
+            </div>
+            <div class="recommended-actions">
+                <h4>推奨される評価・検討項目</h4>
+                <ul id="actionsList">
+                    <!-- AIが提案する行動をJSで動的に追加 -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
