@@ -1,370 +1,391 @@
-// DOM要素の取得
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-const exportExcel = document.getElementById('exportExcel');
-const runAiAnalysis = document.getElementById('runAiAnalysis');
-const drbfmTableBody = document.getElementById('drbfmTableBody');
-const considerationList = document.getElementById('considerationList');
-const actionsList = document.getElementById('actionsList');
-const selectedFileName = document.getElementById('selectedFileName');
+console.log('ai-drbfm.js loaded');
 
-// ファイル名を表示する関数
-function displayFileName(file) {
-    if (!file) return;
-    
-    selectedFileName.style.display = 'block';
-    selectedFileName.innerHTML = `<i class="fas fa-file-excel"></i> <span>${file.name}</span>`;
-    console.log('ファイル名を表示:', file.name);
-}
+const GEMINI_API_KEY = 'AIzaSyC39YRwttNDsVj6ZSWLhq8ljbiGyW9YcZo'; // ここをグローバルに
 
-// ドラッグ＆ドロップのイベントリスナー
-dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.classList.add('dragover');
-});
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const drbfmTableBody = document.getElementById('drbfmTableBody');
+    const considerationList = document.getElementById('considerationList');
+    const actionsList = document.getElementById('actionsList');
+    const runAiAnalysisBtn = document.getElementById('runAiAnalysis');
+    const exportExcelBtn = document.getElementById('exportExcel');
 
-dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('dragover');
-});
+    let workbookData = []; // エクセルデータを保存する変数
 
-dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    handleFile(file);
-});
+    // ファイル選択イベント
+    fileInput.addEventListener('change', (e) => {
+        console.log('fileInput changeイベント発火');
+        const file = e.target.files[0];
+        handleFile(file);
+    });
 
-// ファイル選択のイベントリスナー
-fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    handleFile(file);
-});
+    // ドラッグ&ドロップイベント
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
 
-// ファイル処理関数
-function handleFile(file) {
-    if (!file) {
-        console.log('ファイルが選択されていません');
-        return;
-    }
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+    });
 
-    // ファイル拡張子のチェック
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    if (fileExtension !== 'xlsx' && fileExtension !== 'xls') {
-        alert('Excelファイル（.xlsxまたは.xls）を選択してください。');
-        selectedFileName.style.display = 'none';
-        return;
-    }
+    dropZone.addEventListener('drop', (e) => {
+        console.log('dropZone dropイベント発火');
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        handleFile(file);
+    });
 
-    // ファイル名を表示
-    displayFileName(file);
-    console.log('ファイルが選択されました:', file.name);
-
-    // FileReaderを使用してファイルを読み込む
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            processWorkbook(workbook);
-        } catch (error) {
-            console.error('ファイルの処理中にエラーが発生しました:', error);
-            alert('ファイルの処理中にエラーが発生しました。');
-            selectedFileName.style.display = 'none';
+    // AI分析実行ボタン
+    runAiAnalysisBtn.addEventListener('click', async () => {
+        if (workbookData.length === 0) {
+            alert('先にエクセルファイルを読み込んでください。');
+            return;
         }
-    };
-    reader.readAsArrayBuffer(file);
-}
-
-// Excelファイルの処理
-function processWorkbook(workbook) {
-    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-    const data = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-    
-    // デバッグ用：データ構造の確認
-    console.log('Excelデータ:', data);
-    
-    // テーブルのクリア
-    drbfmTableBody.innerHTML = '';
-    
-    // 9行目のデータを最初の行として表示
-    const firstRow = data[8]; // 9行目のデータ（0から数えて8番目）
-    if (firstRow && firstRow.length >= 9) { // 必要な列数が9列以上あることを確認（I列まで必要）
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${firstRow[1] || ''}</td> <!-- 部品名称（9行B列） -->
-            <td>${firstRow[2] || ''}</td> <!-- 変更内容（9行C列） -->
-            <td>${firstRow[3] || ''}</td> <!-- 変更理由（9行D列） -->
-            <td>${firstRow[4] || ''}</td> <!-- 変更ランク（9行E列） -->
-            <td>${firstRow[5] || ''}</td> <!-- 部品の機能（9行F列） -->
-            <td>${firstRow[6] || ''}</td> <!-- 部品の故障・心配な点（9行G列） -->
-            <td>${firstRow[8] || ''}</td> <!-- 心配点はどのような場合になぜ生じるのか（9行I列） -->
-        `;
-        drbfmTableBody.appendChild(tr);
-    }
-    
-    // 10行目以降のデータを表示
-    let previousRow = firstRow; // 前の行のデータを保持
-    data.slice(9).forEach((row, index) => {
-        if (row.length >= 9) { // 必要な列数が9列以上あることを確認（I列まで必要）
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${row[1] || previousRow[1] || ''}</td> <!-- 部品名称（B列） -->
-                <td>${row[2] || previousRow[2] || ''}</td> <!-- 変更内容（C列） -->
-                <td>${row[3] || previousRow[3] || ''}</td> <!-- 変更理由（D列） -->
-                <td>${row[4] || previousRow[4] || ''}</td> <!-- 変更ランク（E列） -->
-                <td>${row[5] || previousRow[5] || ''}</td> <!-- 部品の機能（F列） -->
-                <td>${row[6] || previousRow[6] || ''}</td> <!-- 部品の故障・心配な点（G列） -->
-                <td>${row[8] || previousRow[8] || ''}</td> <!-- 心配点はどのような場合になぜ生じるのか（I列） -->
-            `;
-            drbfmTableBody.appendChild(tr);
-            previousRow = row; // 現在の行を前の行として保持
+        
+        try {
+            runAiAnalysisBtn.disabled = true;
+            runAiAnalysisBtn.textContent = '分析中...';
+            
+            const results = await performAiAnalysis(workbookData);
+            displayAnalysisResults(results);
+        } catch (error) {
+            console.error('AI分析エラー:', error);
+            alert('AI分析中にエラーが発生しました: ' + error.message);
+        } finally {
+            runAiAnalysisBtn.disabled = false;
+            runAiAnalysisBtn.textContent = 'AI分析実行';
         }
     });
-}
 
-// AI分析実行ボタンのイベントハンドラ
-runAiAnalysis.addEventListener('click', async () => {
-    console.log('AI分析ボタンがクリックされました');
-    if (drbfmTableBody.children.length === 0) {
-        alert('先にDRBFMファイルをアップロードしてください。');
-        return;
+    // エクセル出力ボタン
+    exportExcelBtn.addEventListener('click', () => {
+        if (workbookData.length === 0) {
+            alert('出力するデータがありません。');
+            return;
+        }
+        exportToExcel(workbookData);
+    });
+
+    function handleFile(file) {
+        console.log('handleFile呼び出し', file);
+        if (!file) {
+            console.log('ファイルが選択されていません');
+            return;
+        }
+
+        // ファイル名を表示
+        selectedFileName.style.display = 'block';
+        selectedFileName.innerHTML = `<i class="fas fa-file-excel"></i><span>${file.name}</span>`;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                processWorkbook(workbook);
+            } catch (error) {
+                console.error('エクセルファイル読み込みエラー:', error);
+                alert('エクセルファイルの読み込みに失敗しました: ' + error.message);
+            }
+        };
+        reader.readAsArrayBuffer(file);
     }
 
-    try {
-        // ローディング表示
-        runAiAnalysis.disabled = true;
-        runAiAnalysis.textContent = '分析中...';
-        console.log('AI分析を開始します');
+    function processWorkbook(workbook) {
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const merges = worksheet['!merges'] || [];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        if (jsonData.length < 9) {
+            alert('エクセルファイルに十分なデータ行がありません。');
+            return;
+        }
 
-        // テーブルデータの収集
-        const firstRow = drbfmTableBody.children[0];
-        const cells = firstRow.children;
-        const tableData = {
-            partName: cells[0].textContent,
-            changeContent: cells[1].textContent,
-            changeReason: cells[2].textContent,
-            changeRank: cells[3].textContent,
-            partFunction: cells[4].textContent,
-            concerns: cells[5].textContent,
-            concernConditions: cells[6].textContent
-        };
-        console.log('分析対象データ:', tableData);
+        // 7,8行目を取得
+        const headerRow1 = jsonData[6] || [];
+        const headerRow2 = jsonData[7] || [];
 
-        // AI分析の実行
-        const analysisResults = await performAiAnalysis(tableData);
-        console.log('AI分析結果:', analysisResults);
+        // G列8行目の値を取得
+        const gHeader = headerRow2[6] || '';
 
-        // 結果の表示
-        displayAnalysisResults(analysisResults);
+        // 結合セルを考慮してヘッダー名を生成
+        const headers = [];
+        for (let col = 0; col < headerRow2.length; col++) {
+            let h1 = headerRow1[col] || '';
+            for (const merge of merges) {
+                if (merge.s.r === 6 && col >= merge.s.c && col <= merge.e.c) {
+                    h1 = headerRow1[merge.s.c];
+                    break;
+                }
+            }
+            let h2 = headerRow2[col] || '';
+            for (const merge of merges) {
+                if (merge.s.r === 7 && col >= merge.s.c && col <= merge.e.c) {
+                    h2 = headerRow2[merge.s.c];
+                    break;
+                }
+            }
+            if (h1 && h2) {
+                headers.push(h1 + h2);
+            } else if (h1) {
+                headers.push(h1);
+            } else if (h2) {
+                headers.push(h2);
+            } else {
+                headers.push('');
+            }
+        }
+        console.log('実際のヘッダー:', headers);
 
-    } catch (error) {
-        console.error('AI分析中にエラーが発生しました:', error);
-        alert('AI分析中にエラーが発生しました。');
-    } finally {
-        // ボタンの状態を元に戻す
-        runAiAnalysis.disabled = false;
-        runAiAnalysis.textContent = 'AI分析実行';
+        // 空行を除外
+        const dataRows = jsonData.slice(8).filter(row => {
+            return row.some(cell => cell !== undefined && cell !== null && String(cell).trim() !== '');
+        });
+
+        workbookData = dataRows.map(row => {
+            const rowData = {};
+            headers.forEach((header, colIndex) => {
+                let value = row[colIndex];
+                if (value === undefined || value === null || String(value).trim() === '') {
+                    value = '';
+                }
+                const normalized = (header || '')
+                    .replace(/[\s　\(\)\[\]【】「」]/g, '')
+                    .replace(/\n/g, '')
+                    .replace(/・/g, '')
+                    .replace(/-/g, '')
+                    .replace(/\\/g, '');
+
+                if (normalized.includes('部品名称')) {
+                    rowData.partName = value;
+                } else if (normalized.includes('変更内容')) {
+                    rowData.changeContent = value;
+                } else if (normalized.includes('変更理由')) {
+                    rowData.changeReason = value;
+                } else if (normalized.includes('変更ランク')) {
+                    rowData.changeRank = value;
+                } else if (normalized.includes('部品の機能')) {
+                    rowData.partFunction = value;
+                } else if (header === gHeader || colIndex === 6) {
+                    rowData.concerns = value;
+                } else if (normalized.includes('心配点はどのような場合') || normalized.includes('なぜ生じる')) {
+                    rowData.concernConditions = value;
+                } else {
+                    rowData[header] = value;
+                }
+            });
+            return rowData;
+        });
+
+        displayTable(workbookData);
+        console.log('処理されたデータ:', workbookData);
+    }
+
+    function displayTable(data) {
+        // テーブルをクリア
+        drbfmTableBody.innerHTML = '';
+        
+        // データ行を追加
+        data.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.partName || ''}</td>
+                <td>${row.changeContent || ''}</td>
+                <td>${row.changeReason || ''}</td>
+                <td>${row.changeRank || ''}</td>
+                <td>${row.partFunction || ''}</td>
+                <td>${row.concerns || ''}</td>
+                <td>${row.concernConditions || ''}</td>
+            `;
+            drbfmTableBody.appendChild(tr);
+        });
+    }
+
+    function exportToExcel(data) {
+        // ヘッダー行を作成
+        const headers = ['部品名称', '変更内容', '変更理由', '変更ランク', '部品の機能', '部品の故障・心配な点', '心配点はどのような場合になぜ生じるのか'];
+        
+        // データを配列形式に変換
+        const exportData = [headers];
+        data.forEach(row => {
+            exportData.push([
+                row.partName || '',
+                row.changeContent || '',
+                row.changeReason || '',
+                row.changeRank || '',
+                row.partFunction || '',
+                row.concerns || '',
+                row.concernConditions || ''
+            ]);
+        });
+
+        // ワークブックを作成
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(exportData);
+        XLSX.utils.book_append_sheet(wb, ws, 'DRBFMデータ');
+
+        // ファイルをダウンロード
+        XLSX.writeFile(wb, 'DRBFM_export.xlsx');
     }
 });
 
 // AI分析の実行
 async function performAiAnalysis(data) {
+    const safe = v => (typeof v === 'string' ? v.trim() : (v != null ? String(v).trim() : '未入力'));
     try {
         console.log('AI分析を開始します');
-        // 分析用のプロンプトを作成
-        const prompt = `[INST]
-あなたは機械設計の専門家です。以下のDRBFMデータを分析し、設計変更における技術的な考慮点と推奨行動を提案してください。
-
-【分析対象データ】
-部品名称: ${data.partName}
-変更内容: ${data.changeContent}
-変更理由: ${data.changeReason}
-変更ランク: ${data.changeRank}
-部品の機能: ${data.partFunction}
-部品の故障・心配な点: ${data.concerns}
-心配点の発生条件: ${data.concernConditions}
-
-【回答形式】
-以下の形式で回答してください。各項目は必ず技術的な観点から具体的な内容を記載してください。
-
-1. 考慮すべき点：
-- 設計変更による具体的な影響（例：強度低下、耐久性の変化など）
-- 品質への具体的な影響（例：寸法精度、表面粗さなど）
-- 製造工程への具体的な影響（例：加工方法の変更、治具の修正など）
-- コストへの具体的な影響（例：材料費、加工費の変化など）
-- 安全性への具体的な影響（例：強度不足、破損リスクなど）
-
-2. 推奨される行動：
-- 具体的な検証方法（例：強度試験、耐久試験など）
-- 必要な試験項目（例：荷重試験、振動試験など）
-- 具体的なリスク対策（例：補強部の追加、材料変更など）
-- 具体的な品質確認項目（例：寸法測定、外観検査など）
-- 製造工程での具体的な確認事項（例：加工条件、治具調整など）
-
-【注意事項】
-- 回答は必ず上記の形式に従ってください
-- 各項目は技術的な観点から具体的な内容を記載してください
-- 数値や単位を含めた具体的な提案を行ってください
-- 箇条書きの形式は「- 」で始めてください
-- 各項目は1行で完結させてください
-- 設計変更の内容に直接関連する技術的な内容のみを記載してください
-[/INST]`;
-
-        console.log('APIリクエストを送信します');
-        // ローカルサーバーを使用してHugging Face APIを呼び出し
-        const response = await fetch('http://localhost:8080/api/analyze', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                inputs: prompt,
-                parameters: {
-                    max_new_tokens: 1024,
-                    temperature: 0.1,
-                    top_p: 0.9,
-                    return_full_text: false,
-                    do_sample: true,
-                    repetition_penalty: 1.2,
-                    stop_sequences: ["\n\n"]
-                }
-            })
-        });
-
-        console.log('APIレスポンス:', response);
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('API Error:', errorData);
-            throw new Error(`API request failed with status ${response.status}: ${errorData.error || 'Unknown error'}`);
+        if (!Array.isArray(data)) {
+            throw new Error('データが配列形式ではありません');
         }
 
-        const result = await response.json();
-        console.log('API結果:', result);
-        return processApiResult(result);
+        // プロンプト生成
+        const prompt = `[INST]
+あなたは機械設計の専門家です。以下のDRBFMデータを分析し、設計変更における技術的な考慮点と推奨される評価・検証項目を提案してください。
+
+【分析対象データ】
+${data.map((row, index) => `
+【行 ${index + 1}】
+部品名称: ${safe(row.partName)}
+変更内容: ${safe(row.changeContent)}
+変更理由: ${safe(row.changeReason)}
+変更ランク: ${safe(row.changeRank)}
+部品の機能: ${safe(row.partFunction)}
+部品の故障・心配な点: ${safe(row.concerns)}
+心配点の発生条件: ${safe(row.concernConditions)}
+`).join('\n')}
+
+【回答形式】
+以下の2つのセクションで回答してください。各セクションは箇条書きで示してください。
+1. 考慮すべき点：
+- 技術的な観点から具体的に
+2. 推奨される評価・検証項目：
+- 【必須】各推奨項目の先頭に[優先度: 高]、[優先度: 中]、[優先度: 低]のいずれかを付けてください。`;
+
+        // Gemini API用リクエスト
+        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+        const requestBody = {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.7,
+                topK: 40,
+                topP: 0.95,
+                maxOutputTokens: 2048
+            }
+        };
+
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            console.error('Gemini APIレスポンスエラー:', errorData);
+            throw new Error('Gemini APIレスポンスエラー');
+        }
+
+        const apiResponseJson = await response.json();
+        console.log('Gemini API結果:', apiResponseJson);
+
+        // Geminiのレスポンスからテキスト抽出
+        let generatedText = '';
+        if (apiResponseJson.candidates && apiResponseJson.candidates.length > 0 &&
+            apiResponseJson.candidates[0].content && apiResponseJson.candidates[0].content.parts &&
+            apiResponseJson.candidates[0].content.parts.length > 0) {
+            generatedText = apiResponseJson.candidates[0].content.parts[0].text;
+        } else if (apiResponseJson.generated_text) {
+            generatedText = apiResponseJson.generated_text;
+        } else {
+            throw new Error('AIからの応答にテキストデータが見つかりません。');
+        }
+
+        // 解析ロジック（現状のまま）
+        const parsedConsiderations = [];
+        const parsedActions = [];
+        const lines = generatedText.split('\n');
+        let currentSection = '';
+
+        lines.forEach(line => {
+            line = line.trim();
+            if (line === '') return;
+            if (line.includes('考慮すべき点：') && (line.startsWith('1.') || line.startsWith('##'))) {
+                currentSection = 'considerations';
+                return;
+            }
+            if (line.includes('推奨される評価・検証項目：') && (line.startsWith('2.') || line.startsWith('##'))) {
+                currentSection = 'actions';
+                return;
+            }
+            if ((line.startsWith('- ') || line.startsWith('* ') || /^\d+\.\s/.test(line)) && currentSection !== '') {
+                let item = line;
+                if (line.startsWith('- ') || line.startsWith('* ')) {
+                    item = line.substring(2).trim();
+                } else if (/^\d+\.\s/.test(line)) {
+                    item = line.substring(line.indexOf('.') + 1).trim();
+                }
+                if (item) {
+                    if (currentSection === 'considerations') {
+                        parsedConsiderations.push(item);
+                    } else if (currentSection === 'actions') {
+                        parsedActions.push(item);
+                    }
+                }
+            }
+        });
+
+        return {
+            considerations: parsedConsiderations,
+            actions: parsedActions
+        };
+
     } catch (error) {
         console.error('AI分析中にエラーが発生しました:', error);
         throw error;
     }
 }
 
-// API結果の処理を共通化
-function processApiResult(result) {
-    if (!result || !result.generated_text) {
-        console.error('API結果の形式が不正です:', result);
-        throw new Error('API結果の形式が不正です');
-    }
-
-    const text = result.generated_text;
-    console.log('生成されたテキスト:', text);
-
-    // テキストを整形
-    const formattedText = text.trim();
-    console.log('整形後のテキスト:', formattedText);
-
-    const considerations = [];
-    const actions = [];
-    
-    // テキストを解析して考慮点と推奨行動を抽出
-    const lines = formattedText.split('\n');
-    console.log('解析する行:', lines);
-    
-    let currentSection = '';
-    
-    for (const line of lines) {
-        console.log('現在の行:', line);
-        // セクションの検出を改善
-        if (line.includes('考慮すべき点') || line.includes('考慮点') || line.includes('考慮事項')) {
-            currentSection = 'considerations';
-            console.log('考慮点セクションを検出');
-        } else if (line.includes('推奨される行動') || line.includes('推奨行動') || line.includes('推奨事項')) {
-            currentSection = 'actions';
-            console.log('推奨行動セクションを検出');
-        } else if (line.trim() && (line.startsWith('- ') || line.startsWith('・') || line.startsWith('* ') || line.match(/^\d+\./))) {
-            // 箇条書きの形式を拡張
-            const content = line.replace(/^[-・*]\s*/, '').replace(/^\d+\.\s*/, '').trim();
-            console.log('項目を検出:', content, 'セクション:', currentSection);
-            if (currentSection === 'considerations') {
-                considerations.push(content);
-            } else if (currentSection === 'actions') {
-                actions.push(content);
-            }
-        }
-    }
-
-    console.log('抽出された考慮点:', considerations);
-    console.log('抽出された推奨行動:', actions);
-
-    // 考慮点と推奨行動が見つからない場合の処理を改善
-    if (considerations.length === 0 && actions.length === 0) {
-        console.error('考慮点と推奨行動が抽出できませんでした。API応答:', text);
-        // エラーを投げる代わりに、テキストを直接分割して返す
-        const allLines = formattedText.split('\n').filter(line => line.trim());
-        return {
-            considerations: allLines.slice(0, Math.ceil(allLines.length / 2)),
-            actions: allLines.slice(Math.ceil(allLines.length / 2))
-        };
-    }
-
-    return {
-        considerations,
-        actions
-    };
-}
-
 // 分析結果の表示
 function displayAnalysisResults(results) {
+    console.log('displayAnalysisResults - 受信した結果:', results);
+
     const considerationList = document.getElementById('considerationList');
     const actionsList = document.getElementById('actionsList');
-    
-    // 考慮点の表示
+
+    // 古いリストをクリア
     considerationList.innerHTML = '';
-    results.considerations.forEach(point => {
-        const li = document.createElement('li');
-        li.textContent = point;
-        considerationList.appendChild(li);
-    });
-    
-    // 推奨行動の表示
     actionsList.innerHTML = '';
-    results.actions.forEach(action => {
-        const li = document.createElement('li');
-        li.textContent = action;
-        actionsList.appendChild(li);
-    });
-}
 
-// エクセル出力ボタンのイベントハンドラ
-exportExcel.addEventListener('click', () => {
-    if (drbfmTableBody.children.length === 0) {
-        alert('出力するデータがありません。');
-        return;
-    }
-
-    try {
-        // テーブルデータの収集
-        const data = Array.from(drbfmTableBody.children).map(tr => {
-            const cells = tr.children;
-            return [
-                cells[0].textContent,
-                cells[1].textContent,
-                cells[2].textContent,
-                cells[3].textContent,
-                cells[4].textContent
-            ];
+    // 考慮すべき点を表示
+    if (results.considerations && Array.isArray(results.considerations)) {
+        results.considerations.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            considerationList.appendChild(li);
         });
-
-        // ヘッダー行の追加
-        data.unshift(['No.', '変更内容', '変更に関わる心配点', '現在の対策', 'AI分析結果']);
-
-        // ワークブックの作成
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'DRBFM分析結果');
-
-        // ファイルの保存
-        XLSX.writeFile(wb, 'DRBFM分析結果.xlsx');
-    } catch (error) {
-        console.error('エクセル出力中にエラーが発生しました:', error);
-        alert('エクセル出力中にエラーが発生しました。');
+    } else {
+        console.warn('考慮すべき点のデータが配列ではありませんでした。');
+        const li = document.createElement('li');
+        li.textContent = '考慮すべき点が見つかりませんでした。';
+        considerationList.appendChild(li);
     }
-}); 
+
+    // 推奨される評価・検証項目を表示
+    if (results.actions && Array.isArray(results.actions)) {
+        results.actions.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            actionsList.appendChild(li);
+        });
+    } else {
+        console.warn('評価・検証項目のデータが配列ではありませんでした。');
+        const li = document.createElement('li');
+        li.textContent = '評価・検証項目が見つかりませんでした。';
+        actionsList.appendChild(li);
+    }
+}
