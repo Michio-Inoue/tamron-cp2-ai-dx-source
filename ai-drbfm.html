@@ -38,6 +38,12 @@
             background-color: #f8f9fa;
         }
 
+        .drop-zone.dragover {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+            transform: scale(1.02);
+        }
+
         .drop-zone p {
             margin: 0.5rem 0;
         }
@@ -150,6 +156,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
+            align-items: stretch;
         }
 
         .consideration-points,
@@ -158,6 +165,9 @@
             padding: 1.5rem;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            max-height: 400px;
+            min-height: 300px;
+            overflow-y: auto;
         }
 
         .consideration-points h4,
@@ -178,6 +188,13 @@
 
         li:last-child {
             border-bottom: none;
+        }
+
+        .consideration-points ul,
+        .recommended-actions ul {
+            max-height: none !important;
+            min-height: 0 !important;
+            overflow: visible !important;
         }
     </style>
 </head>
@@ -216,7 +233,7 @@
             </div>
 
             <div class="drbfm-table">
-                <table class="drbfm-table">
+                <table id="drbfm-table">
                     <thead>
                         <tr>
                             <th>部品名称</th>
