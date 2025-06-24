@@ -353,21 +353,7 @@ function displayAnalysisResults(results) {
         `<li style='display:flex;align-items:center;gap:0.5rem;'>${action} <button class='detail-btn' data-type='推奨される行動' data-text='${action}'>もっと詳しく</button></li>`
     ).join('');
     // テーブル描画
-    let data;
-    if (typeof workbookData !== 'undefined' && workbookData && workbookData.length > 0) {
-        data = workbookData;
-    } else {
-        data = [{
-            partName: document.getElementById('partName').value,
-            changeContent: document.getElementById('changeContent').value,
-            changeReason: document.getElementById('changeReason').value,
-            changeRank: document.getElementById('changeRank').value,
-            partFunction: document.getElementById('partFunction').value,
-            concerns: document.getElementById('concerns').value,
-            concernConditions: document.getElementById('concernConditions').value
-        }];
-    }
-    renderDrbfmTable(results.considerations || [], results.actions || []);
+    // renderDrbfmTable(results.considerations || [], results.actions || []);
     // 詳細ボタンイベント
     setTimeout(() => {
         document.querySelectorAll('.detail-btn').forEach(btn => {
@@ -422,4 +408,80 @@ function renderDrbfmTable(considerations, actions) {
     tableHtml += '</tbody></table>';
     outputArea.innerHTML = tableHtml;
     console.log('テーブルHTML:', tableHtml);
+}
+
+// --- 詳細モーダル表示関数 ---
+function showDetailModal(title, details) {
+    // 既存のモーダルがあれば削除
+    const oldModal = document.getElementById('detailModal');
+    if (oldModal) oldModal.remove();
+
+    // モーダル本体
+    const modal = document.createElement('div');
+    modal.id = 'detailModal';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.background = 'rgba(0,0,0,0.5)';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.zIndex = '9999';
+
+    // モーダル内容
+    const content = document.createElement('div');
+    content.style.background = '#fff';
+    content.style.padding = '2rem';
+    content.style.borderRadius = '8px';
+    content.style.maxWidth = '600px';
+    content.style.maxHeight = '80vh';
+    content.style.overflowY = 'auto';
+
+    content.innerHTML = `<h2>${title}</h2><ul>${(Array.isArray(details) ? details : [details]).map(d => `<li>${d}</li>`).join('')}</ul>
+        <button id="closeDetailModal" style="margin-top:1rem;">閉じる</button>`;
+
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+
+    document.getElementById('closeDetailModal').onclick = () => {
+        modal.remove();
+    };
+}
+
+// --- 詳細取得AI連携関数 ---
+async function fetchDetailByAI(type, text) {
+    const prompt = `\nあなたは機械設計の専門家です。\n以下の内容について、設計原理・材料・加工・組立・耐久性・安全性・コスト・規格・リスク・トレードオフ等の観点から、より深い技術的・設計的考察を日本語で詳しく述べてください。\n\n【${type}】\n${text}\n\n【出力例】\n- 設計上のリスクや注意点\n- 追加で検討すべき設計配慮\n- 推奨される検証・評価方法\n- 他の設計案とのトレードオフ\n`;
+    try {
+        const response = await fetch(
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=' + GEMINI_API_KEY,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        topK: 40,
+                        topP: 0.95,
+                        maxOutputTokens: 1024
+                    }
+                })
+            }
+        );
+        if (!response.ok) {
+            throw new Error('API呼び出しに失敗しました: ' + response.statusText);
+        }
+        const result = await response.json();
+        const text = result.candidates[0].content.parts[0].text;
+        // 箇条書きや改行で分割して配列化
+        const details = text.split(/\n|・|\u2022|\-/).map(s => s.trim()).filter(s => s);
+        return details.length ? details : [text];
+    } catch (e) {
+        console.error('fetchDetailByAIエラー:', e);
+        return ['AI詳細取得に失敗しました'];
+    }
 }
