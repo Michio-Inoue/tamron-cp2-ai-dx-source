@@ -141,6 +141,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         console.log('実際のヘッダー:', headers);
+        
+        // デバッグ情報：各ヘッダーの正規化結果を表示
+        headers.forEach((header, index) => {
+            const normalized = (header || '')
+                .replace(/[\s　\(\)\[\]【】「」]/g, '')
+                .replace(/\n/g, '')
+                .replace(/・/g, '')
+                .replace(/-/g, '')
+                .replace(/\\/g, '');
+            console.log(`ヘッダー[${index}]: "${header}" -> 正規化: "${normalized}"`);
+        });
 
         // 空行を除外
         const dataRows = jsonData.slice(8).filter(row => {
@@ -176,7 +187,46 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (normalized.includes('心配点はどのような場合') || normalized.includes('なぜ生じる')) {
                     rowData.concernConditions = value;
                 } else {
-                    rowData[header] = value;
+                    // より堅牢な部品/工程名称の検出
+                    const partNamePatterns = [
+                        /部品.*名称|部品.*名|部品.*番号|部品.*ID/,
+                        /工程.*名称|工程.*名|工程.*番号|工程.*ID/,
+                        /管理.*番号|管理.*№|管理.*No/,
+                        /part.*name|process.*name|component.*name/i,
+                        /部品|工程|part|process|component/i,
+                        /名称|name|番号|number|no/i
+                    ];
+                    
+                    // より堅牢な心配点・故障点の検出
+                    const concernPatterns = [
+                        /心配.*点|故障.*点|心配.*事|故障.*事|心配.*問題|故障.*問題/,
+                        /concern|failure|risk|issue|problem/i,
+                        /部品.*故障|部品.*心配|部品.*問題/
+                    ];
+                    
+                    const conditionPatterns = [
+                        /心配点.*場合|心配点.*なぜ|心配点.*生じる/,
+                        /故障.*場合|故障.*なぜ|故障.*生じる/,
+                        /発生.*条件|発生.*原因|発生.*要因/,
+                        /condition|cause|factor|trigger/i
+                    ];
+                    
+                    const isPartName = partNamePatterns.some(pattern => pattern.test(normalized));
+                    const isConcern = concernPatterns.some(pattern => pattern.test(normalized));
+                    const isCondition = conditionPatterns.some(pattern => pattern.test(normalized));
+                    
+                    if (isPartName && !rowData.partName) {
+                        rowData.partName = value;
+                        console.log(`部品/工程名称として検出: "${header}" -> partName`);
+                    } else if (isConcern && !rowData.concerns) {
+                        rowData.concerns = value;
+                        console.log(`心配点・故障点として検出: "${header}" -> concerns`);
+                    } else if (isCondition && !rowData.concernConditions) {
+                        rowData.concernConditions = value;
+                        console.log(`発生条件として検出: "${header}" -> concernConditions`);
+                    } else {
+                        rowData[header] = value;
+                    }
                 }
             });
             return rowData;
@@ -184,6 +234,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         displayTable(workbookData);
         console.log('処理されたデータ:', workbookData);
+        
+        // デバッグ情報：各データ行の部品名称を確認
+        workbookData.forEach((row, index) => {
+            console.log(`データ行[${index}]: partName = "${row.partName}"`);
+        });
     }
 
     function displayTable(data) {
@@ -238,154 +293,133 @@ document.addEventListener('DOMContentLoaded', function() {
 async function performAiAnalysis(data) {
     const safe = v => (typeof v === 'string' ? v.trim() : (v != null ? String(v).trim() : '未入力'));
     try {
-        console.log('AI分析を開始します');
         if (!Array.isArray(data)) {
             throw new Error('データが配列形式ではありません');
         }
-
         // プロンプト生成
-        const prompt = `[INST]
-あなたは機械設計の専門家です。以下のDRBFMデータを分析し、設計変更における技術的な考慮点と推奨される評価・検証項目を提案してください。
-
-【分析対象データ】
-${data.map((row, index) => `
-【行 ${index + 1}】
-部品名称: ${safe(row.partName)}
-変更内容: ${safe(row.changeContent)}
-変更理由: ${safe(row.changeReason)}
-変更ランク: ${safe(row.changeRank)}
-部品の機能: ${safe(row.partFunction)}
-部品の故障・心配な点: ${safe(row.concerns)}
-心配点の発生条件: ${safe(row.concernConditions)}
-`).join('\n')}
-
-【回答形式】
-以下の2つのセクションで回答してください。各セクションは箇条書きで示してください。
-1. 考慮すべき点：
-- 技術的な観点から具体的に
-2. 推奨される評価・検証項目：
-- 【必須】各推奨項目の先頭に[優先度: 高]、[優先度: 中]、[優先度: 低]のいずれかを付けてください。`;
-
-        // Gemini API用リクエスト
-        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
-        const requestBody = {
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-                temperature: 0.7,
-                topK: 40,
-                topP: 0.95,
-                maxOutputTokens: 2048
-            }
-        };
-
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody)
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => null);
-            console.error('Gemini APIレスポンスエラー:', errorData);
-            throw new Error('Gemini APIレスポンスエラー');
-        }
-
-        const apiResponseJson = await response.json();
-        console.log('Gemini API結果:', apiResponseJson);
-
-        // Geminiのレスポンスからテキスト抽出
-        let generatedText = '';
-        if (apiResponseJson.candidates && apiResponseJson.candidates.length > 0 &&
-            apiResponseJson.candidates[0].content && apiResponseJson.candidates[0].content.parts &&
-            apiResponseJson.candidates[0].content.parts.length > 0) {
-            generatedText = apiResponseJson.candidates[0].content.parts[0].text;
-        } else if (apiResponseJson.generated_text) {
-            generatedText = apiResponseJson.generated_text;
-        } else {
-            throw new Error('AIからの応答にテキストデータが見つかりません。');
-        }
-
-        // 解析ロジック（現状のまま）
-        const parsedConsiderations = [];
-        const parsedActions = [];
-        const lines = generatedText.split('\n');
-        let currentSection = '';
-
-        lines.forEach(line => {
-            line = line.trim();
-            if (line === '') return;
-            if (line.includes('考慮すべき点：') && (line.startsWith('1.') || line.startsWith('##'))) {
-                currentSection = 'considerations';
-                return;
-            }
-            if (line.includes('推奨される評価・検証項目：') && (line.startsWith('2.') || line.startsWith('##'))) {
-                currentSection = 'actions';
-                return;
-            }
-            if ((line.startsWith('- ') || line.startsWith('* ') || /^\d+\.\s/.test(line)) && currentSection !== '') {
-                let item = line;
-                if (line.startsWith('- ') || line.startsWith('* ')) {
-                    item = line.substring(2).trim();
-                } else if (/^\d+\.\s/.test(line)) {
-                    item = line.substring(line.indexOf('.') + 1).trim();
-                }
-                if (item) {
-                    if (currentSection === 'considerations') {
-                        parsedConsiderations.push(item);
-                    } else if (currentSection === 'actions') {
-                        parsedActions.push(item);
+        const prompt = `\nあなたはDRBFMの専門家です。以下の情報に基づいてDRBFM分析を行い、結果をJSON形式で提供してください。\nJSONは「considerations」と「actions」という2つのキーを持ち、それぞれの値は文字列の配列とします。\n\n【下記要件について考慮し、出力してください】\n*変更の弊害有無\n*変更の影響範囲\n*変更の妥当性検証\n*製造性、組立性、保守性への影響\n*製造設備、組立設備、検査設備への影響\n*コストとスケジュールへの影響\n*規格・基準への適合性\n*変更管理プロセス\n*トレードオフの検討\n\n【特に重要：心配点・故障点の分析】\n*エクセルシートから読み込んだ\"部品の故障・心配な点\"と\"心配点はどのような場合になぜ生じるのか\"を重点的に分析してください\n*これらの情報を基に、具体的なリスク評価と対策を提案してください\n*心配点の発生条件を考慮した予防的対策を検討してください\n\n【分析対象データ】\n${data.map((row, index) => `\n【行 ${index + 1}】\n部品名称: ${safe(row.partName)}\n変更内容: ${safe(row.changeContent)}\n変更理由: ${safe(row.changeReason)}\n変更ランク: ${safe(row.changeRank)}\n部品の機能: ${safe(row.partFunction)}\n部品の故障・心配な点: ${safe(row.concerns)}\n心配点の発生条件: ${safe(row.concernConditions)}\n`).join('')}\n\n【出力例】\n{\n  "considerations": ["考慮すべき点1", "考慮すべき点2"],\n  "actions": ["評価・検証項目1", "評価・検証項目2"]\n}\n\n【出力条件】\n- considerations, actionsは重複を排除してください。\n- 心配点・故障点に関する具体的な対策を含めてください。\n- JSON形式のみを出力してください。`;
+        // Gemini API呼び出し
+        const response = await fetch(
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=' + GEMINI_API_KEY,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        topK: 40,
+                        topP: 0.95,
+                        maxOutputTokens: 2048
                     }
-                }
+                })
             }
-        });
-
-        return {
-            considerations: parsedConsiderations,
-            actions: parsedActions
-        };
-
+        );
+        if (!response.ok) {
+            throw new Error('API呼び出しに失敗しました: ' + response.statusText);
+        }
+        const result = await response.json();
+        const text = result.candidates[0].content.parts[0].text;
+        // JSON部分のみ抽出
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('AI応答にJSONが含まれていません');
+        const json = JSON.parse(jsonMatch[0]);
+        console.log('AI応答テキスト:', text);
+        console.log('抽出したJSON:', jsonMatch ? jsonMatch[0] : 'なし');
+        console.log('パースしたJSON:', json);
+        return json;
     } catch (error) {
-        console.error('AI分析中にエラーが発生しました:', error);
+        console.error('AI分析エラー:', error);
         throw error;
     }
 }
 
 // 分析結果の表示
 function displayAnalysisResults(results) {
-    console.log('displayAnalysisResults - 受信した結果:', results);
-
+    // 分析結果セクションを必ず表示
+    document.getElementById('results').style.display = 'block';
     const considerationList = document.getElementById('considerationList');
     const actionsList = document.getElementById('actionsList');
-
-    // 古いリストをクリア
-    considerationList.innerHTML = '';
-    actionsList.innerHTML = '';
-
-    // 考慮すべき点を表示
-    if (results.considerations && Array.isArray(results.considerations)) {
-        results.considerations.forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = item;
-            considerationList.appendChild(li);
-        });
+    // 重複排除
+    const uniqueConsiderations = Array.from(new Set(results.considerations || []));
+    const uniqueActions = Array.from(new Set(results.actions || []));
+    // ボタン付きリスト生成
+    considerationList.innerHTML = uniqueConsiderations.map(point =>
+        `<li style='display:flex;align-items:center;gap:0.5rem;'>${point} <button class='detail-btn' data-type='考慮すべき点' data-text='${point}'>もっと詳しく</button></li>`
+    ).join('');
+    actionsList.innerHTML = uniqueActions.map(action =>
+        `<li style='display:flex;align-items:center;gap:0.5rem;'>${action} <button class='detail-btn' data-type='推奨される行動' data-text='${action}'>もっと詳しく</button></li>`
+    ).join('');
+    // テーブル描画
+    let data;
+    if (typeof workbookData !== 'undefined' && workbookData && workbookData.length > 0) {
+        data = workbookData;
     } else {
-        console.warn('考慮すべき点のデータが配列ではありませんでした。');
-        const li = document.createElement('li');
-        li.textContent = '考慮すべき点が見つかりませんでした。';
-        considerationList.appendChild(li);
+        data = [{
+            partName: document.getElementById('partName').value,
+            changeContent: document.getElementById('changeContent').value,
+            changeReason: document.getElementById('changeReason').value,
+            changeRank: document.getElementById('changeRank').value,
+            partFunction: document.getElementById('partFunction').value,
+            concerns: document.getElementById('concerns').value,
+            concernConditions: document.getElementById('concernConditions').value
+        }];
     }
-
-    // 推奨される評価・検証項目を表示
-    if (results.actions && Array.isArray(results.actions)) {
-        results.actions.forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = item;
-            actionsList.appendChild(li);
+    renderDrbfmTable(results.considerations || [], results.actions || []);
+    // 詳細ボタンイベント
+    setTimeout(() => {
+        document.querySelectorAll('.detail-btn').forEach(btn => {
+            btn.onclick = async function() {
+                const type = this.getAttribute('data-type');
+                const text = this.getAttribute('data-text');
+                btn.disabled = true;
+                btn.textContent = '取得中...';
+                try {
+                    const details = await fetchDetailByAI(type, text);
+                    showDetailModal(`${type}：${text}`, details);
+                } catch (e) {
+                    showDetailModal(`${type}：${text}`, ['AI詳細取得に失敗しました']);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'もっと詳しく';
+                }
+            };
         });
-    } else {
-        console.warn('評価・検証項目のデータが配列ではありませんでした。');
-        const li = document.createElement('li');
-        li.textContent = '評価・検証項目が見つかりませんでした。';
-        actionsList.appendChild(li);
+    }, 100);
+}
+
+// --- グローバルスコープに追加 ---
+function renderDrbfmTable(considerations, actions) {
+    const outputArea = document.getElementById('drbfmOutput');
+    if (!outputArea) {
+        alert('drbfmOutputがHTML上に存在しません。HTMLに<div id="drbfmOutput"></div>を追加してください。');
+        console.error('drbfmOutputが見つかりません');
+        return;
     }
+    let tableHtml = `
+        <table class="drbfm-table">
+            <thead>
+                <tr>
+                    <th>考慮事項 (Considerations)</th>
+                    <th>アクション (Actions)</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    const maxLength = Math.max(considerations.length, actions.length);
+    for (let i = 0; i < maxLength; i++) {
+        const consideration = considerations[i] ? considerations[i] : '';
+        const action = actions[i] ? actions[i] : '';
+        tableHtml += `
+            <tr>
+                <td>${consideration}</td>
+                <td>${action}</td>
+            </tr>
+        `;
+    }
+    tableHtml += '</tbody></table>';
+    outputArea.innerHTML = tableHtml;
+    console.log('テーブルHTML:', tableHtml);
 }
