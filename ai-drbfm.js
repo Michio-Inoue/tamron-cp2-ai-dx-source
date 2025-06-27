@@ -297,7 +297,7 @@ async function performAiAnalysis(data) {
             throw new Error('データが配列形式ではありません');
         }
         // プロンプト生成
-        const prompt = `\nあなたはDRBFMの専門家です。以下の情報に基づいてDRBFM分析を行い、結果をJSON形式で提供してください。\nJSONは「considerations」と「actions」という2つのキーを持ち、それぞれの値は文字列の配列とします。\n\n【下記要件について考慮し、出力してください】\n*変更の弊害有無\n*変更の影響範囲\n*変更の妥当性検証\n*製造性、組立性、保守性への影響\n*製造設備、組立設備、検査設備への影響\n*コストとスケジュールへの影響\n*規格・基準への適合性\n*変更管理プロセス\n*トレードオフの検討\n\n【特に重要：心配点・故障点の分析】\n*エクセルシートから読み込んだ\"部品の故障・心配な点\"と\"心配点はどのような場合になぜ生じるのか\"を重点的に分析してください\n*これらの情報を基に、具体的なリスク評価と対策を提案してください\n*心配点の発生条件を考慮した予防的対策を検討してください\n\n【分析対象データ】\n${data.map((row, index) => `\n【行 ${index + 1}】\n部品名称: ${safe(row.partName)}\n変更内容: ${safe(row.changeContent)}\n変更理由: ${safe(row.changeReason)}\n変更ランク: ${safe(row.changeRank)}\n部品の機能: ${safe(row.partFunction)}\n部品の故障・心配な点: ${safe(row.concerns)}\n心配点の発生条件: ${safe(row.concernConditions)}\n`).join('')}\n\n【出力例】\n{\n  "considerations": ["考慮すべき点1", "考慮すべき点2"],\n  "actions": ["評価・検証項目1", "評価・検証項目2"]\n}\n\n【出力条件】\n- considerations, actionsは重複を排除してください。\n- 心配点・故障点に関する具体的な対策を含めてください。\n- JSON形式のみを出力してください。`;
+        const prompt = `\nあなたはDRBFMの専門家です。以下の情報に基づいてDRBFM分析を行い、結果をJSON形式で提供してください。\nJSONは「considerations」と「actions」という2つのキーを持ち、それぞれの値は文字列の配列とします。\n\n【下記要件について考慮し、出力してください】\n*変更の弊害有無\n*変更の影響範囲\n*変更の妥当性検証\n*製造性、組立性、保守性への影響\n*製造設備、組立設備、検査設備への影響\n*コストとスケジュールへの影響\n*規格・基準への適合性\n*変更管理プロセス\n*トレードオフの検討\n*変更理由に対する背反（トレードオフ、リスク、逆効果、副作用など）も必ず検討し、強調してください。\n\n【特に重要：心配点・故障点の分析】\n*エクセルシートから読み込んだ\"部品の故障・心配な点\"と\"心配点はどのような場合になぜ生じるのか\"を重点的に分析してください\n*これらの情報を基に、具体的なリスク評価と対策を提案してください\n*心配点の発生条件を考慮した予防的対策を検討してください\n\n【分析対象データ】\n${data.map((row, index) => `\n【行 ${index + 1}】\n部品名称: ${safe(row.partName)}\n変更内容: ${safe(row.changeContent)}\n変更理由: ${safe(row.changeReason)}\n変更ランク: ${safe(row.changeRank)}\n部品の機能: ${safe(row.partFunction)}\n部品の故障・心配な点: ${safe(row.concerns)}\n心配点の発生条件: ${safe(row.concernConditions)}\n`).join('')}\n\n【出力例】\n{\n  "considerations": ["考慮すべき点1", "考慮すべき点2"],\n  "actions": ["評価・検証項目1", "評価・検証項目2"]\n}\n\n【出力条件】\n- considerations, actionsは重複を排除してください。\n- 心配点・故障点に関する具体的な対策を含めてください。\n- JSON形式のみを出力してください。`;
         // Gemini API呼び出し
         const response = await fetch(
             'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=' + GEMINI_API_KEY,
@@ -353,7 +353,21 @@ function displayAnalysisResults(results) {
         `<li style='display:flex;align-items:center;gap:0.5rem;'>${action} <button class='detail-btn' data-type='推奨される行動' data-text='${action}'>もっと詳しく</button></li>`
     ).join('');
     // テーブル描画
-    // renderDrbfmTable(results.considerations || [], results.actions || []);
+    let data;
+    if (typeof workbookData !== 'undefined' && workbookData && workbookData.length > 0) {
+        data = workbookData;
+    } else {
+        data = [{
+            partName: document.getElementById('partName').value,
+            changeContent: document.getElementById('changeContent').value,
+            changeReason: document.getElementById('changeReason').value,
+            changeRank: document.getElementById('changeRank').value,
+            partFunction: document.getElementById('partFunction').value,
+            concerns: document.getElementById('concerns').value,
+            concernConditions: document.getElementById('concernConditions').value
+        }];
+    }
+    renderDrbfmTable(results.considerations || [], results.actions || []);
     // 詳細ボタンイベント
     setTimeout(() => {
         document.querySelectorAll('.detail-btn').forEach(btn => {
@@ -410,46 +424,6 @@ function renderDrbfmTable(considerations, actions) {
     console.log('テーブルHTML:', tableHtml);
 }
 
-// --- 詳細モーダル表示関数 ---
-function showDetailModal(title, details) {
-    // 既存のモーダルがあれば削除
-    const oldModal = document.getElementById('detailModal');
-    if (oldModal) oldModal.remove();
-
-    // モーダル本体
-    const modal = document.createElement('div');
-    modal.id = 'detailModal';
-    modal.style.position = 'fixed';
-    modal.style.top = '0';
-    modal.style.left = '0';
-    modal.style.width = '100vw';
-    modal.style.height = '100vh';
-    modal.style.background = 'rgba(0,0,0,0.5)';
-    modal.style.display = 'flex';
-    modal.style.alignItems = 'center';
-    modal.style.justifyContent = 'center';
-    modal.style.zIndex = '9999';
-
-    // モーダル内容
-    const content = document.createElement('div');
-    content.style.background = '#fff';
-    content.style.padding = '2rem';
-    content.style.borderRadius = '8px';
-    content.style.maxWidth = '600px';
-    content.style.maxHeight = '80vh';
-    content.style.overflowY = 'auto';
-
-    content.innerHTML = `<h2>${title}</h2><ul>${(Array.isArray(details) ? details : [details]).map(d => `<li>${d}</li>`).join('')}</ul>
-        <button id="closeDetailModal" style="margin-top:1rem;">閉じる</button>`;
-
-    modal.appendChild(content);
-    document.body.appendChild(modal);
-
-    document.getElementById('closeDetailModal').onclick = () => {
-        modal.remove();
-    };
-}
-
 // --- 詳細取得AI連携関数 ---
 async function fetchDetailByAI(type, text) {
     const prompt = `\nあなたは機械設計の専門家です。\n以下の内容について、設計原理・材料・加工・組立・耐久性・安全性・コスト・規格・リスク・トレードオフ等の観点から、より深い技術的・設計的考察を日本語で詳しく述べてください。\n\n【${type}】\n${text}\n\n【出力例】\n- 設計上のリスクや注意点\n- 追加で検討すべき設計配慮\n- 推奨される検証・評価方法\n- 他の設計案とのトレードオフ\n`;
@@ -484,4 +458,43 @@ async function fetchDetailByAI(type, text) {
         console.error('fetchDetailByAIエラー:', e);
         return ['AI詳細取得に失敗しました'];
     }
+}
+
+// --- 詳細モーダル表示関数 ---
+function showDetailModal(title, details) {
+    const oldModal = document.getElementById('detailModal');
+    if (oldModal) oldModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'detailModal';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.background = 'rgba(0,0,0,0.5)';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.zIndex = '9999';
+
+    const content = document.createElement('div');
+    content.style.background = '#fff';
+    content.style.padding = '2rem';
+    content.style.borderRadius = '8px';
+    content.style.maxWidth = '600px';
+    content.style.maxHeight = '80vh';
+    content.style.overflowY = 'auto';
+    content.style.boxSizing = 'border-box';
+    content.style.width = '90vw'; // スマホ等でも横幅が確保されるように
+
+    content.innerHTML = `<h2>${title}</h2><ul>${(Array.isArray(details) ? details : [details]).map(d => `<li>${d}</li>`).join('')}</ul>
+        <button id="closeDetailModal" style="margin-top:1rem;">閉じる</button>`;
+
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+
+    document.getElementById('closeDetailModal').onclick = () => {
+        modal.remove();
+    };
 }
