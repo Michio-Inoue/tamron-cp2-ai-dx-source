@@ -11,9 +11,94 @@ document.addEventListener('DOMContentLoaded', function() {
     const actionsList = document.getElementById('actionsList');
     const runAiAnalysisBtn = document.getElementById('runAiAnalysis');
     const exportExcelBtn = document.getElementById('exportExcel');
+    const directInputSection = document.getElementById('directInputSection');
+    const fileInputSection = document.getElementById('fileInputSection');
+    const fileInputToggle = document.getElementById('fileInputToggle');
+    const directInputToggle = document.getElementById('directInputToggle');
 
     let workbookData = []; // エクセルデータを保存する変数
     let aiConsiderationsForExport = []; // 追加：AI分析結果（考慮事項）を一時保存する変数
+
+    // 入力方法切り替えイベント
+    fileInputToggle.addEventListener('click', () => {
+        fileInputToggle.classList.add('active');
+        directInputToggle.classList.remove('active');
+        fileInputSection.style.display = 'block';
+        directInputSection.classList.remove('active');
+    });
+
+    directInputToggle.addEventListener('click', () => {
+        directInputToggle.classList.add('active');
+        fileInputToggle.classList.remove('active');
+        fileInputSection.style.display = 'none';
+        directInputSection.classList.add('active');
+    });
+
+    // 重要度設定の保存・復元
+    function saveImportanceSettings() {
+        const settings = {
+            importanceThreshold: document.getElementById('importanceThreshold').value,
+            maxDisplayCount: document.getElementById('maxDisplayCount').value
+        };
+        localStorage.setItem('aiDrbfmImportanceSettings', JSON.stringify(settings));
+    }
+
+    function loadImportanceSettings() {
+        const savedSettings = localStorage.getItem('aiDrbfmImportanceSettings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            if (settings.importanceThreshold) {
+                document.getElementById('importanceThreshold').value = settings.importanceThreshold;
+            }
+            if (settings.maxDisplayCount) {
+                document.getElementById('maxDisplayCount').value = settings.maxDisplayCount;
+            }
+        }
+    }
+
+    // 設定変更時の保存
+    document.getElementById('importanceThreshold').addEventListener('change', saveImportanceSettings);
+    document.getElementById('maxDisplayCount').addEventListener('change', saveImportanceSettings);
+
+    // 初期設定の読み込み
+    loadImportanceSettings();
+
+    // 直接入力フォームの入力値変更時のリアルタイム更新
+    const directInputFields = ['partName', 'changeContent', 'changeReason', 'changeRank', 'partFunction', 'concerns', 'concernConditions'];
+    directInputFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', () => {
+                // 直接入力モードがアクティブな場合のみ更新
+                if (directInputSection.classList.contains('active')) {
+                    updateDirectInputTable();
+                }
+            });
+        }
+    });
+
+    // 直接入力データをテーブルに更新する関数
+    function updateDirectInputTable() {
+        const partName = document.getElementById('partName').value;
+        const changeContent = document.getElementById('changeContent').value;
+        const changeReason = document.getElementById('changeReason').value;
+        const changeRank = document.getElementById('changeRank').value;
+        const partFunction = document.getElementById('partFunction').value;
+        const concerns = document.getElementById('concerns').value;
+        const concernConditions = document.getElementById('concernConditions').value;
+        
+        const data = [{
+            partName: partName,
+            changeContent: changeContent,
+            changeReason: changeReason,
+            changeRank: changeRank,
+            partFunction: partFunction,
+            concerns: concerns,
+            concernConditions: concernConditions
+        }];
+        
+        displayTable(data);
+    }
 
     // ファイル選択イベント
     fileInput.addEventListener('change', (e) => {
@@ -43,16 +128,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // AI分析実行ボタン
     runAiAnalysisBtn.addEventListener('click', async () => {
-        if (workbookData.length === 0) {
-            alert('先にエクセルファイルを読み込んでください。');
-            return;
+        // どちらの入力モードか判定
+        const isDirectInput = directInputSection.classList.contains('active');
+        let data;
+        if (isDirectInput) {
+            // 直接入力フォームの値を使う
+            const partName = document.getElementById('partName').value;
+            const changeContent = document.getElementById('changeContent').value;
+            const changeReason = document.getElementById('changeReason').value;
+            const changeRank = document.getElementById('changeRank').value;
+            const partFunction = document.getElementById('partFunction').value;
+            const concerns = document.getElementById('concerns').value;
+            const concernConditions = document.getElementById('concernConditions').value;
+            
+            data = [{
+                partName: partName,
+                changeContent: changeContent,
+                changeReason: changeReason,
+                changeRank: changeRank,
+                partFunction: partFunction,
+                concerns: concerns,
+                concernConditions: concernConditions
+            }];
+            
+            // 直接入力データをテーブルに表示
+            displayTable(data);
+        } else {
+            if (workbookData.length === 0) {
+                alert('先にエクセルファイルを読み込んでください。');
+                return;
+            }
+            data = workbookData;
         }
-        
+        // 以降はdataを使ってAI分析
         try {
             runAiAnalysisBtn.disabled = true;
             runAiAnalysisBtn.textContent = '分析中...';
-            
-            const results = await performAiAnalysis(workbookData);
+            const results = await performAiAnalysis(data);
             displayAnalysisResults(results);
             aiConsiderationsForExport = results.considerations || [];
         } catch (error) {
@@ -66,11 +178,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // エクセル出力ボタン
     exportExcelBtn.addEventListener('click', () => {
-        if (workbookData.length === 0) {
-            alert('出力するデータがありません。');
-            return;
+        // どちらの入力モードか判定
+        const isDirectInput = directInputSection.classList.contains('active');
+        let data;
+        
+        if (isDirectInput) {
+            // 直接入力フォームの値を使う
+            const partName = document.getElementById('partName').value;
+            const changeContent = document.getElementById('changeContent').value;
+            const changeReason = document.getElementById('changeReason').value;
+            const changeRank = document.getElementById('changeRank').value;
+            const partFunction = document.getElementById('partFunction').value;
+            const concerns = document.getElementById('concerns').value;
+            const concernConditions = document.getElementById('concernConditions').value;
+            
+            data = [{
+                partName: partName,
+                changeContent: changeContent,
+                changeReason: changeReason,
+                changeRank: changeRank,
+                partFunction: partFunction,
+                concerns: concerns,
+                concernConditions: concernConditions
+            }];
+        } else {
+            if (workbookData.length === 0) {
+                alert('出力するデータがありません。');
+                return;
+            }
+            data = workbookData;
         }
-        exportToExcel(workbookData, aiConsiderationsForExport);
+        
+        exportToExcel(data, aiConsiderationsForExport);
     });
 
     function handleFile(file) {
@@ -344,16 +483,102 @@ function displayAnalysisResults(results) {
     document.getElementById('results').style.display = 'block';
     const considerationList = document.getElementById('considerationList');
     const actionsList = document.getElementById('actionsList');
+    
+    // 重要度判定と最大表示数の設定（ユーザー設定から取得）
+    const maxDisplayCount = parseInt(document.getElementById('maxDisplayCount').value) || 10;
+    const importanceThreshold = document.getElementById('importanceThreshold').value || 'medium';
+    
     // 重複排除
-    const uniqueConsiderations = Array.from(new Set(results.considerations || []));
-    const uniqueActions = Array.from(new Set(results.actions || []));
-    // ボタン付きリスト生成
-    considerationList.innerHTML = uniqueConsiderations.map(point =>
-        `<li style='display:flex;align-items:center;gap:0.5rem;'>${point} <button class='detail-btn' data-type='考慮すべき点' data-text='${point}'>もっと詳しく</button></li>`
-    ).join('');
-    actionsList.innerHTML = uniqueActions.map(action =>
-        `<li style='display:flex;align-items:center;gap:0.5rem;'>${action} <button class='detail-btn' data-type='推奨される行動' data-text='${action}'>もっと詳しく</button></li>`
-    ).join('');
+    let uniqueConsiderations = Array.from(new Set(results.considerations || []));
+    let uniqueActions = Array.from(new Set(results.actions || []));
+    
+    // 重要度判定（キーワードベース）
+    function calculateImportance(text) {
+        const highImportanceKeywords = ['重要', '危険', 'リスク', '故障', '安全', '人命', '重大', '緊急', '必須', '致命的', 'critical', 'danger', 'risk', 'failure', 'safety', 'life', 'serious', 'urgent', 'essential', 'fatal'];
+        const mediumImportanceKeywords = ['注意', '検討', '確認', '評価', '影響', '変更', '改善', '対策', 'attention', 'consider', 'confirm', 'evaluate', 'impact', 'change', 'improve', 'measure'];
+        
+        const lowerText = text.toLowerCase();
+        const highCount = highImportanceKeywords.filter(keyword => lowerText.includes(keyword)).length;
+        const mediumCount = mediumImportanceKeywords.filter(keyword => lowerText.includes(keyword)).length;
+        
+        if (highCount > 0) return 'high';
+        if (mediumCount > 0) return 'medium';
+        return 'low';
+    }
+    
+    // 重要度でフィルタリング
+    if (importanceThreshold === 'high') {
+        uniqueConsiderations = uniqueConsiderations.filter(item => calculateImportance(item) === 'high');
+        uniqueActions = uniqueActions.filter(item => calculateImportance(item) === 'high');
+    } else if (importanceThreshold === 'medium') {
+        uniqueConsiderations = uniqueConsiderations.filter(item => calculateImportance(item) !== 'low');
+        uniqueActions = uniqueActions.filter(item => calculateImportance(item) !== 'low');
+    }
+    // importanceThreshold === 'low' の場合は全件表示
+    
+    // 最大表示数で制限
+    uniqueConsiderations = uniqueConsiderations.slice(0, maxDisplayCount);
+    uniqueActions = uniqueActions.slice(0, maxDisplayCount);
+    
+    // 重要度に基づいてソート（高重要度を上位に）
+    uniqueConsiderations.sort((a, b) => {
+        const importanceA = calculateImportance(a);
+        const importanceB = calculateImportance(b);
+        const importanceOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+        return importanceOrder[importanceB] - importanceOrder[importanceA];
+    });
+    
+    uniqueActions.sort((a, b) => {
+        const importanceA = calculateImportance(a);
+        const importanceB = calculateImportance(b);
+        const importanceOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+        return importanceOrder[importanceB] - importanceOrder[importanceA];
+    });
+    
+    // ボタン付きリスト生成（重要度に応じてスタイルを変更）
+    considerationList.innerHTML = uniqueConsiderations.map(point => {
+        const importance = calculateImportance(point);
+        const importanceClass = importance === 'high' ? 'high-importance' : importance === 'medium' ? 'medium-importance' : 'low-importance';
+        const importanceLabel = importance === 'high' ? '重要' : importance === 'medium' ? '中' : '低';
+        return `<li class="${importanceClass}" style='display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;'>
+            <span class="importance-badge" style="background: ${importance === 'high' ? '#ff4444' : importance === 'medium' ? '#ffaa00' : '#44aa44'}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">${importanceLabel}</span>
+            ${point} 
+            <button class='detail-btn' data-type='考慮すべき点' data-text='${point}'>もっと詳しく</button>
+        </li>`;
+    }).join('');
+    
+    actionsList.innerHTML = uniqueActions.map(action => {
+        const importance = calculateImportance(action);
+        const importanceClass = importance === 'high' ? 'high-importance' : importance === 'medium' ? 'medium-importance' : 'low-importance';
+        const importanceLabel = importance === 'high' ? '重要' : importance === 'medium' ? '中' : '低';
+        return `<li class="${importanceClass}" style='display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;'>
+            <span class="importance-badge" style="background: ${importance === 'high' ? '#ff4444' : importance === 'medium' ? '#ffaa00' : '#44aa44'}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">${importanceLabel}</span>
+            ${action} 
+            <button class='detail-btn' data-type='推奨される行動' data-text='${action}'>もっと詳しく</button>
+        </li>`;
+    }).join('');
+    
+    // 表示件数情報を追加
+    const totalConsiderations = results.considerations ? results.considerations.length : 0;
+    const totalActions = results.actions ? results.actions.length : 0;
+    
+    if (totalConsiderations > uniqueConsiderations.length || totalActions > uniqueActions.length) {
+        const infoDiv = document.createElement('div');
+        infoDiv.style.marginTop = '1rem';
+        infoDiv.style.padding = '0.5rem';
+        infoDiv.style.backgroundColor = '#f0f0f0';
+        infoDiv.style.borderRadius = '4px';
+        infoDiv.style.fontSize = '0.9em';
+        
+        const thresholdText = importanceThreshold === 'high' ? '高のみ' : importanceThreshold === 'medium' ? '中以上' : '低以上';
+        infoDiv.innerHTML = `
+            <strong>表示件数情報:</strong><br>
+            考慮すべき点: ${uniqueConsiderations.length}/${totalConsiderations}件表示（重要度: ${thresholdText}）<br>
+            推奨される行動: ${uniqueActions.length}/${totalActions}件表示（重要度: ${thresholdText}）
+        `;
+        document.getElementById('results').appendChild(infoDiv);
+    }
+    
     // テーブル描画
     let data;
     if (typeof workbookData !== 'undefined' && workbookData && workbookData.length > 0) {
@@ -368,6 +593,9 @@ function displayAnalysisResults(results) {
             concerns: document.getElementById('concerns').value,
             concernConditions: document.getElementById('concernConditions').value
         }];
+    }
+    if (Array.isArray(results)) {
+        results = { considerations: results, actions: results }; // 仮で両方に同じ内容
     }
     renderDrbfmTable(results.considerations || [], results.actions || []);
     // 詳細ボタンイベント

@@ -193,6 +193,53 @@
             min-height: 0 !important;
             overflow: visible !important;
         }
+
+        /* 直接入力フォームのスタイル */
+        .input-form {
+            display: none;
+            margin-top: 2rem;
+            padding: 2rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        .input-form.active {
+            display: block;
+        }
+
+        .input-form input, .input-form textarea {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .input-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .input-toggle {
+            margin-bottom: 1rem;
+        }
+
+        .input-toggle button {
+            padding: 0.5rem 1rem;
+            margin-right: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .input-toggle button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
     </style>
 </head>
 <body>
@@ -217,7 +264,15 @@
     <main>
         <section id="input" class="content-section">
             <h2>AI-DRBFM分析</h2>
-            <div class="drbfm-controls">
+            
+            <!-- 入力方法切り替えボタン -->
+            <div class="input-toggle">
+                <button id="fileInputToggle" class="active">エクセルファイル入力</button>
+                <button id="directInputToggle">直接入力</button>
+            </div>
+
+            <!-- エクセルファイル入力セクション -->
+            <div id="fileInputSection" class="drbfm-controls">
                 <div class="drop-zone" id="dropZone">
                     <p>DRBFMエクセルファイルをドラッグ＆ドロップ</p>
                     <p class="sub-text">または</p>
@@ -225,47 +280,100 @@
                     <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
                     <div id="selectedFileName" class="selected-file" style="display: none;"></div>
                 </div>
+            </div>
+
+            <!-- 直接入力フォーム -->
+            <div id="directInputSection" class="input-form">
+                <form id="drbfmForm">
+                    <div>
+                        <label for="partName">部品名称</label>
+                        <input type="text" id="partName" required>
+                    </div>
+                    <div>
+                        <label for="changeContent">変更内容</label>
+                        <textarea id="changeContent" rows="3" required></textarea>
+                    </div>
+                    <div>
+                        <label for="changeReason">変更理由</label>
+                        <textarea id="changeReason" rows="3" required></textarea>
+                    </div>
+                    <div>
+                        <label for="changeRank">変更ランク</label>
+                        <input type="text" id="changeRank" required>
+                    </div>
+                    <div>
+                        <label for="partFunction">部品の機能</label>
+                        <textarea id="partFunction" rows="3" required></textarea>
+                    </div>
+                    <div>
+                        <label for="concerns">部品の故障・心配な点</label>
+                        <textarea id="concerns" rows="3" required></textarea>
+                    </div>
+                    <div>
+                        <label for="concernConditions">心配点はどのような場合になぜ生じるのか</label>
+                        <textarea id="concernConditions" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <div class="control-buttons">
+                <!-- 重要度設定パネル -->
+                <div class="importance-settings" style="margin-bottom: 1rem; padding: 1rem; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+                    <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem;">重要度設定</h4>
+                    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                        <div>
+                            <label for="importanceThreshold" style="font-weight: 600; margin-right: 0.5rem;">重要度閾値:</label>
+                            <select id="importanceThreshold" style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="low">低以上</option>
+                                <option value="medium" selected>中以上</option>
+                                <option value="high">高のみ</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="maxDisplayCount" style="font-weight: 600; margin-right: 0.5rem;">最大表示数:</label>
+                            <input type="number" id="maxDisplayCount" value="10" min="1" max="50" style="padding: 0.3rem; border: 1px solid #ddd; border-radius: 4px; width: 60px;">
+                        </div>
+                    </div>
+                </div>
+                
                 <button class="control-button" id="exportExcel">エクセル出力</button>
                 <button class="control-button primary" id="runAiAnalysis">AI分析実行</button>
             </div>
 
-            <div class="drbfm-table">
-                <table id="drbfm-table">
+            <!-- データ表示テーブル -->
+            <div class="drbfm-table" id="drbfmTableSection" style="display:block;">
+                <table>
                     <thead>
                         <tr>
-                            <th>部品名称</th>
-                            <th>変更内容</th>
-                            <th>変更理由</th>
-                            <th>変更ランク</th>
-                            <th>部品の機能</th>
-                            <th>部品の故障・心配な点</th>
-                            <th>心配点はどのような場合になぜ生じるのか</th>
+                            <th>部品/工程名称<br>Part/Process Name</th>
+                            <th>変更内容<br>Change Content</th>
+                            <th>変更理由<br>Change Reason</th>
+                            <th>変更ランク<br>Change Rank</th>
+                            <th>部品の機能<br>Function</th>
+                            <th>部品の故障・心配な点<br>Failure/Concern</th>
+                            <th>心配点はどのような場合になぜ生じるのか<br>Concern Condition</th>
                         </tr>
                     </thead>
-                    <tbody id="drbfmTableBody">
-                        <!-- データはJavaScriptで動的に追加 -->
-                    </tbody>
+                    <tbody id="drbfmTableBody"></tbody>
                 </table>
             </div>
+        </section>
 
-            <!-- AI分析結果の詳細表示エリア -->
-            <div class="ai-analysis-detail" id="aiAnalysisDetail">
-                <h3>AI分析詳細</h3>
-                <div class="analysis-content">
-                    <div class="consideration-points">
-                        <h4>追加考慮すべき点</h4>
-                        <ul id="considerationList">
-                            <!-- AIが提案する考慮点をJSで動的に追加 -->
-                        </ul>
-                    </div>
-                    <div class="recommended-actions">
-                        <h4>推奨される評価・検討項目</h4>
-                        <ul id="actionsList">
-                            <!-- AIが提案する行動をJSで動的に追加 -->
-                        </ul>
-                    </div>
+        <!-- 分析結果表示セクション -->
+        <section id="results" class="content-section" style="display: none;">
+            <h3>分析結果</h3>
+            <div class="analysis-content">
+                <div class="consideration-points">
+                    <h4>考慮すべき点</h4>
+                    <ul id="considerationList" class="detail-list"></ul>
+                </div>
+                <div class="recommended-actions">
+                    <h4>推奨される行動</h4>
+                    <ul id="actionsList" class="detail-list"></ul>
                 </div>
             </div>
+            <!-- AI分析結果テーブル出力エリア -->
+            <div id="drbfmOutput" style="margin-top:2rem;"></div>
         </section>
     </main>
 
@@ -279,7 +387,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2024 タムロン車載設計DXサイト. All rights reserved.</p>
+            <p>&copy; 2024 タムロン車載設計AI支援サイト. All rights reserved.</p>
         </div>
     </footer>
 
