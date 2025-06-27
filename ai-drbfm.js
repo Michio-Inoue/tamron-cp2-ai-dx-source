@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportExcelBtn = document.getElementById('exportExcel');
 
     let workbookData = []; // エクセルデータを保存する変数
+    let aiConsiderationsForExport = []; // 追加：AI分析結果（考慮事項）を一時保存する変数
 
     // ファイル選択イベント
     fileInput.addEventListener('change', (e) => {
@@ -53,6 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const results = await performAiAnalysis(workbookData);
             displayAnalysisResults(results);
+            aiConsiderationsForExport = results.considerations || [];
         } catch (error) {
             console.error('AI分析エラー:', error);
             alert('AI分析中にエラーが発生しました: ' + error.message);
@@ -68,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('出力するデータがありません。');
             return;
         }
-        exportToExcel(workbookData);
+        exportToExcel(workbookData, aiConsiderationsForExport);
     });
 
     function handleFile(file) {
@@ -261,13 +263,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function exportToExcel(data) {
-        // ヘッダー行を作成
-        const headers = ['部品名称', '変更内容', '変更理由', '変更ランク', '部品の機能', '部品の故障・心配な点', '心配点はどのような場合になぜ生じるのか'];
-        
+    function exportToExcel(data, aiConsiderations) {
+        // ヘッダー行を作成（J列まで）
+        const headers = ['部品名称', '変更内容', '変更理由', '変更ランク', '部品の機能', '部品の故障・心配な点', '心配点はどのような場合になぜ生じるのか', '', '', '他に考慮すべき点はないか'];
         // データを配列形式に変換
         const exportData = [headers];
-        data.forEach(row => {
+        data.forEach((row, i) => {
+            const jValue = aiConsiderations && aiConsiderations[i] ? aiConsiderations[i] : '';
             exportData.push([
                 row.partName || '',
                 row.changeContent || '',
@@ -275,17 +277,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.changeRank || '',
                 row.partFunction || '',
                 row.concerns || '',
-                row.concernConditions || ''
+                row.concernConditions || '',
+                '', '', // H, I列は空欄
+                jValue // J列（AI考慮事項）
             ]);
         });
-
         // ワークブックを作成
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(exportData);
         XLSX.utils.book_append_sheet(wb, ws, 'DRBFMデータ');
-
         // ファイルをダウンロード
-        XLSX.writeFile(wb, 'DRBFM_export.xlsx');
+        XLSX.writeFile(wb, 'DRBFM_export_with_ai.xlsx');
     }
 });
 
