@@ -234,6 +234,118 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // 生産計画エクセル取込ボタンのイベントリスナーを追加
+    const excelPlanFileButton = document.getElementById('excelPlanFileButton');
+    const excelPlanFileInput = document.getElementById('excelPlanFile');
+    const excelPlanFileName = document.getElementById('excelPlanFileName');
+    if (excelPlanFileButton && excelPlanFileInput) {
+        excelPlanFileButton.addEventListener('click', function() {
+            excelPlanFileInput.click();
+        });
+        excelPlanFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                excelPlanFileName.textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    // 1枚目のシートを対象
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    
+                    // 製品ID欄の値を取得
+                    const productIdInput = document.getElementById('productId');
+                    const productIdValue = productIdInput ? productIdInput.value.trim() : '';
+                    let compareProductId = productIdValue.replace(/\s/g, '').replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).toLowerCase();
+                    
+                    // TOF生産計画合計セルの位置を特定（全セルアドレスを列挙して検索）
+                    let planCells = [];
+                    Object.keys(sheet).forEach(addr => {
+                        if (addr[0] === '!') return; // シート情報はスキップ
+                        const cell = sheet[addr];
+                        if (cell && cell.v && cell.v.toString().replace(/\s/g, '').includes('TOF生産計画合計')) {
+                            const ref = XLSX.utils.decode_cell(addr);
+                            planCells.push({row: ref.r, col: ref.c, addr: addr});
+                        }
+                    });
+                    
+                    if (planCells.length === 0) {
+                        alert('エクセル内に「TOF生産計画合計」のセルが見つかりませんでした');
+                        return;
+                    }
+                    
+                    // 各TOF生産計画合計セルについて、近傍で製品IDを探索
+                    let matchedPlanCell = null;
+                    for (let planCell of planCells) {
+                        // 近傍探索範囲：左50列・上50行
+                        const searchStartRow = Math.max(0, planCell.row - 50);
+                        const searchEndRow = planCell.row;
+                        const searchStartCol = Math.max(0, planCell.col - 50);
+                        const searchEndCol = planCell.col;
+                        
+                        let foundProductId = '';
+                        // 近傍範囲内で製品IDを探索
+                        for (let r = searchStartRow; r <= searchEndRow; r++) {
+                            for (let c = searchStartCol; c <= searchEndCol; c++) {
+                                const addr = XLSX.utils.encode_cell({c, r});
+                                const cell = sheet[addr];
+                                if (cell && cell.v) {
+                                    let val = cell.v.toString().replace(/\s/g, '').replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+                                    // 英字＋数字の連続部分を抽出
+                                    let match = val.match(/[a-z]{2,}[0-9]{2,}/i);
+                                    if (match) {
+                                        foundProductId = match[0].toLowerCase();
+                                        // 製品IDが一致した場合、このTOF生産計画合計セルを使用
+                                        if (foundProductId === compareProductId) {
+                                            matchedPlanCell = planCell;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (matchedPlanCell) break;
+                        }
+                        if (matchedPlanCell) break;
+                    }
+                    
+                    // 製品IDが一致するTOF生産計画合計セルが見つからない場合
+                    if (!matchedPlanCell) {
+                        alert('画面の製品IDと一致する「TOF生産計画合計」セルが見つかりませんでした');
+                        return;
+                    }
+                    
+                    // 右方向に走査して数値セルを24個見つけるまで取得
+                    const planValues = [];
+                    let found = 0;
+                    let colIdx = matchedPlanCell.col + 1;
+                    while (found < 24) {
+                        const cellAddr = XLSX.utils.encode_cell({c: colIdx, r: matchedPlanCell.row});
+                        const cellObj = sheet[cellAddr];
+                        let value = 0;
+                        if (cellObj && cellObj.v !== undefined && cellObj.v !== null && cellObj.v !== '' && cellObj.v !== '#REF!') {
+                            let num = parseInt(cellObj.v.toString().replace(/[\s,]/g, ''));
+                            value = isNaN(num) ? 0 : num;
+                            planValues.push(value);
+                            found++;
+                        }
+                        colIdx++;
+                        if (colIdx - matchedPlanCell.col > 100) break;
+                    }
+                    console.log('TOF生産計画合計 取り込み値:', planValues);
+                    // 月間生産計画欄に反映
+                    for (let i = 0; i < 24; i++) {
+                        const input = document.querySelector(`input[name='month${i+1}']`);
+                        if (input && planValues[i] !== undefined) {
+                            input.value = planValues[i];
+                        }
+                    }
+                    alert('TOF生産計画合計の値を自動入力しました');
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+    }
 });
 
 // フォームデータを保存
