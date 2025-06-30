@@ -315,24 +315,67 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
                     
-                    // 右方向に走査して数値セルを24個見つけるまで取得
+                    // 取り込み開始月を取得（年月形式）
+                    const importStartMonthSelect = document.getElementById('importStartMonth');
+                    const importStartYearMonth = importStartMonthSelect ? importStartMonthSelect.value : '2024.1';
+                    const [targetYear, targetMonth] = importStartYearMonth.split('.').map(Number);
+
+                    // TOF生産計画合計セルの右方向の各列のヘッダー（3～6行目）から年月を抽出
+                    let startCol = matchedPlanCell.col + 1;
+                    let startRow = matchedPlanCell.row;
+                    let foundStartCol = -1;
+                    for (let col = startCol; col < startCol + 50; col++) { // 最大50列先まで探索
+                        for (let headerRow = 2; headerRow <= 5; headerRow++) { // 3～6行目（0-indexed）
+                            const headerAddr = XLSX.utils.encode_cell({c: col, r: headerRow});
+                            const headerCell = sheet[headerAddr];
+                            if (headerCell && headerCell.v) {
+                                let headerText = headerCell.v.toString();
+                                // 全角→半角変換・空白除去
+                                headerText = headerText.replace(/[Ａ-Ｚａ-ｚ０-９．]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/\s/g, '');
+                                // 年月のパターンを検索
+                                const yearMonthPatterns = [
+                                    /(\d{4})年(\d{1,2})月/,  // 2024年1月
+                                    /(\d{4})\.(\d{1,2})月/, // 2024.1月
+                                    /(\d{4})\.(\d{1,2})/,   // 2024.1
+                                    /(\d{4})\/(\d{1,2})/,   // 2024/1
+                                    /(\d{4})-(\d{1,2})/      // 2024-1
+                                ];
+                                for (let pattern of yearMonthPatterns) {
+                                    const match = headerText.match(pattern);
+                                    if (match) {
+                                        const year = parseInt(match[1]);
+                                        const month = parseInt(match[2]);
+                                        if (year === targetYear && month === targetMonth) {
+                                            foundStartCol = col;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (foundStartCol !== -1) break;
+                        }
+                        if (foundStartCol !== -1) break;
+                    }
+
+                    if (foundStartCol === -1) {
+                        alert(`選択した年月（${targetYear}年${targetMonth}月）がエクセルのヘッダーに見つかりませんでした。`);
+                        return;
+                    }
+
+                    // その列から24ヶ月分の値を取得
                     const planValues = [];
-                    let found = 0;
-                    let colIdx = matchedPlanCell.col + 1;
-                    while (found < 24) {
-                        const cellAddr = XLSX.utils.encode_cell({c: colIdx, r: matchedPlanCell.row});
+                    for (let i = 0; i < 24; i++) {
+                        const cellAddr = XLSX.utils.encode_cell({c: foundStartCol + i, r: startRow});
                         const cellObj = sheet[cellAddr];
                         let value = 0;
                         if (cellObj && cellObj.v !== undefined && cellObj.v !== null && cellObj.v !== '' && cellObj.v !== '#REF!') {
                             let num = parseInt(cellObj.v.toString().replace(/[\s,]/g, ''));
                             value = isNaN(num) ? 0 : num;
-                            planValues.push(value);
-                            found++;
                         }
-                        colIdx++;
-                        if (colIdx - matchedPlanCell.col > 100) break;
+                        planValues.push(value);
                     }
                     console.log('TOF生産計画合計 取り込み値:', planValues);
+
                     // 月間生産計画欄に反映
                     for (let i = 0; i < 24; i++) {
                         const input = document.querySelector(`input[name='month${i+1}']`);
@@ -340,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             input.value = planValues[i];
                         }
                     }
-                    alert('TOF生産計画合計の値を自動入力しました');
+                    alert(`TOF生産計画合計の値を${targetYear}年${targetMonth}月から自動入力しました`);
                 };
                 reader.readAsArrayBuffer(file);
             }
