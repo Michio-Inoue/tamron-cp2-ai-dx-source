@@ -295,5 +295,23 @@
     </footer>
 
     <script src="js/mold-prediction.js"></script>
+    <script>
+        // ページロード時に今月を初期選択
+        document.addEventListener('DOMContentLoaded', function() {
+            const select = document.getElementById('importStartMonth');
+            if (select) {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = now.getMonth() + 1;
+                const value = `${year}.${month}`;
+                for (const opt of select.options) {
+                    if (opt.value === value) {
+                        select.value = value;
+                        break;
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html> 
