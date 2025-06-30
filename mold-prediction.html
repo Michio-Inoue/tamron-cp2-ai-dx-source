@@ -33,8 +33,8 @@
             <div class="prediction-container">
                 <form id="predictionForm" class="needs-validation" novalidate>
                     <div class="form-group">
-                        <label for="productId">製品ID</label>
-                        <input type="text" id="productId" name="productId" required>
+                        <label for="kisyumei">機種名</label>
+                        <input type="text" id="kisyumei" name="kisyumei" required>
                     </div>
                     
                     <div class="form-group">
@@ -98,6 +98,54 @@
                         <label for="email">メール宛先</label>
                         <input type="email" id="email" name="email" placeholder="例: example@example.com">
                         <p class="form-help">至急手配が必要な場合に通知を送信するメールアドレスを入力してください</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="excelPlanFile">生産計画エクセル取込</label>
+                        <input type="file" id="excelPlanFile" accept=".xlsx,.xls" style="display:none;">
+                        <button type="button" id="excelPlanFileButton" class="btn btn-info">エクセルファイルを選択</button>
+                        <span id="excelPlanFileName" style="margin-left:1em;color:#007bff;"></span>
+                        <div style="margin-top:10px;">
+                            <label for="importStartMonth">取り込み開始月:</label>
+                            <select id="importStartMonth" style="margin-left:10px;padding:5px;">
+                                <option value="2023.1">2023年1月</option>
+                                <option value="2023.2">2023年2月</option>
+                                <option value="2023.3">2023年3月</option>
+                                <option value="2023.4">2023年4月</option>
+                                <option value="2023.5">2023年5月</option>
+                                <option value="2023.6">2023年6月</option>
+                                <option value="2023.7">2023年7月</option>
+                                <option value="2023.8">2023年8月</option>
+                                <option value="2023.9">2023年9月</option>
+                                <option value="2023.10">2023年10月</option>
+                                <option value="2023.11">2023年11月</option>
+                                <option value="2023.12">2023年12月</option>
+                                <option value="2024.1">2024年1月</option>
+                                <option value="2024.2">2024年2月</option>
+                                <option value="2024.3">2024年3月</option>
+                                <option value="2024.4">2024年4月</option>
+                                <option value="2024.5">2024年5月</option>
+                                <option value="2024.6">2024年6月</option>
+                                <option value="2024.7">2024年7月</option>
+                                <option value="2024.8">2024年8月</option>
+                                <option value="2024.9">2024年9月</option>
+                                <option value="2024.10">2024年10月</option>
+                                <option value="2024.11">2024年11月</option>
+                                <option value="2024.12">2024年12月</option>
+                                <option value="2025.1">2025年1月</option>
+                                <option value="2025.2">2025年2月</option>
+                                <option value="2025.3">2025年3月</option>
+                                <option value="2025.4">2025年4月</option>
+                                <option value="2025.5">2025年5月</option>
+                                <option value="2025.6">2025年6月</option>
+                                <option value="2025.7">2025年7月</option>
+                                <option value="2025.8">2025年8月</option>
+                                <option value="2025.9">2025年9月</option>
+                                <option value="2025.10">2025年10月</option>
+                                <option value="2025.11">2025年11月</option>
+                                <option value="2025.12">2025年12月</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
