@@ -1,6 +1,40 @@
 // グローバル変数
 let charts = {};
 let currentData = null;
+let model = null;
+let scene = null;
+let camera = null;
+let renderer = null;
+let controls = null;
+let modelOpacity = 0.5;
+let selectedFaces = new Set();
+let hoveredFace = null;
+let mouse = new THREE.Vector2();
+let raycaster = new THREE.Raycaster();
+let faceDataMap = new Map();
+let faceMaterials = {
+    default: new THREE.MeshPhongMaterial({ 
+        color: 0x808080, 
+        transparent: true, 
+        opacity: modelOpacity,
+        specular: 0x111111,
+        shininess: 200
+    }),
+    selected: new THREE.MeshPhongMaterial({ 
+        color: 0xff0000, 
+        transparent: true, 
+        opacity: modelOpacity,
+        specular: 0x111111,
+        shininess: 200
+    }),
+    hover: new THREE.MeshPhongMaterial({ 
+        color: 0xffff00, 
+        transparent: true, 
+        opacity: modelOpacity,
+        specular: 0x111111,
+        shininess: 200
+    })
+};
 
 // グラフの色設定
 const chartColors = [
@@ -44,7 +78,297 @@ document.addEventListener('DOMContentLoaded', () => {
     // グラフ更新ボタンの処理
     const updateButton = document.querySelector('.update-button');
     updateButton.addEventListener('click', updateGraphs);
+
+    // 3Dモデル関連のイベントリスナー
+    document.getElementById('import-stl').addEventListener('click', handleSTLFile);
+    document.getElementById('model-opacity').addEventListener('input', (e) => updateModelOpacity(e.target.value));
+
+    // 3Dビューアの初期化
+    initialize3DViewer();
 });
+
+// 3Dビューアの初期化
+function initialize3DViewer() {
+    const container = document.getElementById('model-viewer');
+    if (!container) {
+        console.error('model-viewer element not found');
+        return;
+    }
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setClearColor(0xf0f0f0);
+    container.appendChild(renderer.domElement);
+
+    // カメラの位置を設定
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    // ライトの設定
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene = new THREE.Scene();
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(1, 1, 1);
+    scene.add(directionalLight);
+
+    // コントロールの設定
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // マウスイベントの設定
+    renderer.domElement.addEventListener('mousedown', function(event) {
+        console.log('マウスダウンイベント発生');
+        onMouseDown(event);
+    });
+    renderer.domElement.addEventListener('mousemove', function(event) {
+        onMouseMove(event);
+    });
+
+    // アニメーションループ
+    const animate = () => {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    };
+    animate();
+
+    // ウィンドウリサイズ時の処理
+    window.addEventListener('resize', () => {
+        const container = document.getElementById('model-viewer');
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+}
+
+function initializeFaceData(geometry) {
+    console.log('面データの初期化を開始');
+    faceDataMap.clear();
+    
+    const positions = geometry.attributes.position.array;
+    const indices = geometry.index ? geometry.index.array : null;
+    
+    for (let i = 0; i < positions.length; i += 9) {
+        const faceIndex = i / 9;
+        
+        // 頂点座標を取得
+        const v1 = new THREE.Vector3(positions[i], positions[i + 1], positions[i + 2]);
+        const v2 = new THREE.Vector3(positions[i + 3], positions[i + 4], positions[i + 5]);
+        const v3 = new THREE.Vector3(positions[i + 6], positions[i + 7], positions[i + 8]);
+        
+        // 法線ベクトルを計算
+        const normal = new THREE.Vector3();
+        const edge1 = new THREE.Vector3().subVectors(v2, v1);
+        const edge2 = new THREE.Vector3().subVectors(v3, v1);
+        normal.crossVectors(edge1, edge2).normalize();
+        
+        // 中心点を計算
+        const center = new THREE.Vector3();
+        center.add(v1).add(v2).add(v3).divideScalar(3);
+        
+        // 面積を計算
+        const area = edge1.cross(edge2).length() / 2;
+        
+        // 面データを保存
+        faceDataMap.set(faceIndex, {
+            normal: normal,
+            center: center,
+            area: area
+        });
+    }
+    
+    console.log('面データの初期化が完了:', faceDataMap.size, '面');
+}
+
+function onMouseDown(event) {
+    if (!model) {
+        console.log('モデルが読み込まれていません');
+        return;
+    }
+
+    // マウス位置を正規化
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    console.log('マウス位置:', mouse.x, mouse.y);
+
+    // レイキャスティング
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObject(model);
+
+    if (intersects.length > 0) {
+        console.log('交差を検出:', intersects[0]);
+        const faceIndex = Math.floor(intersects[0].faceIndex / 3);
+        console.log('選択された面:', faceIndex);
+        toggleFaceSelection(faceIndex);
+    } else {
+        console.log('交差なし');
+    }
+}
+
+function onMouseMove(event) {
+    if (!model) return;
+
+    // マウス位置を正規化
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    // レイキャスティング
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObject(model);
+
+    if (intersects.length > 0) {
+        const faceIndex = Math.floor(intersects[0].faceIndex / 3);
+        updateHoveredFace(faceIndex);
+    } else {
+        updateHoveredFace(null);
+    }
+}
+
+function toggleFaceSelection(faceIndex) {
+    console.log('面の選択を切り替え:', faceIndex);
+    if (selectedFaces.has(faceIndex)) {
+        selectedFaces.delete(faceIndex);
+        removeFaceChart(faceIndex);
+        console.log('面の選択を解除:', faceIndex);
+    } else {
+        selectedFaces.add(faceIndex);
+        const measurement = document.getElementById('y-axis').value;
+        if (measurement) {
+            createFaceChart(faceIndex, measurement);
+        }
+        console.log('面を選択:', faceIndex);
+    }
+    updateFaceMaterials();
+    updateFaceInfo();
+}
+
+function updateHoveredFace(faceIndex) {
+    if (hoveredFace !== faceIndex) {
+        hoveredFace = faceIndex;
+        updateFaceMaterials();
+    }
+}
+
+function updateFaceMaterials() {
+    if (!model) return;
+
+    const geometry = model.geometry;
+    const materialArray = [];
+
+    for (let i = 0; i < geometry.attributes.position.count / 3; i++) {
+        if (selectedFaces.has(i)) {
+            materialArray.push(faceMaterials.selected);
+        } else if (hoveredFace === i) {
+            materialArray.push(faceMaterials.hover);
+        } else {
+            materialArray.push(faceMaterials.default);
+        }
+    }
+
+    model.material = materialArray;
+    model.material.needsUpdate = true;
+}
+
+function updateFaceInfo() {
+    const faceInfoElement = document.getElementById('face-info');
+    if (!faceInfoElement) {
+        console.error('face-info element not found');
+        return;
+    }
+
+    if (selectedFaces.size === 0) {
+        faceInfoElement.innerHTML = '<p>面を選択してください</p>';
+        return;
+    }
+
+    let infoHTML = '<h4>選択された面の情報</h4>';
+    selectedFaces.forEach(faceIndex => {
+        const faceData = faceDataMap.get(faceIndex);
+        if (faceData) {
+            infoHTML += `
+                <div class="face-info-item">
+                    <p>面番号: ${faceIndex}</p>
+                    <p>面積: ${faceData.area.toFixed(2)}</p>
+                    <p>法線ベクトル: (${faceData.normal.x.toFixed(2)}, ${faceData.normal.y.toFixed(2)}, ${faceData.normal.z.toFixed(2)})</p>
+                    <p>中心点: (${faceData.center.x.toFixed(2)}, ${faceData.center.y.toFixed(2)}, ${faceData.center.z.toFixed(2)})</p>
+                </div>
+            `;
+        }
+    });
+
+    faceInfoElement.innerHTML = infoHTML;
+}
+
+// STLファイルの処理
+function handleSTLFile() {
+    console.log('STLファイルを読み込み中...');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.stl';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const loader = new THREE.STLLoader();
+        loader.load(URL.createObjectURL(file), (geometry) => {
+            console.log('STLファイルの読み込み完了');
+            // 既存のモデルを削除
+            if (model) {
+                scene.remove(model);
+            }
+
+            // ジオメトリの中心を原点に移動
+            geometry.center();
+
+            // モデルの作成
+            model = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+                color: 0x808080,
+                specular: 0x111111,
+                shininess: 200,
+                transparent: true,
+                opacity: modelOpacity
+            }));
+            scene.add(model);
+
+            // カメラの位置を調整
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraZ = Math.abs(maxDim / Math.tan(fov / 2));
+            camera.position.z = cameraZ * 1.5;
+            controls.target.copy(center);
+            controls.update();
+
+            // 面データの初期化
+            initializeFaceData(geometry);
+            console.log('面データの初期化完了');
+        });
+    };
+    input.click();
+}
+
+// モデルの透明度を更新
+function updateModelOpacity(opacity) {
+    modelOpacity = opacity / 100;
+    
+    // マテリアルの透明度を更新
+    faceMaterials.default.opacity = modelOpacity;
+    faceMaterials.selected.opacity = modelOpacity;
+    faceMaterials.hover.opacity = modelOpacity;
+    
+    // マテリアルを更新
+    if (model) {
+        updateFaceMaterials();
+    }
+}
 
 // ファイル処理関数
 function handleFiles(files) {
@@ -157,9 +481,14 @@ function displayDataTable(data, dates, headerData) {
     const table = document.getElementById('data-table');
     const headers = Object.keys(data[0]);
 
-    // ヘッダー行の作成（1行目から12行目まで）
+    // ヘッダー行の作成（1行目から10行目まで）
     let html = '<thead>';
-    headerData.slice(0, 12).forEach((row, rowIndex) => {
+    headerData.slice(0, 10).forEach((row, rowIndex) => {
+        // 1列目がundefinedの場合はスキップ
+        if (row[0] === undefined) {
+            return;
+        }
+
         html += '<tr>';
         row.forEach((cell, colIndex) => {
             if (rowIndex === 0) {
@@ -198,9 +527,14 @@ function displayDataTable(data, dates, headerData) {
     });
     html += '</thead>';
 
-    // データ行の作成（12行目以降）
+    // データ行の作成（10行目以降）
     html += '<tbody>';
     data.forEach((row, index) => {
+        // 1列目がundefinedの場合はスキップ
+        if (row[headers[0]] === undefined) {
+            return;
+        }
+
         html += '<tr>';
         headers.forEach(header => {
             let cellValue = row[header];
@@ -227,12 +561,20 @@ function displayDataTable(data, dates, headerData) {
             } else if (header === 'test no') {
                 // test noは元の形式のまま表示
                 cellValue = row[header];
-            } else if (typeof cellValue === 'string' && cellValue.includes('/')) {
-                // φ9.485/φ9.492のような形式のデータを処理
-                const numbers = cellValue.match(/\d+(\.\d+)?/g);
-                if (numbers && numbers.length === 2) {
-                    const avg = (parseFloat(numbers[0]) + parseFloat(numbers[1])) / 2;
-                    cellValue = avg.toFixed(3);
+            } else if (typeof cellValue === 'string') {
+                if (cellValue.includes('/')) {
+                    // φ9.485/φ9.492のような形式のデータを処理
+                    const numbers = cellValue.match(/\d+(\.\d+)?/g);
+                    if (numbers && numbers.length === 2) {
+                        const avg = (parseFloat(numbers[0]) + parseFloat(numbers[1])) / 2;
+                        cellValue = avg.toFixed(3);
+                    }
+                } else {
+                    // ○0.009、Φ9.485 止、Φ9.796 Just、Φ9.999 通、∥0.015のようなデータを処理
+                    const numbers = cellValue.match(/\d+(\.\d+)?/g);
+                    if (numbers && numbers.length === 1) {
+                        cellValue = parseFloat(numbers[0]).toFixed(3);
+                    }
                 }
             }
             html += `<td>${cellValue}</td>`;
@@ -561,7 +903,7 @@ function updateGraphs() {
         statsDiv.style.borderRadius = '5px';
         statsDiv.style.fontSize = '12px';
         statsDiv.style.width = '100%';
-        statsDiv.style.marginBottom = '20px';
+        statsDiv.style.marginBottom = '32px';
 
         statsDiv.innerHTML = `
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
@@ -594,7 +936,7 @@ function updateGraphs() {
         // データテーブルをメインコンテナに移動
         mainContainer.appendChild(dataTableContainer);
         dataTableContainer.style.width = '100%';
-        dataTableContainer.style.marginTop = '20px';
+        dataTableContainer.style.marginTop = '32px';
     }
 }
 
@@ -608,4 +950,163 @@ function showError(message) {
     setTimeout(() => {
         errorDiv.remove();
     }, 5000);
-} 
+}
+
+// 面ごとの散布図を作成
+function createFaceChart(faceIndex, measurement) {
+    // 既に存在する場合は何もしない
+    if (document.getElementById(`face-chart-${faceIndex}`)) return;
+    const faceChartsDiv = document.getElementById('face-charts');
+    if (!faceChartsDiv) return;
+    // データ取得
+    const {dataPoints, specLower, specUpper} = getFaceChartData(measurement);
+    // コンテナ生成
+    const chartContainer = document.createElement('div');
+    chartContainer.className = 'face-chart';
+    chartContainer.id = `face-chart-${faceIndex}`;
+    // キャンバス生成
+    const canvas = document.createElement('canvas');
+    chartContainer.appendChild(canvas);
+    // 削除ボタン
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-chart';
+    removeBtn.textContent = '×';
+    removeBtn.onclick = () => toggleFaceSelection(faceIndex);
+    chartContainer.appendChild(removeBtn);
+    // 追加
+    faceChartsDiv.appendChild(chartContainer);
+    // Chart.js描画
+    const chart = new Chart(canvas, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                {
+                    label: `${measurement} (面${faceIndex})`,
+                    data: dataPoints,
+                    backgroundColor: chartColors[faceIndex % chartColors.length],
+                    borderColor: chartColors[faceIndex % chartColors.length],
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                },
+                {
+                    label: '規格上限',
+                    data: dataPoints.map(p => ({x: p.x, y: specUpper})),
+                    borderColor: 'rgba(255,99,132,0.5)',
+                    borderDash: [5,5],
+                    fill: false,
+                    pointRadius: 0,
+                    showLine: true
+                },
+                {
+                    label: '規格下限',
+                    data: dataPoints.map(p => ({x: p.x, y: specLower})),
+                    borderColor: 'rgba(255,99,132,0.5)',
+                    borderDash: [5,5],
+                    fill: false,
+                    pointRadius: 0,
+                    showLine: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'time',
+                    time: { unit: 'day' },
+                    title: { display: true, text: '納入日' }
+                },
+                y: {
+                    title: { display: true, text: measurement }
+                }
+            },
+            plugins: {
+                legend: { display: true },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const date = new Date(context.raw.x);
+                            const formattedDate = `${date.getFullYear()}/${String(date.getMonth()+1).padStart(2,'0')}/${String(date.getDate()).padStart(2,'0')}`;
+                            return `${formattedDate}: ${context.raw.y.toFixed(3)}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    charts[faceIndex] = chart;
+}
+
+// 面ごとの散布図データ取得
+function getFaceChartData(measurement) {
+    // currentData, window.headerDates, measurementRowの取得
+    if (!currentData || !window.headerDates) return {dataPoints: [], specLower: null, specUpper: null};
+    const measurementRow = currentData.find(row => row['test no'] === measurement);
+    if (!measurementRow) return {dataPoints: [], specLower: null, specUpper: null};
+    // 測定値配列
+    const measurementData = [];
+    for (let i = 3; i < 50; i++) {
+        const key = `__EMPTY_${i}`;
+        const value = measurementRow[key];
+        if (value !== undefined) {
+            if (typeof value === 'string' && value.includes('/')) {
+                const numbers = value.match(/\d+(\.\d+)?/g);
+                if (numbers && numbers.length === 2) {
+                    measurementData.push((parseFloat(numbers[0]) + parseFloat(numbers[1])) / 2);
+                } else {
+                    const numValue = parseFloat(value);
+                    measurementData.push(isNaN(numValue) ? null : numValue);
+                }
+            } else if (typeof value === 'number') {
+                measurementData.push(value);
+            } else {
+                const numValue = parseFloat(value);
+                measurementData.push(isNaN(numValue) ? null : numValue);
+            }
+        }
+    }
+    // 日付
+    const dates = window.headerDates;
+    // データポイント
+    const dataPoints = [];
+    for (let i = 0; i < Math.min(dates.length, measurementData.length); i++) {
+        const value = measurementData[i];
+        const date = dates[i];
+        if (value !== null && value !== undefined && !isNaN(value) && date instanceof Date && !isNaN(date.getTime())) {
+            dataPoints.push({ x: date, y: value });
+        }
+    }
+    // 規格範囲
+    let specLower = null, specUpper = null;
+    const range = measurementRow['range'];
+    if (range) {
+        const numbers = String(range).match(/\d+\.?\d*/g);
+        if (numbers && numbers.length >= 2) {
+            specLower = parseFloat(numbers[0]);
+            specUpper = parseFloat(numbers[1]);
+        }
+    }
+    return { dataPoints, specLower, specUpper };
+}
+
+// 散布図削除
+function removeFaceChart(faceIndex) {
+    const chart = charts[faceIndex];
+    if (chart) {
+        chart.destroy();
+        delete charts[faceIndex];
+    }
+    const chartDiv = document.getElementById(`face-chart-${faceIndex}`);
+    if (chartDiv) chartDiv.remove();
+}
+
+// 測定項目変更時に全ての面のグラフを更新
+const yAxisSelect = document.getElementById('y-axis');
+yAxisSelect.addEventListener('change', function() {
+    const measurement = yAxisSelect.value;
+    selectedFaces.forEach(faceIndex => {
+        removeFaceChart(faceIndex);
+        createFaceChart(faceIndex, measurement);
+    });
+}); 

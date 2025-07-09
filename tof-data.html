@@ -3,61 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>タムロン車載設計DXサイト</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>タムロン車載設計AI支援サイト</title>
+    <link rel="stylesheet" href="tof-data.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/dist/date-fns.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/STLLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
-    <!-- ヘッダー -->
     <header>
-        <div class="header-top">
-            <div class="logo">
-                <h1>タムロン車載設計DXサイト</h1>
-            </div>
-            <div class="search-bar">
-                <input type="text" placeholder="検索">
-                <button>検索</button>
-            </div>
-            <nav class="header-nav">
-                <a href="#">ログイン</a>
-                <a href="#">メニュー</a>
-            </nav>
-        </div>
+        <h1><a href="index.html">タムロン車載設計AI支援サイト</a></h1>
     </header>
 
-    <!-- メイン -->
-    <main>
-        <section class="main-banner">
-            <h2>コンテンツ</h2>
+    <main class="tof-data-container">
+        <h2>部品データグラフ化</h2>
+
+        <!-- ファイルアップロードセクション -->
+        <section>
+            <h3>データアップロード</h3>
+            <div class="file-drop-zone" id="drop-zone">
+                <input type="file" id="data-file" accept=".xlsx,.xls">
+                <p>Excelファイルをドラッグ&ドロップまたは選択してください</p>
+            </div>
         </section>
 
-        <section class="products">
-            <div class="product-grid">
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/200" alt="FMEAデータベース">
-                    <h3>FMEAデータベース</h3>
-                    <p class="description">過去のFMEA分析データを効率的に検索・活用できるデータベースシステムです。類似製品の故障モードや対策を簡単に参照できます。</p>
-                    <a href="fmea.html"><button class="view-content">アクセス</button></a>
+        <!-- グラフ表示セクション -->
+        <section>
+            <h3>グラフ表示</h3>
+            <div class="controls">
+                <div class="axis-controls">
+                    <label for="x-axis">X軸:</label>
+                    <select id="x-axis">
+                        <option value="納入日期">納入日期</option>
+                    </select>
+                    <label for="y-axis">Y軸:</label>
+                    <select id="y-axis">
+                        <option value="">測定項目を選択してください</option>
+                    </select>
                 </div>
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/200" alt="部品データグラフ化">
-                    <h3>部品データグラフ化</h3>
-                    <p class="description">TOF部品データを視覚的にグラフ化。トレンド分析や比較検討が容易に行えます。</p>
-                    <button class="view-content">アクセス</button>
+                <button class="update-button">グラフ更新</button>
+            </div>
+            <div id="graph-container" class="graph-container">
+                <!-- グラフがここに動的に追加されます -->
+            </div>
+        </section>
+
+        <!-- データテーブルセクション -->
+        <section>
+            <h3>データテーブル</h3>
+            <div class="table-container">
+                <table id="data-table">
+                    <!-- データがここに動的に追加されます -->
+                </table>
+            </div>
+        </section>
+
+        <!-- 3Dモデル表示セクション -->
+        <section>
+            <h3>3Dモデル表示</h3>
+            <div class="controls">
+                <button id="import-stl" class="update-button">STLモデル取り込み</button>
+                <div class="model-controls">
+                    <label for="model-opacity">モデル透明度:</label>
+                    <input type="range" id="model-opacity" min="0" max="100" value="50">
                 </div>
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/200" alt="AI-DRBFM">
-                    <h3>AI-DRBFM</h3>
-                    <p class="description">AIを活用して設計変更点の影響を分析。潜在的なリスクを自動で抽出し、効率的なDRBFM実施をサポートします。</p>
-                    <button class="view-content">アクセス</button>
+            </div>
+            <div class="model-container">
+                <div id="model-viewer" class="model-viewer">
+                    <!-- 3Dモデルがここに表示されます -->
                 </div>
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/200" alt="設計ツールマップ">
-                    <h3>設計ツールマップ</h3>
-                    <p class="description">設計プロセスで使用する各種ツールの関連性を可視化。最適なツールの選択と効率的な設計フローを支援します。</p>
-                    <button class="view-content">アクセス</button>
+                <div id="face-charts" class="face-charts">
+                    <!-- 面の散布図がここに表示されます -->
                 </div>
+            </div>
+            <div id="face-info" class="face-info">
+                <!-- 面の情報がここに表示されます -->
             </div>
         </section>
     </main>
+
+    <footer>
+        <p>&copy; 2024 タムロン車載設計AI支援サイト. All rights reserved.</p>
+    </footer>
+
+    <script src="tof-data.js"></script>
 </body>
 </html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOF Data Visualization</title>
+    <link rel="stylesheet" href="tof-data.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/dist/date-fns.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1><a href="index.html">タムロン車載AI設計サイト</a></h1>
+    </header>
+
+    <main class="tof-data-container">
+        <h2>部品データグラフ化</h2>
+
+        <!-- ファイルアップロードセクション -->
+        <section>
+            <h3>データアップロード</h3>
+            <div class="file-drop-zone" id="drop-zone">
+                <input type="file" id="data-file" accept=".xlsx,.xls">
+                <p>Excelファイルをドラッグ&ドロップまたは選択してください</p>
+            </div>
+        </section>
+
+        <!-- グラフ表示セクション -->
+        <section>
+            <h3>グラフ表示</h3>
+            <div class="controls">
+                <div class="axis-controls">
+                    <label for="x-axis">X軸:</label>
+                    <select id="x-axis">
+                        <option value="納入日期">納入日期</option>
+                    </select>
+                    <label for="y-axis">Y軸:</label>
+                    <select id="y-axis">
+                        <option value="">測定項目を選択してください</option>
+                    </select>
+                </div>
+                <button class="update-button">グラフ更新</button>
+            </div>
+            <div id="graph-container" class="graph-container">
+                <!-- グラフがここに動的に追加されます -->
+            </div>
+        </section>
+
+        <!-- データテーブルセクション -->
+        <section>
+            <h3>データテーブル</h3>
+            <div class="table-container">
+                <table id="data-table">
+                    <!-- データがここに動的に追加されます -->
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 タムロン車載AI設計サイト. All rights reserved.</p>
+    </footer>
+
+    <script src="tof-data.js"></script>
+</body>
+</html>
