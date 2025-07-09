@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リリース前診断ツール - タムロン車載AI設計支援サイト</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .diagnostic-section {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .progress-indicator {
+            position: relative;
+            height: 4px;
+            background: #e9ecef;
+            margin: 2rem 0;
+            border-radius: 2px;
+        }
+
+        .progress-bar {
+            position: absolute;
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .check-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .check-item i {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .status-pending {
+            color: #6c757d;
+        }
+
+        .status-running {
+            color: #007bff;
+        }
+
+        .status-success {
+            color: #28a745;
+        }
+
+        .status-error {
+            color: #dc3545;
+        }
+
+        .result-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .severity-high {
+            border-left: 4px solid #dc3545;
+        }
+
+        .severity-medium {
+            border-left: 4px solid #ffc107;
+        }
+
+        .severity-low {
+            border-left: 4px solid #28a745;
+        }
+
+        .file-upload {
+            border: 2px dashed #dee2e6;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary-color);
+            background: #f8f9fa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .report-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header-gradient">
+        <div class="container">
+            <div class="header-content d-flex justify-content-between align-items-center">
+                <div class="logo">
+                    <i class="fas fa-code-branch logo-icon"></i>
+                    <h1>リリース前診断ツール</h1>
+                </div>
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link"><i class="fas fa-home"></i>ホーム</a>
+                    <a href="#" class="nav-link active"><i class="fas fa-history"></i>履歴</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- メイン -->
+    <main class="container py-5">
+        <!-- プロジェクト選択セクション -->
+        <section class="diagnostic-section">
+            <h2 class="mb-4">プロジェクト診断</h2>
+            <div class="file-upload" id="fileUpload">
+                <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                <h4>ソースコードをアップロード</h4>
+                <p class="text-muted">ファイルをドラッグ＆ドロップまたはクリックして選択</p>
+                <input type="file" id="fileInput" style="display: none;" multiple>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="startDiagnostic()">
+                    <i class="fas fa-play me-2"></i>診断開始
+                </button>
+                <button class="btn btn-outline-secondary" onclick="loadLastReport()">
+                    <i class="fas fa-history me-2"></i>前回の結果を表示
+                </button>
+            </div>
+        </section>
+
+        <!-- 診断進捗セクション -->
+        <section class="diagnostic-section" id="progressSection" style="display: none;">
+            <h3>診断進捗状況</h3>
+            <div class="progress-indicator">
+                <div class="progress-bar" style="width: 0%"></div>
+            </div>
+            <div class="check-items">
+                <div class="check-item">
+                    <i class="fas fa-code status-pending"></i>
+                    <div>
+                        <h5>コーディング規約チェック</h5>
+                        <p class="text-muted mb-0">コーディングスタイルと規約への準拠を確認</p>
+                    </div>
+                </div>
+                <div class="check-item">
+                    <i class="fas fa-shield-alt status-pending"></i>
+                    <div>
+                        <h5>セキュリティ診断</h5>
+                        <p class="text-muted mb-0">脆弱性とセキュリティリスクの検出</p>
+                    </div>
+                </div>
+                <div class="check-item">
+                    <i class="fas fa-tachometer-alt status-pending"></i>
+                    <div>
+                        <h5>パフォーマンス分析</h5>
+                        <p class="text-muted mb-0">実行速度とリソース使用効率の評価</p>
+                    </div>
+                </div>
+                <div class="check-item">
+                    <i class="fas fa-project-diagram status-pending"></i>
+                    <div>
+                        <h5>依存関係チェック</h5>
+                        <p class="text-muted mb-0">外部ライブラリと依存関係の分析</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 診断結果セクション -->
+        <section class="report-section" id="resultSection" style="display: none;">
+            <h3>診断結果サマリー</h3>
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="result-card text-center">
+                        <i class="fas fa-exclamation-triangle fa-2x text-danger mb-3"></i>
+                        <h4>重要な問題</h4>
+                        <p class="h2 mb-0" id="criticalIssues">0</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="result-card text-center">
+                        <i class="fas fa-exclamation-circle fa-2x text-warning mb-3"></i>
+                        <h4>警告</h4>
+                        <p class="h2 mb-0" id="warnings">0</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="result-card text-center">
+                        <i class="fas fa-info-circle fa-2x text-info mb-3"></i>
+                        <h4>提案</h4>
+                        <p class="h2 mb-0" id="suggestions">0</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="result-card text-center">
+                        <i class="fas fa-check-circle fa-2x text-success mb-3"></i>
+                        <h4>パス項目</h4>
+                        <p class="h2 mb-0" id="passed">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <h4>詳細な診断結果</h4>
+                <div id="detailedResults">
+                    <!-- 診断結果がここに動的に追加されます -->
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="generateReport()">
+                    <i class="fas fa-file-export me-2"></i>レポート出力
+                </button>
+                <button class="btn btn-primary" onclick="startRelease()">
+                    <i class="fas fa-rocket me-2"></i>リリースフロー開始
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="bg-dark text-white mt-5">
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>お問い合わせ</h4>
+                    <p><i class="fas fa-envelope me-2"></i>Email: <a href="mailto:support@example.com" class="text-white">support@example.com</a></p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2024 タムロン車載AI設計支援サイト</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="release-check.js"></script>
+</body>
+</html> 

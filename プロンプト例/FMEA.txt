@@ -1,0 +1,85 @@
+・あなたはFMEAMの専門家です
+AIAG-VDA版FMEAのデータベーススキーマ（SQL DDL）をPostgreSQL向けに作成してください。
+
+以下の主要なセクションとカラムを考慮し、関連するテーブルを設計してください。
+
+**テーブル構造の要件:**
+
+1.  **FMEAプロジェクト管理テーブル (FMEA_Project)**
+    * FMEA_ID (主キー, UUID)
+    * 機種名 (TEXT, NOT NULL)
+    * 顧客名 (TEXT)
+    * 部品名 (TEXT)
+    * システム/サブシステム/コンポーネント (TEXT)
+    * 準備者 (TEXT)
+    * 日付 (DATE)
+    * FMEAタイプ (TEXT, 例: Process FMEA, Design FMEA)
+    * 目的 (TEXT)
+
+2.  **機能分析テーブル (FunctionAnalysis)**
+    * FunctionAnalysis_ID (主キー, UUID)
+    * FMEA_ID (FMEA_Projectへの外部キー)
+    * 機能 (TEXT, NOT NULL)
+    * 要求事項 (TEXT)
+
+3.  **故障分析テーブル (FailureAnalysis)**
+    * FailureAnalysis_ID (主キー, UUID)
+    * FunctionAnalysis_ID (FunctionAnalysisへの外部キー)
+    * 故障モード (TEXT, NOT NULL)
+    * 顧客への影響 (TEXT)
+    * システムへの影響 (TEXT)
+    * 重大度 (S) (INTEGER, NOT NULL, 1-10)
+    * 影響の証拠 (TEXT)
+
+4.  **原因分析テーブル (CauseAnalysis)**
+    * CauseAnalysis_ID (主キー, UUID)
+    * FailureAnalysis_ID (FailureAnalysisへの外部キー)
+    * 故障原因 (TEXT, NOT NULL)
+
+5.  **現在の管理テーブル (CurrentControl)**
+    * CurrentControl_ID (主キー, UUID)
+    * CauseAnalysis_ID (CauseAnalysisへの外部キー)
+    * 予防管理 (TEXT)
+    * 検出管理 (TEXT)
+
+6.  **評価テーブル (Evaluation)**
+    * Evaluation_ID (主キー, UUID)
+    * CauseAnalysis_ID (CauseAnalysisへの外部キー)
+    * 発生度 (O) (INTEGER, NOT NULL, 1-10)
+    * 検出度 (D) (INTEGER, NOT NULL, 1-10)
+    * アクション優先度 (AP) (TEXT, NOT NULL, 例: H, M, L)
+
+7.  **推奨アクションテーブル (RecommendedAction)**
+    * RecommendedAction_ID (主キー, UUID)
+    * Evaluation_ID (Evaluationへの外部キー)
+    * 推奨アクション (TEXT)
+    * 担当者 (TEXT)
+    * 期日 (DATE)
+    * 実施状況 (TEXT, 例: Open, Closed)
+    * 完了日 (DATE)
+
+8.  **実施後評価テーブル (PostImplementationEvaluation)**
+    * PostImplementationEvaluation_ID (主キー, UUID)
+    * RecommendedAction_ID (RecommendedActionへの外部キー)
+    * 実施後の発生度 (O_post) (INTEGER, 1-10)
+    * 実施後の検出度 (D_post) (INTEGER, 1-10)
+    * 実施後の重大度 (S_post) (INTEGER, 1-10)
+    * 実施後のアクション優先度 (AP_post) (TEXT, 例: H, M, L)
+
+**追加要件:**
+* 各テーブルはプライマリーキーを持つこと。
+* 関連するテーブルには外部キー制約を設定すること。
+* 文字列型のデータには `TEXT` を、数値には `INTEGER` を使用すること。
+* 日付には `DATE` を使用すること。
+* 重要なフィールドは `NOT NULL` 制約を持つこと。
+* 機種名で検索して、過去登録機種を元に開始することができる
+* 故障モードに応じた報告書をドラッグ＆ドロップで登録し、検索、参照できる
+* ドキュメントの紐づけをしたい
+* 過去の故障モードを呼び出したら過去機種報告書を参照できるようにしたい
+* 発生故障のAI傾向調査
+* 仕様-故障モード-故障原因をそれぞれ紐づけしたい
+* 日付によるバージョン管理が可能
+
+SQL DDLコードブロックとして出力してください。
+
+　

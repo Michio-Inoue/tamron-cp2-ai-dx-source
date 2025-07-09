@@ -17,7 +17,7 @@ class MoldData {
 // 予測データの構造体
 class PredictionData {
     constructor(formData) {
-        this.productId = formData.get('productId');
+        this.kisyumei = formData.get('kisyumei');
         this.moldLifeShots = parseInt(formData.get('moldLifeShots')) || 0;
         this.currentMoldCount = parseInt(formData.get('currentMoldCount')) || 1;
         this.startMoldNumber = parseInt(formData.get('startMoldNumber')) || 1;
@@ -255,9 +255,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     
                     // 製品ID欄の値を取得
-                    const productIdInput = document.getElementById('productId');
-                    const productIdValue = productIdInput ? productIdInput.value.trim() : '';
-                    let compareProductId = productIdValue.replace(/\s/g, '').replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).toLowerCase();
+                    const kisyumeiInput = document.getElementById('kisyumei');
+                    const kisyumeiValue = kisyumeiInput ? kisyumeiInput.value.trim() : '';
+                    let compareKisyumei = kisyumeiValue.replace(/\s/g, '').replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).toLowerCase();
                     
                     // TOF生産計画合計セルの位置を特定（全セルアドレスを列挙して検索）
                     let planCells = [];
@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const searchStartCol = Math.max(0, planCell.col - 50);
                         const searchEndCol = planCell.col;
                         
-                        let foundProductId = '';
+                        let foundKisyumei = '';
                         // 近傍範囲内で製品IDを探索
                         for (let r = searchStartRow; r <= searchEndRow; r++) {
                             for (let c = searchStartCol; c <= searchEndCol; c++) {
@@ -295,9 +295,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                     // 英字＋数字の連続部分を抽出
                                     let match = val.match(/[a-z]{2,}[0-9]{2,}/i);
                                     if (match) {
-                                        foundProductId = match[0].toLowerCase();
+                                        foundKisyumei = match[0].toLowerCase();
                                         // 製品IDが一致した場合、このTOF生産計画合計セルを使用
-                                        if (foundProductId === compareProductId) {
+                                        if (foundKisyumei === compareKisyumei) {
                                             matchedPlanCell = planCell;
                                             break;
                                         }
