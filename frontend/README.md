@@ -1,12 +1,147 @@
-# React + Vite
+# Gitea プッシュアプリ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+チームメンバーが簡単にGiteaサーバーにファイルをプッシュできるドラッグ&ドロップアプリケーションです。
 
-Currently, two official plugins are available:
+## 機能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🎯 **ドラッグ&ドロップ**: ファイルを簡単に選択
+- 🔍 **ESLintチェック**: プッシュ前に自動でコード品質チェック
+- 🔐 **安全な認証**: Giteaアクセストークンによる認証
+- 📊 **リアルタイム表示**: アップロード状況と結果を分かりやすく表示
+- 🚀 **一括アップロード**: 複数ファイルを同時にアップロード
+- ⚙️ **設定管理**: Giteaサーバー設定を簡単に管理
 
-## Expanding the ESLint configuration
+## セットアップ
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 1. 依存関係のインストール
+
+```bash
+# フロントエンド
+cd frontend
+npm install
+
+# バックエンド
+cd ../backend
+npm install
+```
+
+### 2. 環境設定
+
+バックエンドの`.env`ファイルを作成：
+
+```env
+PORT=8080
+GITEA_DEFAULT_URL=https://your-gitea-server.com
+```
+
+### 3. アプリケーションの起動
+
+```bash
+# バックエンドサーバーを起動
+cd backend
+npm run dev
+
+# 別のターミナルでフロントエンドを起動
+cd frontend
+npm run dev
+```
+
+## 使用方法
+
+### 1. Gitea設定
+
+1. アプリケーションを開く
+2. 右上の設定アイコン（⚙️）をクリック
+3. 以下の情報を入力：
+   - **GiteaサーバーURL**: 例: `https://gitea.example.com`
+   - **アクセストークン**: Giteaで生成したアクセストークン
+   - **ユーザー名**: Giteaのユーザー名
+   - **リポジトリオーナー**: リポジトリの所有者
+   - **リポジトリ名**: アップロード先のリポジトリ名
+   - **ブランチ**: アップロード先のブランチ（デフォルト: main）
+4. 「接続テスト」ボタンで設定を確認
+5. 「保存」ボタンで設定を保存
+
+### 2. ファイルのアップロード
+
+1. **ファイル選択**: ドラッグ&ドロップエリアにファイルをドロップ、またはクリックして選択
+2. **ESLintチェック**: 「ESLintチェック」ボタンでコード品質を確認
+3. **アップロード**: 「Giteaにプッシュ」ボタンでファイルをアップロード
+
+### 3. 結果確認
+
+- アップロード結果は画面下部に表示されます
+- 成功/失敗の詳細情報を確認できます
+- ESLintエラーがある場合は修正してから再アップロードしてください
+
+## 対応ファイル形式
+
+- JavaScript: `.js`, `.jsx`
+- TypeScript: `.ts`, `.tsx`
+- HTML: `.html`
+- CSS: `.css`
+- JSON: `.json`
+
+## Giteaアクセストークンの取得方法
+
+1. Giteaサーバーにログイン
+2. 右上のユーザーアイコン → 「設定」
+3. 左メニューの「アプリケーション」
+4. 「新しいアクセストークンを生成」
+5. トークン名を入力して「アクセストークンを生成」
+6. 生成されたトークンをコピーしてアプリに設定
+
+## トラブルシューティング
+
+### 接続エラー
+- GiteaサーバーURLが正しいか確認
+- アクセストークンが有効か確認
+- ネットワーク接続を確認
+
+### アップロードエラー
+- リポジトリが存在するか確認
+- ブランチ名が正しいか確認
+- ファイル権限を確認
+
+### ESLintエラー
+- コードの構文エラーを修正
+- 推奨されるコーディング規約に従う
+- `console.log`の使用を避ける
+- `var`の代わりに`const`/`let`を使用
+
+## 開発者向け情報
+
+### アーキテクチャ
+
+- **フロントエンド**: React + Material-UI + Vite
+- **バックエンド**: Node.js + Express
+- **ファイルアップロード**: Multer
+- **Gitea連携**: Gitea API v1
+
+### API エンドポイント
+
+- `POST /api/gitea/test-connection`: Gitea接続テスト
+- `POST /api/gitea/check-repository`: リポジトリ確認
+- `POST /api/gitea/upload`: ファイルアップロード
+- `POST /api/gitea/branches`: ブランチ一覧取得
+- `POST /api/gitea/create-pr`: プルリクエスト作成
+
+### 開発コマンド
+
+```bash
+# フロントエンド開発
+npm run dev
+
+# フロントエンドビルド
+npm run build
+
+# リンター実行
+npm run lint
+
+# バックエンド開発
+npm run dev
+```
+
+## ライセンス
+
+このプロジェクトはMITライセンスの下で公開されています。

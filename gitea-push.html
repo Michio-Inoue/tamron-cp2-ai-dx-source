@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gitea プッシュアプリ - タムロン車載AI設計支援サイト</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --gitea-color: #609926;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header-gradient {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            padding: 1rem 0;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo h1 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--accent-color);
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .gitea-icon {
+            font-size: 4rem;
+            color: var(--gitea-color);
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--gitea-color);
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, var(--gitea-color), #4a7c59);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .cta-button {
+            background: white;
+            color: var(--gitea-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            color: var(--gitea-color);
+            text-decoration: none;
+        }
+
+        .tech-stack {
+            background: white;
+            padding: 3rem 0;
+        }
+
+        .tech-item {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .tech-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tech-name {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button:hover {
+            background: white;
+            transform: translateY(-2px);
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .back-button {
+                position: static;
+                margin-bottom: 1rem;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 戻るボタン -->
+    <a href="index.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> 戻る
+    </a>
+
+    <!-- ヘッダー -->
+    <header class="header-gradient">
+        <div class="container">
+            <div class="header-content d-flex justify-content-between align-items-center">
+                <div class="logo">
+                    <i class="fas fa-cogs logo-icon"></i>
+                    <h1>タムロン車載AI設計支援サイト</h1>
+                </div>
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link"><i class="fas fa-home"></i>ホーム</a>
+                    <a href="#" class="nav-link"><i class="fas fa-user"></i>ログイン</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- ヒーローセクション -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <div class="gitea-icon">
+                    <i class="fab fa-git-alt"></i>
+                </div>
+                <h1 class="hero-title">Gitea プッシュアプリ</h1>
+                <p class="hero-subtitle">ローカルプロジェクトをGiteaサーバーへ簡単・安全にアップロード</p>
+                <p class="hero-subtitle">チーム開発を効率化する次世代のGit管理ツール</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 機能紹介 -->
+    <section class="container py-5">
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-drag-indicator"></i>
+                    </div>
+                    <h3 class="feature-title">ドラッグ＆ドロップ</h3>
+                    <p class="feature-description">直感的なドラッグ＆ドロップ操作でファイルを選択。複数ファイルの一括アップロードも簡単に行えます。</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">自動ESLintチェック</h3>
+                    <p class="feature-description">プッシュ前に自動でESLintチェックを実行。コード品質を保ちながら、エラーや警告を事前に検出します。</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h3 class="feature-title">Giteaサーバー連携</h3>
+                    <p class="feature-description">Giteaサーバーへの接続・認証もGUIで簡単設定。セキュアな接続で安全にコードを管理できます。</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3 class="feature-title">変更点可視化</h3>
+                    <p class="feature-description">変更点・警告・自動修正・diffも分かりやすく表示。コードレビューが効率的に行えます。</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">チーム開発対応</h3>
+                    <p class="feature-description">初心者からベテランまで、誰でも使いやすい設計。チーム全体の開発効率を向上させます。</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="feature-title">高速処理</h3>
+                    <p class="feature-description">最新のReact技術を活用した高速な処理。大容量プロジェクトでも快適に動作します。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技術スタック -->
+    <section class="tech-stack">
+        <div class="container">
+            <h2 class="text-center mb-5">使用技術</h2>
+            <div class="row">
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="tech-item">
+                        <div class="tech-icon text-primary">
+                            <i class="fab fa-react"></i>
+                        </div>
+                        <div class="tech-name">React</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="tech-item">
+                        <div class="tech-icon text-success">
+                            <i class="fab fa-node-js"></i>
+                        </div>
+                        <div class="tech-name">Node.js</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="tech-item">
+                        <div class="tech-icon text-warning">
+                            <i class="fab fa-js"></i>
+                        </div>
+                        <div class="tech-name">JavaScript</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="tech-item">
+                        <div class="tech-icon text-info">
+                            <i class="fab fa-git-alt"></i>
+                        </div>
+                        <div class="tech-name">Git</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="tech-item">
+                        <div class="tech-icon text-danger">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="tech-name">ESLint</div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="tech-item">
+                        <div class="tech-icon text-secondary">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="tech-name">Material-UI</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTAセクション -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="mb-4">今すぐ始めましょう</h2>
+            <p class="mb-4">Giteaプッシュアプリで、より効率的なチーム開発を体験してください</p>
+            <a href="frontend/" class="cta-button">
+                <i class="fas fa-play me-2"></i>アプリを起動
+            </a>
+        </div>
+    </section>
+
+    <!-- フッター -->
+    <footer class="bg-dark text-white">
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="mb-3">お問い合わせ</h4>
+                    <p>ご質問やご要望がございましたら、以下のメールアドレスまでご連絡ください。</p>
+                    <p><i class="fas fa-envelope me-2"></i>Email: <a href="mailto:inoue@tamron" class="text-white">inoue@tamron</a></p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h4 class="mb-3">リンク</h4>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-white">ホーム</a></li>
+                        <li><a href="#" class="text-white">プライバシーポリシー</a></li>
+                        <li><a href="#" class="text-white">利用規約</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom bg-darker py-3">
+            <div class="container">
+                <p class="mb-0 text-center">&copy; 2024 タムロン車載AI設計支援サイト. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
