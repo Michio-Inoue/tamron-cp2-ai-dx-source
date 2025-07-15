@@ -1,10 +1,31 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
+
+const GiteaAPI = require('./gitea-api');
 
 const app = express();
 const port = process.env.PORT || 8080;
+
+// ファイルアップロード用の設定
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
+const upload = multer({ storage: storage });
 
 // ミドルウェアの設定
 app.use(cors());
@@ -14,6 +35,184 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // ルートエンドポイント
 app.get('/', (req, res) => {
     res.json({ message: 'AI-DRBFM Analysis Server' });
+});
+
+// Gitea接続テストエンドポイント
+app.post('/api/gitea/test-connection', async (req, res) => {
+    try {
+        const { serverUrl, token } = req.body;
+        
+        if (!serverUrl || !token) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'サーバーURLとトークンが必要です' 
+            });
+        }
+
+        const gitea = new GiteaAPI({ serverUrl, token });
+        const result = await gitea.testConnection();
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Gitea connection test error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: '接続テスト中にエラーが発生しました' 
+        });
+    }
+});
+
+// リポジトリ確認エンドポイント
+app.post('/api/gitea/check-repository', async (req, res) => {
+    try {
+        const { serverUrl, token, repoOwner, repoName } = req.body;
+        
+        if (!serverUrl || !token || !repoOwner || !repoName) {
+            return res.status(400).json({ 
+                success: false, 
+                message: '必要なパラメータが不足しています' 
+            });
+        }
+
+        const gitea = new GiteaAPI({ serverUrl, token });
+        const result = await gitea.checkRepository(repoOwner, repoName);
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Repository check error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'リポジトリ確認中にエラーが発生しました' 
+        });
+    }
+});
+
+// ファイルアップロードエンドポイント
+app.post('/api/gitea/upload', upload.array('files'), async (req, res) => {
+    try {
+        const { serverUrl, token, repoOwner, repoName, branch, message } = req.body;
+        const files = req.files;
+        
+        if (!serverUrl || !token || !repoOwner || !repoName || !files) {
+            return res.status(400).json({ 
+                success: false, 
+                message: '必要なパラメータが不足しています' 
+            });
+        }
+
+        const gitea = new GiteaAPI({ 
+            serverUrl, 
+            token, 
+            repoOwner, 
+            repoName 
+        });
+
+        const results = [];
+        
+        for (const file of files) {
+            const result = await gitea.uploadFile(
+                file.path,
+                file.originalname,
+                branch || 'main',
+                message || `Upload ${file.originalname} via API`
+            );
+            
+            results.push({
+                file: file.originalname,
+                ...result
+            });
+            
+            // 一時ファイルを削除
+            fs.unlinkSync(file.path);
+        }
+        
+        res.json({
+            success: true,
+            results: results,
+            message: 'ファイルのアップロードが完了しました'
+        });
+    } catch (error) {
+        console.error('File upload error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'ファイルアップロード中にエラーが発生しました' 
+        });
+    }
+});
+
+// ブランチ一覧取得エンドポイント
+app.post('/api/gitea/branches', async (req, res) => {
+    try {
+        const { serverUrl, token, repoOwner, repoName } = req.body;
+        
+        if (!serverUrl || !token || !repoOwner || !repoName) {
+            return res.status(400).json({ 
+                success: false, 
+                message: '必要なパラメータが不足しています' 
+            });
+        }
+
+        const gitea = new GiteaAPI({ 
+            serverUrl, 
+            token, 
+            repoOwner, 
+            repoName 
+        });
+        
+        const result = await gitea.getBranches();
+        res.json(result);
+    } catch (error) {
+        console.error('Branches fetch error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'ブランチ一覧の取得中にエラーが発生しました' 
+        });
+    }
+});
+
+// プルリクエスト作成エンドポイント
+app.post('/api/gitea/create-pr', async (req, res) => {
+    try {
+        const { 
+            serverUrl, 
+            token, 
+            repoOwner, 
+            repoName, 
+            title, 
+            body, 
+            headBranch, 
+            baseBranch 
+        } = req.body;
+        
+        if (!serverUrl || !token || !repoOwner || !repoName || !title || !headBranch) {
+            return res.status(400).json({ 
+                success: false, 
+                message: '必要なパラメータが不足しています' 
+            });
+        }
+
+        const gitea = new GiteaAPI({ 
+            serverUrl, 
+            token, 
+            repoOwner, 
+            repoName 
+        });
+        
+        const result = await gitea.createPullRequest(
+            title,
+            body || '',
+            headBranch,
+            baseBranch || 'main'
+        );
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Pull request creation error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'プルリクエスト作成中にエラーが発生しました' 
+        });
+    }
 });
 
 // AI分析エンドポイント
