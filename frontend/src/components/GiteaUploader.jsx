@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
   Box,
@@ -47,6 +47,19 @@ const GiteaUploader = () => {
   const [uploadResults, setUploadResults] = useState([]);
   const [eslintResults, setEslintResults] = useState([]);
   const [connectionStatus, setConnectionStatus] = useState(null);
+
+  // キーボードショートカット
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === ',') {
+        event.preventDefault();
+        setConfigDialogOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const onDrop = useCallback((acceptedFiles) => {
     const newFiles = acceptedFiles.map(file => ({
@@ -236,17 +249,40 @@ const GiteaUploader = () => {
           <GitHub />
           Gitea プッシュアプリ
         </Typography>
-        <Tooltip title="Gitea設定">
-          <IconButton onClick={() => setConfigDialogOpen(true)}>
-            <Settings />
-          </IconButton>
-        </Tooltip>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            設定
+          </Typography>
+          <Tooltip title="Gitea設定 (Ctrl+,)">
+            <IconButton 
+              onClick={() => setConfigDialogOpen(true)}
+              sx={{
+                backgroundColor: 'primary.main',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+                width: 48,
+                height: 48,
+                boxShadow: 2
+              }}
+            >
+              <Settings sx={{ fontSize: 24 }} />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
 
       {/* Gitea設定ダイアログ */}
       <Dialog open={configDialogOpen} onClose={() => setConfigDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Giteaサーバー設定</DialogTitle>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Settings />
+          Giteaサーバー設定
+        </DialogTitle>
         <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Giteaサーバーへの接続に必要な情報を入力してください。設定後は「接続テスト」で確認できます。
+          </Typography>
           <TextField
             fullWidth
             label="GiteaサーバーURL"

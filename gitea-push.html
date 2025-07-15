@@ -215,6 +215,155 @@
             text-decoration: none;
         }
 
+        .setting-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .setting-icon {
+            font-size: 2rem;
+            color: var(--gitea-color);
+            margin-bottom: 1rem;
+        }
+
+        .setting-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .setting-item p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .setting-item code {
+            background: #f8f9fa;
+            color: var(--gitea-color);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gitea-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .step-icon {
+            font-size: 3rem;
+            color: var(--gitea-color);
+            margin-bottom: 1rem;
+        }
+
+        .step-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .step-card p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .step-details {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+
+        .step-details li {
+            padding: 0.3rem 0;
+            color: #666;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .step-details li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--gitea-color);
+            font-weight: bold;
+        }
+
+        .example-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--gitea-color);
+        }
+
+        .example-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .example-content {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .example-item {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .example-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .example-item strong {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .example-item code {
+            background: white;
+            color: var(--gitea-color);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            border: 1px solid #e9ecef;
+        }
+
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2.5rem;
@@ -228,6 +377,14 @@
                 position: static;
                 margin-bottom: 1rem;
                 display: inline-block;
+            }
+
+            .step-card {
+                padding: 1.5rem;
+            }
+
+            .example-card {
+                padding: 1.5rem;
             }
         }
     </style>
@@ -328,6 +485,194 @@
         </div>
     </section>
 
+    <!-- サーバー設定説明 -->
+    <section class="bg-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="text-center mb-5">
+                        <h2 class="mb-3">プッシュ先サーバー設定</h2>
+                        <p class="lead">Giteaサーバーへの接続設定を簡単に行えます</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-icon">
+                                    <i class="fas fa-link"></i>
+                                </div>
+                                <h4>GiteaサーバーURL</h4>
+                                <p>プロトコル（https://）を含む完全なURLを入力</p>
+                                <code>https://gitea.example.com</code>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <h4>アクセストークン</h4>
+                                <p>Giteaサーバーで生成した個人アクセストークン</p>
+                                <small class="text-muted">リポジトリへの書き込み権限が必要</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <h4>ユーザー名</h4>
+                                <p>Giteaサーバーでのユーザー名</p>
+                                <code>your-username</code>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="setting-item">
+                                <div class="setting-icon">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                                <h4>リポジトリ情報</h4>
+                                <p>リポジトリオーナー、リポジトリ名、ブランチを設定</p>
+                                <code>owner/repo:branch</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 使用方法 -->
+    <section class="container py-5">
+        <div class="text-center mb-5">
+            <h2>使用方法</h2>
+            <p class="lead">3つの簡単なステップでファイルをプッシュ</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <h4>サーバー設定</h4>
+                    <p>右上の設定アイコン（⚙️）をクリックしてGiteaサーバーの接続情報を入力。接続テストで設定を確認します。</p>
+                    <ul class="step-details">
+                        <li>GiteaサーバーURL</li>
+                        <li>アクセストークン</li>
+                        <li>リポジトリ情報</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <h4>ファイル選択</h4>
+                    <p>ドラッグ＆ドロップまたはクリックしてファイルを選択。対応形式：.js, .jsx, .ts, .tsx, .html, .css, .json</p>
+                    <ul class="step-details">
+                        <li>複数ファイル選択可能</li>
+                        <li>ファイルサイズ表示</li>
+                        <li>個別削除機能</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4>品質チェック＆プッシュ</h4>
+                    <p>ESLintチェックでコード品質を確認後、問題がなければGiteaサーバーにプッシュします。</p>
+                    <ul class="step-details">
+                        <li>自動ESLintチェック</li>
+                        <li>エラー・警告表示</li>
+                        <li>一括プッシュ機能</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 設定例 -->
+    <section class="bg-light py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>設定例</h2>
+                <p class="lead">実際の設定例を参考にしてください</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="example-card">
+                        <h4><i class="fas fa-user me-2"></i>個人リポジトリ</h4>
+                        <div class="example-content">
+                            <div class="example-item">
+                                <strong>GiteaサーバーURL:</strong>
+                                <code>https://gitea.company.com</code>
+                            </div>
+                            <div class="example-item">
+                                <strong>アクセストークン:</strong>
+                                <code>abc123def456ghi789</code>
+                            </div>
+                            <div class="example-item">
+                                <strong>ユーザー名:</strong>
+                                <code>inoue</code>
+                            </div>
+                            <div class="example-item">
+                                <strong>リポジトリオーナー:</strong>
+                                <code>inoue</code>
+                            </div>
+                            <div class="example-item">
+                                <strong>リポジトリ名:</strong>
+                                <code>design-dx</code>
+                            </div>
+                            <div class="example-item">
+                                <strong>ブランチ:</strong>
+                                <code>main</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="example-card">
+                        <h4><i class="fas fa-building me-2"></i>組織リポジトリ</h4>
+                        <div class="example-content">
+                            <div class="example-item">
+                                <strong>GiteaサーバーURL:</strong>
+                                <code>https://gitea.company.com</code>
+                            </div>
+                            <div class="example-item">
+                                <strong>アクセストークン:</strong>
+                                <code>abc123def456ghi789</code>
+                            </div>
+                            <div class="example-item">
+                                <strong>ユーザー名:</strong>
+                                <code>inoue</code>
+                            </div>
+                            <div class="example-item">
+                                <strong>リポジトリオーナー:</strong>
+                                <code>tamron</code>
+                            </div>
+                            <div class="example-item">
+                                <strong>リポジトリ名:</strong>
+                                <code>design-tools</code>
+                            </div>
+                            <div class="example-item">
+                                <strong>ブランチ:</strong>
+                                <code>develop</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- 技術スタック -->
     <section class="tech-stack">
         <div class="container">
@@ -390,7 +735,7 @@
         <div class="container">
             <h2 class="mb-4">今すぐ始めましょう</h2>
             <p class="mb-4">Giteaプッシュアプリで、より効率的なチーム開発を体験してください</p>
-            <a href="frontend/" class="cta-button">
+            <a href="http://localhost:5173" class="cta-button" id="launchAppBtn">
                 <i class="fas fa-play me-2"></i>アプリを起動
             </a>
         </div>
@@ -423,5 +768,102 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // アプリ起動ボタンのクリックイベント
+        document.getElementById('launchAppBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // ボタンのテキストを変更して処理中であることを示す
+            const button = this;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>アプリを起動中...';
+            button.disabled = true;
+            
+            // まずReactアプリにアクセスを試行
+            checkAndLaunchApp()
+                .then(() => {
+                    // 成功時は何もしない（ページ遷移するため）
+                })
+                .catch(error => {
+                    // エラー時はボタンを元に戻す
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    
+                    // 自動起動を試行
+                    autoLaunchApp();
+                });
+        });
+        
+        // アプリの起動状態をチェックして必要に応じて起動
+        async function checkAndLaunchApp() {
+            try {
+                const response = await fetch('http://localhost:5173', {
+                    method: 'HEAD',
+                    mode: 'no-cors'
+                });
+                
+                // アプリが起動している場合は遷移
+                window.location.href = 'http://localhost:5173';
+                return Promise.resolve();
+            } catch (error) {
+                return Promise.reject(error);
+            }
+        }
+        
+        // 自動起動機能
+        function autoLaunchApp() {
+            // ユーザーに確認
+            if (confirm('Reactアプリが起動していません。\n\n自動的に起動を試行しますか？\n\n※ この機能はNode.jsとnpmがインストールされている必要があります。')) {
+                // バックエンドAPIを呼び出してアプリを起動
+                launchAppViaAPI();
+            } else {
+                // 手動起動の説明を表示
+                showManualInstructions();
+            }
+        }
+        
+        // API経由でアプリを起動
+        function launchAppViaAPI() {
+            fetch('http://localhost:3001/api/launch-app', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 起動成功、少し待ってからアクセス
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:5173';
+                    }, 3000);
+                } else {
+                    throw new Error(data.message || '起動に失敗しました');
+                }
+            })
+            .catch(error => {
+                console.error('API起動エラー:', error);
+                showManualInstructions();
+            });
+        }
+        
+        // 手動起動の説明を表示
+        function showManualInstructions() {
+            const instructions = `
+Reactアプリを手動で起動してください：
+
+1. ターミナル（コマンドプロンプト）を開く
+2. 以下のコマンドを順番に実行：
+   cd frontend
+   npm run dev
+3. 起動完了後、このボタンを再度クリック
+
+または、以下のバッチファイルを実行することもできます：
+start-app.bat
+            `;
+            
+            alert(instructions);
+        }
+    </script>
 </body>
 </html> 
