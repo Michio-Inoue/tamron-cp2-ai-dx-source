@@ -1,0 +1,10 @@
+runtime: nodejs20
+
+env_variables:
+  GEMINI_API_KEY_SECRET_NAME: 'gemini-api-key'
+  NODE_ENV: 'production'
+
+# Secret Managerへのアクセス権限を付与
+service_account: default
+
+

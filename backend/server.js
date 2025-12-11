@@ -7,6 +7,7 @@ const fs = require('fs');
 require('dotenv').config();
 
 const GiteaAPI = require('./gitea-api');
+const { geminiProxy } = require('./gemini-api');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -274,6 +275,9 @@ app.post('/api/save', (req, res) => {
         res.status(500).json({ error: '保存中にエラーが発生しました' });
     }
 });
+
+// Gemini APIプロキシエンドポイント（Secret Manager使用）
+app.post('/api/gemini', geminiProxy);
 
 // サーバーの起動
 app.listen(port, () => {
