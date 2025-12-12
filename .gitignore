@@ -45,4 +45,9 @@ Thumbs.db
 *.temp
 .cache/
 
+# App Engine設定ファイル（Cloud Runを使用するため除外）
+app.yaml
+app.json
+index.yaml
+backend/app.yaml
 
