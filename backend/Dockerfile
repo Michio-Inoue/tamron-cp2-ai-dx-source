@@ -2,11 +2,11 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# package.jsonとpackage-lock.jsonをコピー
-COPY package*.json ./
+# package.jsonをコピー
+COPY package.json ./
 
-# 依存関係をインストール
-RUN npm ci --only=production
+# 依存関係をインストール（package-lock.jsonがない場合はnpm installを使用）
+RUN npm install --only=production
 
 # アプリケーションコードをコピー
 COPY . .
