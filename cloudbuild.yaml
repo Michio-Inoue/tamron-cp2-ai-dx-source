@@ -21,7 +21,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'GEMINI_API_KEY_SECRET_NAME=gemini-api-key,NODE_ENV=production'
+      - 'GEMINI_API_KEY_SECRET_NAME=gemini-api-key,NODE_ENV=production,GOOGLE_CLOUD_PROJECT=$PROJECT_ID'
       - '--set-secrets'
       - 'GEMINI_API_KEY=gemini-api-key:latest'
 
