@@ -45,8 +45,13 @@ app.use('/api/gemini', authenticateRequest);
 app.use('/api/analyze', authenticateRequest);
 app.use('/api/save', authenticateRequest);
 
-// ルートエンドポイント（認証不要）- フロントエンドを配信
+// ルートエンドポイント（認証不要）- メインページを配信
 app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// AI-DRBFMページのエンドポイント
+app.get('/ai-drbfm.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'ai-drbfm.html'));
 });
 
