@@ -15,9 +15,15 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 // ユーザーデータを読み込む
 function loadUsers() {
     try {
+        console.log('users.jsonファイルのパス:', USERS_FILE);
+        console.log('users.jsonファイルの存在確認:', fs.existsSync(USERS_FILE));
         if (fs.existsSync(USERS_FILE)) {
             const data = fs.readFileSync(USERS_FILE, 'utf8');
-            return JSON.parse(data);
+            const users = JSON.parse(data);
+            console.log('users.json読み込み成功。ユーザー数:', Object.keys(users).length);
+            return users;
+        } else {
+            console.warn('users.jsonファイルが存在しません');
         }
     } catch (error) {
         console.error('ユーザーデータの読み込みエラー:', error);
@@ -70,15 +76,23 @@ async function registerUser(username, password) {
 async function loginUser(username, password) {
     const users = loadUsers();
     
+    // デバッグログ
+    console.log('ログイン試行:', { username, passwordLength: password?.length, usersCount: Object.keys(users).length });
+    console.log('登録されているユーザー:', Object.keys(users));
+    
     // ユーザーが存在するかチェック
     if (!users[username]) {
+        console.log('ユーザーが見つかりません:', username);
         return { success: false, message: 'ユーザー名またはパスワードが正しくありません' };
     }
     
     // パスワードを検証
     const isValid = await bcrypt.compare(password, users[username].password);
     
+    console.log('パスワード検証結果:', { isValid, providedPassword: password, storedHash: users[username].password?.substring(0, 20) + '...' });
+    
     if (!isValid) {
+        console.log('パスワードが一致しません');
         return { success: false, message: 'ユーザー名またはパスワードが正しくありません' };
     }
     
