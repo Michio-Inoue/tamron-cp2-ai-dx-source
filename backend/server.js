@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const GiteaAPI = require('./gitea-api');
 const { geminiProxy } = require('./gemini-api');
+const { authenticateRequest, skipAuthForPaths } = require('./auth-middleware');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -33,9 +34,25 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// ルートエンドポイント
+// 静的ファイルの配信（フロントエンド）
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 認証をスキップするパス（公開エンドポイント）
+app.use(skipAuthForPaths(['/', '/health', '/api/health']));
+
+// 認証が必要なエンドポイント
+app.use('/api/gemini', authenticateRequest);
+app.use('/api/analyze', authenticateRequest);
+app.use('/api/save', authenticateRequest);
+
+// ルートエンドポイント（認証不要）- フロントエンドを配信
 app.get('/', (req, res) => {
-    res.json({ message: 'AI-DRBFM Analysis Server' });
+    res.sendFile(path.join(__dirname, 'public', 'ai-drbfm.html'));
+});
+
+// ヘルスチェックエンドポイント（認証不要）
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Gitea接続テストエンドポイント
