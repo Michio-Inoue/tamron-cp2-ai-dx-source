@@ -47,7 +47,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(verifyToken);
 
 // 認証をスキップするパス（公開エンドポイント）
-app.use(skipAuthForPaths(['/', '/health', '/api/health', '/login.html', '/api/login', '/api/register']));
+app.use(skipAuthForPaths(['/', '/health', '/api/health', '/login.html', '/api/login']));
 
 // 認証が必要なエンドポイント
 app.use('/api/gemini', authenticateRequest);
@@ -57,41 +57,6 @@ app.use('/api/save', authenticateRequest);
 // ログインページのエンドポイント（認証不要）
 app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-// ユーザー登録API（認証不要）
-app.post('/api/register', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        
-        if (!username || !password) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'ユーザー名とパスワードが必要です' 
-            });
-        }
-        
-        if (password.length < 6) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'パスワードは6文字以上である必要があります' 
-            });
-        }
-        
-        const result = await registerUser(username, password);
-        
-        if (result.success) {
-            res.json(result);
-        } else {
-            res.status(400).json(result);
-        }
-    } catch (error) {
-        console.error('Registration error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'ユーザー登録中にエラーが発生しました' 
-        });
-    }
 });
 
 // ログインAPI（認証不要）

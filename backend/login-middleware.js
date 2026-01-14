@@ -102,7 +102,7 @@ async function loginUser(username, password) {
  */
 function verifyToken(req, res, next) {
     // 認証をスキップするパス
-    const skipPaths = ['/', '/health', '/api/health', '/login.html', '/api/login', '/api/register', '/api/logout'];
+    const skipPaths = ['/', '/health', '/api/health', '/login.html', '/api/login', '/api/logout'];
     // 静的ファイル（.html, .js, .css, .png, .jpg, .icoなど）もスキップ
     const staticFileExtensions = ['.html', '.js', '.css', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot'];
     const isStaticFile = staticFileExtensions.some(ext => req.path.endsWith(ext));
