@@ -51,3 +51,6 @@ app.json
 index.yaml
 backend/app.yaml
 
+# ユーザーデータ（機密情報）
+backend/users.json
+

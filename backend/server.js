@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -9,6 +10,7 @@ require('dotenv').config();
 const GiteaAPI = require('./gitea-api');
 const { geminiProxy } = require('./gemini-api');
 const { authenticateRequest, skipAuthForPaths } = require('./auth-middleware');
+const { registerUser, loginUser, verifyToken } = require('./login-middleware');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -30,27 +32,115 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // ミドルウェアの設定
-app.use(cors());
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // 静的ファイルの配信（フロントエンド）
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ログイン認証ミドルウェア（静的ファイルとログインAPI以外に適用）
+app.use(verifyToken);
+
 // 認証をスキップするパス（公開エンドポイント）
-app.use(skipAuthForPaths(['/', '/health', '/api/health']));
+app.use(skipAuthForPaths(['/', '/health', '/api/health', '/login.html', '/api/login', '/api/register']));
 
 // 認証が必要なエンドポイント
 app.use('/api/gemini', authenticateRequest);
 app.use('/api/analyze', authenticateRequest);
 app.use('/api/save', authenticateRequest);
 
+// ログインページのエンドポイント（認証不要）
+app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// ユーザー登録API（認証不要）
+app.post('/api/register', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        
+        if (!username || !password) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ユーザー名とパスワードが必要です' 
+            });
+        }
+        
+        if (password.length < 6) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'パスワードは6文字以上である必要があります' 
+            });
+        }
+        
+        const result = await registerUser(username, password);
+        
+        if (result.success) {
+            res.json(result);
+        } else {
+            res.status(400).json(result);
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'ユーザー登録中にエラーが発生しました' 
+        });
+    }
+});
+
+// ログインAPI（認証不要）
+app.post('/api/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        
+        if (!username || !password) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ユーザー名とパスワードが必要です' 
+            });
+        }
+        
+        const result = await loginUser(username, password);
+        
+        if (result.success) {
+            // JWTトークンをCookieに設定
+            res.cookie('token', result.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7日間
+            });
+            res.json(result);
+        } else {
+            res.status(401).json(result);
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'ログイン中にエラーが発生しました' 
+        });
+    }
+});
+
+// ログアウトAPI
+app.post('/api/logout', (req, res) => {
+    res.clearCookie('token');
+    res.json({ success: true, message: 'ログアウトしました' });
+});
+
 // ルートエンドポイント（認証不要）- メインページを配信
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// AI-DRBFMページのエンドポイント
+// AI-DRBFMページのエンドポイント（認証必要）
 app.get('/ai-drbfm.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'ai-drbfm.html'));
 });
