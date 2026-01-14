@@ -84,3 +84,4 @@ gcloud app describe --project=singular-server-480006-s8
 - **セットアップ**: 約90%完了
 - **デプロイ**: 確認中
 
+

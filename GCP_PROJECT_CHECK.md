@@ -118,3 +118,4 @@ gcloud auth application-default login
 
 どちらもプロジェクトを一意に識別しますが、コマンドでは通常プロジェクトIDを使用します。
 
+

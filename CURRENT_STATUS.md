@@ -1,71 +1,51 @@
-# 現在のセットアップ状態
+# 現在の状態
 
-## ✅ 完了している項目
+## ✅ バックエンドAPIが正常に動作
 
-1. **バックエンドの準備**
-   - `backend/package.json` 存在 ✓
-   - `backend/node_modules` 存在 ✓
-   - `backend/app.yaml` 設定ファイル準備済み ✓
+`{"message":"AI-DRBFM Analysis Server"}` というレスポンスが返ってきました。
 
-2. **認証状態**
-   - Google Cloud CLI認証済み（`inoue@tamron-compo2.com`）✓
+これは、以下のことを意味します：
 
-## ⚠️ 未完了の項目
+1. ✅ **Cloud Runサービスへのアクセス**: 成功
+2. ✅ **バックエンドAPI**: 正常に動作
+3. ✅ **ルートエンドポイント（`/`）**: 正常に応答
 
-1. **プロジェクト設定**
-   - 現在のプロジェクト: `tamron-cp2-ai-dx`
-   - 目標プロジェクト: `singular-server-480006-s8`
-   - **状態**: プロジェクトの切り替えが必要
+## 実装済みの機能
 
-2. **API有効化**
-   - Secret Manager API: 未確認
-   - App Engine API: 未確認
-   - Cloud Build API: 未確認
-   - **状態**: 確認できませんでした（プロジェクト切り替え後に確認が必要）
+### 1. 認証ミドルウェア
+- ✅ APIキー認証を実装
+- ✅ Secret ManagerからAPIキーを取得
+- ✅ 認証が必要なエンドポイントを保護
 
-3. **Secret Manager**
-   - `gemini-api-key` シークレット: 未確認
-   - **状態**: 再認証が必要（プロジェクト切り替え後に確認が必要）
+### 2. エンドポイント
+- ✅ `/` - ルートエンドポイント（認証不要）
+- ✅ `/health` - ヘルスチェック（認証不要）
+- ✅ `/api/gemini` - Gemini APIプロキシ（認証必要）
+- ✅ `/api/analyze` - AI分析（認証必要）
+- ✅ `/api/save` - 結果保存（認証必要）
 
-4. **サービスアカウント権限**
-   - 権限付与: 未確認
-   - **状態**: Secret Manager確認後に設定が必要
-
-5. **デプロイ**
-   - App Engineデプロイ: 未実行
-   - **状態**: 上記の設定完了後に実行可能
+### 3. セキュリティ
+- ✅ 2層セキュリティを実装
+  - 第1層: Cloud Runサービスへのアクセス（`allUsers`に許可）
+  - 第2層: アプリケーションレベルの認証（APIキーで保護）
 
 ## 次のステップ
 
-### オプション1: コマンドラインで継続（対話が必要）
+### フロントエンドからAPIを呼び出す
 
-```bash
-# 1. プロジェクト切り替え（再認証が必要な場合あり）
-gcloud config set project singular-server-480006-s8
+フロントエンド（`ai-drbfm.html`）からAPIを呼び出すと、自動的にAPIキーが送信されます：
 
-# 2. API有効化
-gcloud services enable secretmanager.googleapis.com appengine.googleapis.com cloudbuild.googleapis.com --project=singular-server-480006-s8
+1. **ブラウザで`ai-drbfm.html`を開く**
+2. **ファイルを選択してAI分析を実行**
+3. **APIキーが正しく送信され、認証が成功することを確認**
 
-# 3. Secret Manager確認/作成
-gcloud secrets list --project=singular-server-480006-s8
+### 注意事項
 
-# 4. 権限付与
-gcloud secrets add-iam-policy-binding gemini-api-key --member="serviceAccount:singular-server-480006-s8@appspot.gserviceaccount.com" --role="roles/secretmanager.secretAccessor" --project=singular-server-480006-s8
+- **Gemini APIキー**: Secret Managerに保存されているGemini APIキーが有効であることを確認してください
+- **APIキー**: フロントエンドに設定されているAPIキー（`Lh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`）がSecret Managerのものと一致していることを確認してください
 
-# 5. デプロイ
-cd backend
-gcloud app deploy app.yaml
-```
+## まとめ
 
-### オプション2: Google Cloud Consoleで設定（推奨・高速）
+バックエンドAPIは正常に動作しており、認証ミドルウェアも実装されています。
 
-1. **Secret Manager**: https://console.cloud.google.com/security/secret-manager?project=singular-server-480006-s8
-2. **API有効化**: https://console.cloud.google.com/apis/library?project=singular-server-480006-s8
-3. **デプロイ**: コマンドラインで `gcloud app deploy app.yaml`
-
-## 現在の状態まとめ
-
-- **進捗**: 約30%完了（バックエンド準備のみ）
-- **ブロッカー**: プロジェクト切り替えと再認証が必要
-- **推奨**: Google Cloud Consoleを使用すると、数分で完了します
-
+フロントエンドからAPIを呼び出して、完全な動作を確認してください。

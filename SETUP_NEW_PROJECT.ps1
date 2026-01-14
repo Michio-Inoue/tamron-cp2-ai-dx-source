@@ -1,26 +1,26 @@
-# 新しいプロジェクト tamron-cloudrun-prod-new のセットアップスクリプト
+# New project tamron-cloudrun-prod-new setup script
 
-Write-Host "=== 新しいプロジェクトへの移行を開始します ===" -ForegroundColor Green
+Write-Host "=== Starting migration to new project ===" -ForegroundColor Green
 
-# ステップ1: プロジェクトを切り替え
-Write-Host "`n[1/9] プロジェクトを切り替え中..." -ForegroundColor Yellow
+# Step 1: Switch project
+Write-Host "`n[1/9] Switching project..." -ForegroundColor Yellow
 gcloud config set project tamron-cloudrun-prod-new
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "エラー: プロジェクトの切り替えに失敗しました" -ForegroundColor Red
+    Write-Host "Error: Failed to switch project" -ForegroundColor Red
     exit 1
 }
-Write-Host "✓ プロジェクトを tamron-cloudrun-prod-new に切り替えました" -ForegroundColor Green
+Write-Host "OK: Switched to tamron-cloudrun-prod-new" -ForegroundColor Green
 
-# ステップ2: 必要なAPIを有効化
-Write-Host "`n[2/9] 必要なAPIを有効化中..." -ForegroundColor Yellow
+# Step 2: Enable required APIs
+Write-Host "`n[2/9] Enabling required APIs..." -ForegroundColor Yellow
 gcloud services enable run.googleapis.com --project=tamron-cloudrun-prod-new
 gcloud services enable secretmanager.googleapis.com --project=tamron-cloudrun-prod-new
 gcloud services enable cloudbuild.googleapis.com --project=tamron-cloudrun-prod-new
 gcloud services enable artifactregistry.googleapis.com --project=tamron-cloudrun-prod-new
-Write-Host "✓ APIを有効化しました" -ForegroundColor Green
+Write-Host "OK: APIs enabled" -ForegroundColor Green
 
-# ステップ3: Artifact Registryリポジトリを作成
-Write-Host "`n[3/9] Artifact Registryリポジトリを作成中..." -ForegroundColor Yellow
+# Step 3: Create Artifact Registry repository
+Write-Host "`n[3/9] Creating Artifact Registry repository..." -ForegroundColor Yellow
 $repoExists = gcloud artifacts repositories list --location=asia-northeast1 --project=tamron-cloudrun-prod-new --filter="name:ai-drbfm-backend" --format="value(name)" 2>&1
 if ([string]::IsNullOrEmpty($repoExists)) {
     gcloud artifacts repositories create ai-drbfm-backend `
@@ -28,36 +28,36 @@ if ([string]::IsNullOrEmpty($repoExists)) {
         --location=asia-northeast1 `
         --project=tamron-cloudrun-prod-new `
         --description="AI-DRBFM Backend Docker images"
-    Write-Host "✓ Artifact Registryリポジトリを作成しました" -ForegroundColor Green
+    Write-Host "OK: Artifact Registry repository created" -ForegroundColor Green
 } else {
-    Write-Host "✓ Artifact Registryリポジトリは既に存在します" -ForegroundColor Green
+    Write-Host "OK: Artifact Registry repository already exists" -ForegroundColor Green
 }
 
-# ステップ4: Secret ManagerにAPIキーを追加
-Write-Host "`n[4/9] Secret ManagerにAPIキーを追加中..." -ForegroundColor Yellow
+# Step 4: Add API key to Secret Manager
+Write-Host "`n[4/9] Adding API key to Secret Manager..." -ForegroundColor Yellow
 $secretExists = gcloud secrets list --project=tamron-cloudrun-prod-new --filter="name:gemini-api-key" --format="value(name)" 2>&1
 if ([string]::IsNullOrEmpty($secretExists)) {
     gcloud secrets create gemini-api-key --project=tamron-cloudrun-prod-new
-    Write-Host "✓ Secretを作成しました" -ForegroundColor Green
+    Write-Host "OK: Secret created" -ForegroundColor Green
 }
 echo "a6a925178e7669bd8305d58899a3c4d0330dabf0" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
-Write-Host "✓ APIキーをSecret Managerに追加しました" -ForegroundColor Green
+Write-Host "OK: API key added to Secret Manager" -ForegroundColor Green
 
-# ステップ5: プロジェクト番号を取得
-Write-Host "`n[5/9] プロジェクト番号を取得中..." -ForegroundColor Yellow
+# Step 5: Get project number
+Write-Host "`n[5/9] Getting project number..." -ForegroundColor Yellow
 $PROJECT_NUMBER = gcloud projects describe tamron-cloudrun-prod-new --format='value(projectNumber)'
-Write-Host "✓ プロジェクト番号: $PROJECT_NUMBER" -ForegroundColor Green
+Write-Host "OK: Project number: $PROJECT_NUMBER" -ForegroundColor Green
 
-# ステップ6: Secret Managerへのアクセス権限を設定
-Write-Host "`n[6/9] Secret Managerへのアクセス権限を設定中..." -ForegroundColor Yellow
+# Step 6: Set Secret Manager access permissions
+Write-Host "`n[6/9] Setting Secret Manager access permissions..." -ForegroundColor Yellow
 gcloud secrets add-iam-policy-binding gemini-api-key `
     --member="serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com" `
     --role="roles/secretmanager.secretAccessor" `
     --project=tamron-cloudrun-prod-new
-Write-Host "✓ Secret Managerへのアクセス権限を設定しました" -ForegroundColor Green
+Write-Host "OK: Secret Manager access permissions set" -ForegroundColor Green
 
-# ステップ7: Cloud Buildサービスアカウントに権限を付与
-Write-Host "`n[7/9] Cloud Buildサービスアカウントに権限を付与中..." -ForegroundColor Yellow
+# Step 7: Grant permissions to Cloud Build service account
+Write-Host "`n[7/9] Granting permissions to Cloud Build service account..." -ForegroundColor Yellow
 gcloud projects add-iam-policy-binding tamron-cloudrun-prod-new `
     --member="serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com" `
     --role="roles/storage.admin" 2>&1 | Out-Null
@@ -82,29 +82,28 @@ gcloud projects add-iam-policy-binding tamron-cloudrun-prod-new `
     --member="serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com" `
     --role="roles/logging.logWriter" 2>&1 | Out-Null
 
-Write-Host "✓ 権限を付与しました" -ForegroundColor Green
+Write-Host "OK: Permissions granted" -ForegroundColor Green
 
-# ステップ8: デプロイ
-Write-Host "`n[8/9] Cloud Runにデプロイ中..." -ForegroundColor Yellow
-Write-Host "（この処理には数分かかる場合があります）" -ForegroundColor Gray
+# Step 8: Deploy
+Write-Host "`n[8/9] Deploying to Cloud Run..." -ForegroundColor Yellow
+Write-Host "(This may take several minutes)" -ForegroundColor Gray
 gcloud builds submit --config=cloudbuild.yaml --project=tamron-cloudrun-prod-new
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "エラー: デプロイに失敗しました" -ForegroundColor Red
+    Write-Host "Error: Deployment failed" -ForegroundColor Red
     exit 1
 }
-Write-Host "✓ デプロイが完了しました" -ForegroundColor Green
+Write-Host "OK: Deployment completed" -ForegroundColor Green
 
-# ステップ9: 公開アクセスを許可
-Write-Host "`n[9/9] 公開アクセスを許可中..." -ForegroundColor Yellow
+# Step 9: Allow public access
+Write-Host "`n[9/9] Allowing public access..." -ForegroundColor Yellow
 gcloud run services add-iam-policy-binding ai-drbfm-backend `
     --region=asia-northeast1 `
     --member="allUsers" `
     --role="roles/run.invoker" `
     --project=tamron-cloudrun-prod-new 2>&1 | Out-Null
-Write-Host "✓ 公開アクセスを許可しました（組織ポリシーにより失敗する場合があります）" -ForegroundColor Green
+Write-Host "OK: Public access allowed (may fail due to organization policy)" -ForegroundColor Green
 
-# 完了
-Write-Host "`n=== セットアップが完了しました ===" -ForegroundColor Green
+# Complete
+Write-Host "`n=== Setup completed ===" -ForegroundColor Green
 $serviceUrl = gcloud run services describe ai-drbfm-backend --region=asia-northeast1 --project=tamron-cloudrun-prod-new --format="value(status.url)" 2>&1
-Write-Host "サービスURL: $serviceUrl" -ForegroundColor Cyan
-
+Write-Host "Service URL: $serviceUrl" -ForegroundColor Cyan

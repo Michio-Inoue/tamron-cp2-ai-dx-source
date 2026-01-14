@@ -176,3 +176,4 @@ echo "GEMINI_API_KEY=your_api_key_here" > backend/.env
 4. **環境分離**: 開発、ステージング、本番環境で異なるシークレットを使用
 
 
+

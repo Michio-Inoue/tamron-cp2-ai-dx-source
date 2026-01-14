@@ -208,3 +208,4 @@ const response = await fetch(`${BACKEND_URL}/api/gemini`, {
 3. SSL証明書の設定（自動的に設定されます）
 4. モニタリングとアラートの設定
 
+

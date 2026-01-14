@@ -101,10 +101,10 @@ async function callGeminiAPI(prompt, options = {}) {
 }
 
 /**
- * Cloud Functions用のエクスポート
+ * Express.js用のミドルウェアとしてエクスポート
  */
 exports.geminiProxy = async (req, res) => {
-    // CORS設定
+    // CORS設定（Express.jsのcorsミドルウェアが既に設定されている場合は不要）
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
@@ -120,28 +120,72 @@ exports.geminiProxy = async (req, res) => {
     }
 
     try {
-        const { prompt, model, apiVersion, temperature, topK, topP, maxOutputTokens } = req.body;
+        const { prompt, model, apiVersion, temperature, topK, topP, maxOutputTokens, contents, generationConfig } = req.body;
 
-        if (!prompt) {
-            res.status(400).json({ error: 'プロンプトが指定されていません' });
+        // プロンプトまたはcontentsが指定されているか確認
+        if (!prompt && !contents) {
+            res.status(400).json({ error: 'プロンプトまたはcontentsが指定されていません' });
             return;
         }
 
         console.log('Gemini APIプロキシリクエスト:', {
-            promptLength: prompt.length,
+            promptLength: prompt ? prompt.length : 0,
+            contentsLength: contents ? JSON.stringify(contents).length : 0,
             model,
             apiVersion
         });
 
-        const result = await callGeminiAPI(prompt, {
-            model,
-            apiVersion,
-            temperature,
-            topK,
-            topP,
-            maxOutputTokens
+        // contentsが指定されている場合はそのまま使用、そうでない場合はpromptから生成
+        let requestBody;
+        if (contents) {
+            requestBody = {
+                contents,
+                generationConfig: generationConfig || {
+                    temperature: temperature || 0.7,
+                    topK: topK || 40,
+                    topP: topP || 0.95,
+                    maxOutputTokens: maxOutputTokens || 4096
+                }
+            };
+        } else {
+            const result = await callGeminiAPI(prompt, {
+                model,
+                apiVersion,
+                temperature,
+                topK,
+                topP,
+                maxOutputTokens
+            });
+            res.json(result);
+            return;
+        }
+
+        // contentsが指定されている場合は直接APIを呼び出す
+        const apiKey = await getApiKey();
+        const modelName = model || 'gemini-2.5-flash';
+        const apiVersionStr = apiVersion || 'v1beta';
+        
+        const url = `https://generativelanguage.googleapis.com/${apiVersionStr}/models/${modelName}:generateContent?key=${apiKey}`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody)
         });
 
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Gemini APIエラー:', response.status, errorText);
+            res.status(response.status).json({
+                error: `Gemini API呼び出しに失敗: ${response.status}`,
+                details: errorText
+            });
+            return;
+        }
+
+        const result = await response.json();
         res.json(result);
     } catch (error) {
         console.error('Gemini APIプロキシエラー:', error);

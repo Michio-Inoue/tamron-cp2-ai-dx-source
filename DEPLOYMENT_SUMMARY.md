@@ -79,3 +79,4 @@ gcloud artifacts repositories create app-engine-tmp \
 - ビルドログURL: https://console.cloud.google.com/cloud-build/builds?project=singular-server-480006-s8
 - App Engineダッシュボード: https://console.cloud.google.com/appengine?project=singular-server-480006-s8
 
+

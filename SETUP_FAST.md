@@ -91,3 +91,4 @@ gcloud secrets add-iam-policy-binding gemini-api-key --member="serviceAccount:si
 - エラーメッセージが分かりやすい
 - 対話的な操作が不要
 
+

@@ -118,3 +118,4 @@ gcloud builds submit --config=cloudbuild.yaml --project=singular-server-480006-s
 
 App Engineで続行する場合は、修正したapp.yamlで再度デプロイを実行してください。
 
+

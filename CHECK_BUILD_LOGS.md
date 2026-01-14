@@ -71,3 +71,4 @@ gcloud builds log 65a3d294-a9c3-403b-b858-83e12ccf316f --project=singular-server
 3. **段階的なデプロイ**
    - 最小限のアプリケーションでデプロイを試す
 
+

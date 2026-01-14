@@ -21,9 +21,9 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'GEMINI_API_KEY_SECRET_NAME=gemini-api-key,NODE_ENV=production,GOOGLE_CLOUD_PROJECT=$PROJECT_ID'
+      - 'GEMINI_API_KEY_SECRET_NAME=gemini-api-key,NODE_ENV=production,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,BACKEND_API_KEY_SECRET_NAME=backend-api-key'
       - '--set-secrets'
-      - 'GEMINI_API_KEY=gemini-api-key:latest'
+      - 'GEMINI_API_KEY=gemini-api-key:latest,BACKEND_API_KEY=backend-api-key:latest'
 
 images:
   - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/ai-drbfm-backend/app:latest'

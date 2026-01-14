@@ -95,3 +95,4 @@ service_account: git-deployer@singular-server-480006-s8.iam.gserviceaccount.com
 
 3. 「詳細」タブでメールアドレスを確認
 
+

@@ -113,3 +113,4 @@ gcloud run services add-iam-policy-binding ai-drbfm-backend `
 
 上記の手順を実行しますか？それとも、特定のステップから始めますか？
 
+

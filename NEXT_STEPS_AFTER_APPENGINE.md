@@ -121,3 +121,4 @@ https://singular-server-480006-s8.appspot.com
 2. Secret Manager APIが有効になっているか確認
 3. プロジェクトの所有者または編集者権限があるか確認
 
+

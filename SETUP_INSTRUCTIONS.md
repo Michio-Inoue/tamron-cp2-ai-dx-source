@@ -89,3 +89,4 @@ echo -n "YOUR_GEMINI_API_KEY" | gcloud secrets versions add gemini-api-key --dat
 2. フロントエンドをバックエンドAPI経由で呼び出すように変更（オプション）
 3. 動作確認
 
+

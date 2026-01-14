@@ -45,3 +45,4 @@ gcloud projects get-iam-policy singular-server-480006-s8 \
 gcloud app deploy app.yaml --project=singular-server-480006-s8
 ```
 
+
