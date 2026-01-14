@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金型手配予測 - タムロン車載AI設計サイト</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <a href="index.html">
+                    <h1>タムロン車載AI設計サイト</h1>
+                </a>
+            </div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">ホーム</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- メイン -->
+    <main>
+        <section class="mold-prediction">
+            <h2 class="section-title">金型手配予測</h2>
+            <div class="prediction-container">
+                <form id="predictionForm" class="needs-validation" novalidate>
+                    <div class="form-group">
+                        <label for="kisyumei">機種名</label>
+                        <input type="text" id="kisyumei" name="kisyumei" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="moldLifeShots">金型寿命ショット数</label>
+                        <input type="text" id="moldLifeShots" name="moldLifeShots" pattern="[0-9]*" inputmode="numeric" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currentMoldCount">現在の金型数</label>
+                        <input type="text" id="currentMoldCount" name="currentMoldCount" pattern="[0-9]*" inputmode="numeric" value="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="startMoldNumber">予測開始金型番号</label>
+                        <input type="text" id="startMoldNumber" name="startMoldNumber" pattern="[0-9]*" inputmode="numeric" value="1" required>
+                        <p class="form-help">予測を開始する金型の番号を指定してください</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cavityCount">キャビティ数</label>
+                        <input type="text" id="cavityCount" name="cavityCount" pattern="[0-9]*" inputmode="numeric" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cycleTime">金型サイクル秒数</label>
+                        <input type="text" id="cycleTime" name="cycleTime" pattern="[0-9]*" inputmode="numeric" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workingHours">1日あたりの稼働時間（時間）</label>
+                        <input type="text" id="workingHours" name="workingHours" pattern="[0-9]*" inputmode="numeric" value="20" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workingDays">金型稼働日数（月）</label>
+                        <input type="text" id="workingDays" name="workingDays" pattern="[0-9]*" inputmode="numeric" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="yieldRate">良品率（%）</label>
+                        <input type="text" id="yieldRate" name="yieldRate" pattern="[0-9]*" inputmode="numeric" value="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="leadTime">金型製作リードタイム(日) 要因変更の期間も含めてください</label>
+                        <input type="text" id="leadTime" name="leadTime" pattern="[0-9]*" inputmode="numeric" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="safetyStock">安全在庫日数</label>
+                        <input type="number" id="safetyStock" name="safetyStock" min="0" value="14" required>
+                    </div>
+
+                    <div class="form-group">
+<<<<<<< HEAD
+                        <label for="loadData">保存データの読み込み</label>
+                        <input type="file" id="loadData" accept=".json" style="display: none;">
+                        <button type="button" id="loadDataButton" class="btn btn-info">ファイルを選択</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">メール宛先</label>
+                        <input type="email" id="email" name="email" placeholder="例: example@example.com">
+                        <p class="form-help">至急手配が必要な場合に通知を送信するメールアドレスを入力してください</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="excelPlanFile">生産計画エクセル取込</label>
+                        <input type="file" id="excelPlanFile" accept=".xlsx,.xls" style="display:none;">
+                        <button type="button" id="excelPlanFileButton" class="btn btn-info">エクセルファイルを選択</button>
+                        <span id="excelPlanFileName" style="margin-left:1em;color:#007bff;"></span>
+                        <div style="margin-top:10px;">
+                            <label for="importStartMonth">取り込み開始月:</label>
+                            <select id="importStartMonth" style="margin-left:10px;padding:5px;">
+                                <option value="2023.1">2023年1月</option>
+                                <option value="2023.2">2023年2月</option>
+                                <option value="2023.3">2023年3月</option>
+                                <option value="2023.4">2023年4月</option>
+                                <option value="2023.5">2023年5月</option>
+                                <option value="2023.6">2023年6月</option>
+                                <option value="2023.7">2023年7月</option>
+                                <option value="2023.8">2023年8月</option>
+                                <option value="2023.9">2023年9月</option>
+                                <option value="2023.10">2023年10月</option>
+                                <option value="2023.11">2023年11月</option>
+                                <option value="2023.12">2023年12月</option>
+                                <option value="2024.1">2024年1月</option>
+                                <option value="2024.2">2024年2月</option>
+                                <option value="2024.3">2024年3月</option>
+                                <option value="2024.4">2024年4月</option>
+                                <option value="2024.5">2024年5月</option>
+                                <option value="2024.6">2024年6月</option>
+                                <option value="2024.7">2024年7月</option>
+                                <option value="2024.8">2024年8月</option>
+                                <option value="2024.9">2024年9月</option>
+                                <option value="2024.10">2024年10月</option>
+                                <option value="2024.11">2024年11月</option>
+                                <option value="2024.12">2024年12月</option>
+                                <option value="2025.1">2025年1月</option>
+                                <option value="2025.2">2025年2月</option>
+                                <option value="2025.3">2025年3月</option>
+                                <option value="2025.4">2025年4月</option>
+                                <option value="2025.5">2025年5月</option>
+                                <option value="2025.6">2025年6月</option>
+                                <option value="2025.7">2025年7月</option>
+                                <option value="2025.8">2025年8月</option>
+                                <option value="2025.9">2025年9月</option>
+                                <option value="2025.10">2025年10月</option>
+                                <option value="2025.11">2025年11月</option>
+                                <option value="2025.12">2025年12月</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <h3>月間生産計画</h3>
+                        <div class="monthly-plan-grid">
+                            <div class="monthly-plan-item">
+                                <label>1ヶ月目:</label>
+                                <input type="text" name="month1" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>2ヶ月目:</label>
+                                <input type="text" name="month2" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>3ヶ月目:</label>
+                                <input type="text" name="month3" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>4ヶ月目:</label>
+                                <input type="text" name="month4" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>5ヶ月目:</label>
+                                <input type="text" name="month5" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>6ヶ月目:</label>
+                                <input type="text" name="month6" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>7ヶ月目:</label>
+                                <input type="text" name="month7" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>8ヶ月目:</label>
+                                <input type="text" name="month8" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>9ヶ月目:</label>
+                                <input type="text" name="month9" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>10ヶ月目:</label>
+                                <input type="text" name="month10" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>11ヶ月目:</label>
+                                <input type="text" name="month11" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>12ヶ月目:</label>
+                                <input type="text" name="month12" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>13ヶ月目:</label>
+                                <input type="text" name="month13" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>14ヶ月目:</label>
+                                <input type="text" name="month14" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>15ヶ月目:</label>
+                                <input type="text" name="month15" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>16ヶ月目:</label>
+                                <input type="text" name="month16" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>17ヶ月目:</label>
+                                <input type="text" name="month17" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>18ヶ月目:</label>
+                                <input type="text" name="month18" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>19ヶ月目:</label>
+                                <input type="text" name="month19" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>20ヶ月目:</label>
+                                <input type="text" name="month20" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>21ヶ月目:</label>
+                                <input type="text" name="month21" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>22ヶ月目:</label>
+                                <input type="text" name="month22" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>23ヶ月目:</label>
+                                <input type="text" name="month23" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                            <div class="monthly-plan-item">
+                                <label>24ヶ月目:</label>
+                                <input type="text" name="month24" pattern="[0-9]*" inputmode="numeric" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">予測実行</button>
+                        <button type="button" id="saveData" class="btn btn-success">データ保存</button>
+                        <button type="button" id="clear-data" class="btn btn-secondary">データをクリア</button>
+                    </div>
+                </form>
+
+                <!-- 保存先フォルダ選択用のモーダル -->
+                <div id="saveFolderModal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <h3>保存先フォルダの選択</h3>
+                        <div class="form-group">
+                            <label for="saveFolder">保存先フォルダ:</label>
+                            <input type="text" id="saveFolder" readonly>
+                            <button type="button" id="selectFolder" class="btn btn-info">フォルダを選択</button>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" id="confirmSaveFolder" class="btn btn-primary">確定</button>
+                            <button type="button" id="cancelSaveFolder" class="btn btn-secondary">キャンセル</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="prediction-results" class="prediction-results">
+                    <!-- 予測結果がここに表示されます -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>お問い合わせ</h4>
+                <p>ご質問やご要望がございましたら、以下のメールアドレスまでご連絡ください。</p>
+                <a href="mailto:inoue@tamron" class="contact-link">メールでのお問い合わせ</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 タムロン車載AI設計サイト. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/mold-prediction.js"></script>
+    <script>
+        // ページロード時に今月を初期選択
+        document.addEventListener('DOMContentLoaded', function() {
+            const select = document.getElementById('importStartMonth');
+            if (select) {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = now.getMonth() + 1;
+                const value = `${year}.${month}`;
+                for (const opt of select.options) {
+                    if (opt.value === value) {
+                        select.value = value;
+                        break;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
