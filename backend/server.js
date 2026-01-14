@@ -47,7 +47,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(verifyToken);
 
 // 認証をスキップするパス（公開エンドポイント）
-app.use(skipAuthForPaths(['/', '/health', '/api/health', '/login.html', '/api/login', '/api/login-2fa', '/setup-2fa.html', '/api/2fa/enable', '/api/2fa/confirm', '/api/2fa/disable']));
+// /api/gemini, /api/analyze, /api/saveはauthenticateRequestで認証されるため、verifyTokenをスキップ
+app.use(skipAuthForPaths(['/', '/health', '/api/health', '/login.html', '/api/login', '/api/login-2fa', '/setup-2fa.html', '/api/2fa/enable', '/api/2fa/confirm', '/api/2fa/disable', '/api/gemini', '/api/analyze', '/api/save']));
 
 // 認証が必要なエンドポイント
 app.use('/api/gemini', authenticateRequest);
