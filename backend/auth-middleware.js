@@ -76,6 +76,15 @@ async function authenticateRequest(req, res, next) {
         return next();
     }
 
+    console.log('認証リクエスト:', {
+        path: req.path,
+        method: req.method,
+        hasCookies: !!req.cookies,
+        cookieKeys: req.cookies ? Object.keys(req.cookies) : [],
+        hasXApiKey: !!req.headers['x-api-key'],
+        hasAuthorization: !!req.headers['authorization']
+    });
+
     // 認証方法1: APIキー（ヘッダーまたはボディから）
     const apiKey = (req.headers['x-api-key'] || req.body?.apiKey)?.trim();
     
