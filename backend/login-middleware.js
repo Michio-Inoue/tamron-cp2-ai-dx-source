@@ -5,6 +5,8 @@
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const speakeasy = require('speakeasy');
+const QRCode = require('qrcode');
 const fs = require('fs');
 const path = require('path');
 
@@ -71,14 +73,49 @@ async function registerUser(username, password) {
 }
 
 /**
- * ユーザーログイン
+ * 2FA用TOTPシークレットを生成
  */
-async function loginUser(username, password) {
+function generateTotpSecret(username) {
+    return speakeasy.generateSecret({
+        name: `タムロン設計支援AIツール (${username})`,
+        issuer: 'Tamron AI Tools'
+    });
+}
+
+/**
+ * 2FA用QRコードを生成
+ */
+async function generateQRCode(secret) {
+    try {
+        const otpauthUrl = secret.otpauth_url;
+        const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl);
+        return qrCodeDataUrl;
+    } catch (error) {
+        console.error('QRコード生成エラー:', error);
+        return null;
+    }
+}
+
+/**
+ * TOTPコードを検証
+ */
+function verifyTotp(token, secret) {
+    return speakeasy.totp.verify({
+        secret: secret,
+        encoding: 'base32',
+        token: token,
+        window: 2 // 前後2つの時間窓を許容
+    });
+}
+
+/**
+ * ユーザーログイン（2FA対応）
+ */
+async function loginUser(username, password, totpToken = null) {
     const users = loadUsers();
     
     // デバッグログ
-    console.log('ログイン試行:', { username, passwordLength: password?.length, usersCount: Object.keys(users).length });
-    console.log('登録されているユーザー:', Object.keys(users));
+    console.log('ログイン試行:', { username, passwordLength: password?.length, usersCount: Object.keys(users).length, hasTotpToken: !!totpToken });
     
     // ユーザーが存在するかチェック
     if (!users[username]) {
@@ -89,11 +126,26 @@ async function loginUser(username, password) {
     // パスワードを検証
     const isValid = await bcrypt.compare(password, users[username].password);
     
-    console.log('パスワード検証結果:', { isValid, providedPassword: password, storedHash: users[username].password?.substring(0, 20) + '...' });
-    
     if (!isValid) {
         console.log('パスワードが一致しません');
         return { success: false, message: 'ユーザー名またはパスワードが正しくありません' };
+    }
+    
+    // 2FAが有効な場合、TOTPコードを検証
+    if (users[username].twoFactorEnabled && users[username].twoFactorSecret) {
+        if (!totpToken) {
+            return { 
+                success: false, 
+                requiresTwoFactor: true,
+                message: '2段階認証コードが必要です' 
+            };
+        }
+        
+        const isTotpValid = verifyTotp(totpToken, users[username].twoFactorSecret);
+        if (!isTotpValid) {
+            console.log('TOTPコードが無効です');
+            return { success: false, message: '2段階認証コードが正しくありません' };
+        }
     }
     
     // JWTトークンを生成
@@ -152,9 +204,97 @@ function verifyToken(req, res, next) {
     }
 }
 
+/**
+ * 2FAを有効化
+ */
+async function enableTwoFactor(username) {
+    const users = loadUsers();
+    
+    if (!users[username]) {
+        return { success: false, message: 'ユーザーが見つかりません' };
+    }
+    
+    // 既に2FAが有効な場合は、新しいシークレットを生成
+    const secret = generateTotpSecret(username);
+    const qrCode = await generateQRCode(secret);
+    
+    // 一時的にシークレットを保存（確認用）
+    users[username].twoFactorTempSecret = secret.base32;
+    
+    if (saveUsers(users)) {
+        return {
+            success: true,
+            secret: secret.base32,
+            qrCode: qrCode,
+            otpauthUrl: secret.otpauth_url
+        };
+    } else {
+        return { success: false, message: '2FA設定の保存に失敗しました' };
+    }
+}
+
+/**
+ * 2FAを確認して有効化
+ */
+async function confirmTwoFactor(username, totpToken) {
+    const users = loadUsers();
+    
+    if (!users[username]) {
+        return { success: false, message: 'ユーザーが見つかりません' };
+    }
+    
+    if (!users[username].twoFactorTempSecret) {
+        return { success: false, message: '2FA設定が開始されていません' };
+    }
+    
+    // TOTPコードを検証
+    const isTotpValid = verifyTotp(totpToken, users[username].twoFactorTempSecret);
+    if (!isTotpValid) {
+        return { success: false, message: '2段階認証コードが正しくありません' };
+    }
+    
+    // 2FAを有効化
+    users[username].twoFactorEnabled = true;
+    users[username].twoFactorSecret = users[username].twoFactorTempSecret;
+    delete users[username].twoFactorTempSecret;
+    
+    if (saveUsers(users)) {
+        return { success: true, message: '2段階認証が有効化されました' };
+    } else {
+        return { success: false, message: '2FA設定の保存に失敗しました' };
+    }
+}
+
+/**
+ * 2FAを無効化
+ */
+async function disableTwoFactor(username) {
+    const users = loadUsers();
+    
+    if (!users[username]) {
+        return { success: false, message: 'ユーザーが見つかりません' };
+    }
+    
+    users[username].twoFactorEnabled = false;
+    delete users[username].twoFactorSecret;
+    delete users[username].twoFactorTempSecret;
+    
+    if (saveUsers(users)) {
+        return { success: true, message: '2段階認証が無効化されました' };
+    } else {
+        return { success: false, message: '2FA設定の保存に失敗しました' };
+    }
+}
+
 module.exports = {
     registerUser,
     loginUser,
     verifyToken,
-    loadUsers
+    loadUsers,
+    generateTotpSecret,
+    generateQRCode,
+    verifyTotp,
+    enableTwoFactor,
+    confirmTwoFactor,
+    disableTwoFactor
 };

@@ -10,7 +10,7 @@ require('dotenv').config();
 const GiteaAPI = require('./gitea-api');
 const { geminiProxy } = require('./gemini-api');
 const { authenticateRequest, skipAuthForPaths } = require('./auth-middleware');
-const { registerUser, loginUser, verifyToken } = require('./login-middleware');
+const { registerUser, loginUser, verifyToken, enableTwoFactor, confirmTwoFactor, disableTwoFactor } = require('./login-middleware');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -47,7 +47,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(verifyToken);
 
 // 認証をスキップするパス（公開エンドポイント）
-app.use(skipAuthForPaths(['/', '/health', '/api/health', '/login.html', '/api/login']));
+app.use(skipAuthForPaths(['/', '/health', '/api/health', '/login.html', '/api/login', '/api/login-2fa', '/setup-2fa.html', '/api/2fa/enable', '/api/2fa/confirm', '/api/2fa/disable']));
 
 // 認証が必要なエンドポイント
 app.use('/api/gemini', authenticateRequest);
@@ -59,10 +59,10 @@ app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// ログインAPI（認証不要）
+// ログインAPI（認証不要、2FA対応）
 app.post('/api/login', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, totpToken } = req.body;
         
         if (!username || !password) {
             return res.status(400).json({ 
@@ -71,7 +71,7 @@ app.post('/api/login', async (req, res) => {
             });
         }
         
-        const result = await loginUser(username, password);
+        const result = await loginUser(username, password, totpToken);
         
         if (result.success) {
             // JWTトークンをCookieに設定
@@ -90,6 +90,74 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: 'ログイン中にエラーが発生しました' 
+        });
+    }
+});
+
+// 2FA設定ページのエンドポイント（認証必要）
+app.get('/setup-2fa.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'setup-2fa.html'));
+});
+
+// 2FA有効化API（認証必要）
+app.post('/api/2fa/enable', async (req, res) => {
+    try {
+        const username = req.user?.username;
+        if (!username) {
+            return res.status(401).json({ success: false, message: '認証が必要です' });
+        }
+        
+        const result = await enableTwoFactor(username);
+        res.json(result);
+    } catch (error) {
+        console.error('2FA enable error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: '2FA設定中にエラーが発生しました' 
+        });
+    }
+});
+
+// 2FA確認API（認証必要）
+app.post('/api/2fa/confirm', async (req, res) => {
+    try {
+        const { totpToken } = req.body;
+        const username = req.user?.username;
+        
+        if (!username) {
+            return res.status(401).json({ success: false, message: '認証が必要です' });
+        }
+        
+        if (!totpToken) {
+            return res.status(400).json({ success: false, message: '2段階認証コードが必要です' });
+        }
+        
+        const result = await confirmTwoFactor(username, totpToken);
+        res.json(result);
+    } catch (error) {
+        console.error('2FA confirm error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: '2FA確認中にエラーが発生しました' 
+        });
+    }
+});
+
+// 2FA無効化API（認証必要）
+app.post('/api/2fa/disable', async (req, res) => {
+    try {
+        const username = req.user?.username;
+        if (!username) {
+            return res.status(401).json({ success: false, message: '認証が必要です' });
+        }
+        
+        const result = await disableTwoFactor(username);
+        res.json(result);
+    } catch (error) {
+        console.error('2FA disable error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: '2FA無効化中にエラーが発生しました' 
         });
     }
 });
