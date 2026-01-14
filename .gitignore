@@ -52,5 +52,5 @@ index.yaml
 backend/app.yaml
 
 # ユーザーデータ（機密情報）
-backend/users.json
+# backend/users.json - 一時的にコメントアウト（デプロイに含めるため）
 
