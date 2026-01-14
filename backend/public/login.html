@@ -157,10 +157,10 @@
                 <label for="loginPassword"><i class="fas fa-lock"></i> パスワード</label>
                 <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
             </div>
-            <div class="form-group" id="totpGroup" style="display: none;">
-                <label for="totpToken"><i class="fas fa-shield-alt"></i> 2段階認証コード（6桁）</label>
+            <div class="form-group" id="totpGroup">
+                <label for="totpToken"><i class="fas fa-shield-alt"></i> 2段階認証コード（6桁）<span style="color: #999; font-weight: normal;" id="totpRequired">（2FA有効時は必須）</span></label>
                 <input type="text" id="totpToken" name="totpToken" maxlength="6" pattern="[0-9]{6}" placeholder="000000" autocomplete="one-time-code">
-                <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">認証アプリ（Google Authenticatorなど）に表示されている6桁のコードを入力してください</small>
+                <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">認証アプリ（Google Authenticatorなど）に表示されている6桁のコードを入力してください（2FAが有効な場合は必須です）</small>
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">ログイン</button>
@@ -197,6 +197,12 @@
             const password = document.getElementById('loginPassword').value;
             const totpToken = document.getElementById('totpToken').value;
 
+            // バリデーション
+            if (!username || !password) {
+                showError('ユーザー名とパスワードを入力してください');
+                return;
+            }
+
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
@@ -215,8 +221,7 @@
                         window.location.href = '/';
                     }, 1000);
                 } else if (result.requiresTwoFactor) {
-                    // 2FAが必要な場合、TOTP入力欄を表示
-                    document.getElementById('totpGroup').style.display = 'block';
+                    // 2FAが必要な場合、TOTP入力を必須にする
                     document.getElementById('totpToken').required = true;
                     document.getElementById('totpToken').focus();
                     showError('2段階認証コードを入力してください');
