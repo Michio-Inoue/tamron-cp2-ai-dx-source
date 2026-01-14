@@ -68,7 +68,7 @@ async function getApiKey() {
 
 /**
  * 認証ミドルウェア
- * APIキーまたはGoogle Identity Tokenを検証
+ * APIキーまたはJWTトークンを検証
  */
 async function authenticateRequest(req, res, next) {
     // OPTIONSリクエストはスキップ
@@ -77,46 +77,44 @@ async function authenticateRequest(req, res, next) {
     }
 
     // 認証方法1: APIキー（ヘッダーまたはボディから）
-    const apiKey = (req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '') || req.body?.apiKey)?.trim();
-    
-    console.log('認証リクエスト:', {
-        path: req.path,
-        method: req.method,
-        hasApiKey: !!apiKey,
-        apiKeyLength: apiKey ? apiKey.length : 0
-    });
+    const apiKey = (req.headers['x-api-key'] || req.body?.apiKey)?.trim();
     
     if (apiKey) {
         try {
             const validApiKey = await getApiKey();
             const trimmedValidKey = validApiKey ? validApiKey.trim() : '';
-            console.log('有効なAPIキーを取得:', {
-                hasValidKey: !!validApiKey,
-                validKeyLength: trimmedValidKey.length,
-                providedKeyLength: apiKey ? apiKey.length : 0,
-                keysMatch: apiKey === trimmedValidKey
-            });
             
             if (apiKey === trimmedValidKey) {
                 // APIキーが有効
-                console.log('認証成功');
+                console.log('認証成功（APIキー）');
                 return next();
-            } else {
-                console.log('APIキーが一致しません');
             }
         } catch (error) {
             console.error('APIキー検証エラー:', error);
         }
-    } else {
-        console.log('APIキーが提供されていません');
     }
 
-    // 認証方法2: Google Identity Token（将来の実装用）
+    // 認証方法2: JWTトークン（CookieまたはAuthorizationヘッダーから）
+    const jwt = require('jsonwebtoken');
+    const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+    
+    // Cookieからトークンを取得
+    const tokenFromCookie = req.cookies?.token;
+    // Authorizationヘッダーからトークンを取得
     const authHeader = req.headers['authorization'];
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7);
-        // TODO: Google Identity Tokenの検証を実装
-        // 現時点では、APIキーを使用
+    const tokenFromHeader = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    
+    const token = tokenFromCookie || tokenFromHeader;
+    
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            req.user = decoded; // リクエストにユーザー情報を追加
+            console.log('認証成功（JWTトークン）:', decoded.username);
+            return next();
+        } catch (error) {
+            console.log('JWTトークン検証失敗:', error.message);
+        }
     }
 
     // 認証に失敗
