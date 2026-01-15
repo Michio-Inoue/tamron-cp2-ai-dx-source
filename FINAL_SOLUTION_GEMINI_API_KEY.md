@@ -1,4 +1,4 @@
-# Gemini APIキーの最終的な解決方法
+# Gemini APIキーの最終的な解決方況E
 
 ## 現在のエラー
 
@@ -6,88 +6,88 @@
 HTTP 403: Your API key was reported as leaked. Please use another API key.
 ```
 
-## 問題の原因
+## 問題�E原因
 
-Secret Managerに保存されているすべてのGemini APIキーが、**漏洩したと報告されて無効**になっています。
+Secret Managerに保存されてぁE��すべてのGemini APIキーが、E*漏洩したと報告されて無効**になってぁE��す、E
 
-- バージョン1: 無効（漏洩報告）
-- バージョン2: 無効（漏洩報告）
+- バ�Eジョン1: 無効�E�漏洩報告！E
+- バ�Eジョン2: 無効�E�漏洩報告！E
 
-## 解決方法
+## 解決方況E
 
 ### 新しいGemini APIキーを取得して追加
 
-#### ステップ1: 新しいAPIキーを取得
+#### スチE��チE: 新しいAPIキーを取征E
 
 1. **Google AI Studioにアクセス**
    ```
    https://aistudio.google.com/apikey
    ```
 
-2. **ログイン**（Googleアカウントで）
+2. **ログイン**�E�Eoogleアカウントで�E�E
 
-3. **新しいAPIキーを作成**
-   - 「Create API Key」ボタンをクリック
-   - プロジェクトを選択（`tamron-cloudrun-prod-new`）
-   - 新しいAPIキーが表示される（`[REDACTED]...`で始まる）
-   - **このキーをコピー**（後で見られないので注意）
+3. **新しいAPIキーを作�E**
+   - 「Create API Key」�EタンをクリチE��
+   - プロジェクトを選択！Etamron-cloudrun-prod-new`�E�E
+   - 新しいAPIキーが表示される！E[REDACTED]...`で始まる！E
+   - **こ�Eキーをコピ�E**�E�後で見られなぁE�Eで注意！E
 
-#### ステップ2: Secret Managerに追加
+#### スチE��チE: Secret Managerに追加
 
-PowerShellで以下のコマンドを実行してください：
+PowerShellで以下�Eコマンドを実行してください�E�E
 
 ```powershell
 echo "YOUR_NEW_GEMINI_API_KEY" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
 ```
 
-**実際の例（YOUR_NEW_GEMINI_API_KEYの部分を実際のキーに置き換える）：**
+**実際の例！EOUR_NEW_GEMINI_API_KEYの部刁E��実際のキーに置き換える�E�！E*
 ```powershell
 echo "[REDACTED]" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
 ```
 
-#### ステップ3: 確認
+#### スチE��チE: 確誁E
 
-追加が成功したことを確認：
+追加が�E功したことを確認！E
 
 ```powershell
 gcloud secrets versions list gemini-api-key --project=tamron-cloudrun-prod-new
 ```
 
-新しいバージョン（例：バージョン3）が表示されれば成功です。
+新しいバ�Eジョン�E�例：バージョン3�E�が表示されれ�E成功です、E
 
-#### ステップ4: テスト
+#### スチE��チE: チE��チE
 
-1. **数秒待つ**（バックエンドのキャッシュが更新されるまで）
-2. **フロントエンドからAPIを呼び出す**
+1. **数秒征E��**�E�バチE��エンド�EキャチE��ュが更新されるまで�E�E
+2. **フロントエンドからAPIを呼び出ぁE*
    - `ai-drbfm.html`をブラウザで開く
-   - ファイルを選択してAI分析を実行
-3. **動作確認**
-   - エラーが解消され、AI分析が正常に動作することを確認
+   - ファイルを選択してAI刁E��を実衁E
+3. **動作確誁E*
+   - エラーが解消され、AI刁E��が正常に動作することを確誁E
 
-## 重要な注意事項
+## 重要な注意事頁E
 
-### APIキーのセキュリティ
+### APIキーのセキュリチE��
 
-- ✅ **Secret Managerで管理**: APIキーはSecret Managerで安全に管理されています
-- ❌ **コードに含めない**: APIキーをコードや公開リポジトリに含めないでください
-- ❌ **フロントエンドに埋め込まない**: フロントエンドのコードにAPIキーを埋め込まないでください（現在の実装ではバックエンドAPIキーのみがフロントエンドに設定されていますが、これはバックエンドAPIへのアクセス用です）
+- ✁E**Secret Managerで管琁E*: APIキーはSecret Managerで安�Eに管琁E��れてぁE��ぁE
+- ❁E**コードに含めなぁE*: APIキーをコードや公開リポジトリに含めなぁE��ください
+- ❁E**フロントエンドに埋め込まなぁE*: フロントエンド�EコードにAPIキーを埋め込まなぁE��ください�E�現在の実裁E��はバックエンドAPIキーのみがフロントエンドに設定されてぁE��すが、これ�EバックエンドAPIへのアクセス用です！E
 
-### 現在の実装
+### 現在の実裁E
 
-- **フロントエンド**: バックエンドAPIキー（`Lh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`）を使用してバックエンドAPIにアクセス
-- **バックエンド**: Secret ManagerからGemini APIキーを取得してGemini APIを呼び出す
+- **フロントエンチE*: バックエンドAPIキー�E�ELh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`�E�を使用してバックエンドAPIにアクセス
+- **バックエンチE*: Secret ManagerからGemini APIキーを取得してGemini APIを呼び出ぁE
 
-この実装により、Gemini APIキーはフロントエンドに露出せず、安全に管理されています。
+こ�E実裁E��より、Gemini APIキーはフロントエンドに露出せず、安�Eに管琁E��れてぁE��す、E
 
-## 現在の状態
+## 現在の状慁E
 
-- ✅ **バックエンドAPI**: 正常に動作
-- ✅ **認証ミドルウェア**: 正常に動作
-- ✅ **バックエンドAPIキー**: 正常
-- ❌ **Gemini APIキー**: 無効（新しいキーが必要）
+- ✁E**バックエンドAPI**: 正常に動佁E
+- ✁E**認証ミドルウェア**: 正常に動佁E
+- ✁E**バックエンドAPIキー**: 正常
+- ❁E**Gemini APIキー**: 無効�E�新しいキーが忁E��E��E
 
-## まとめ
+## まとめE
 
-新しいGemini APIキーを取得して、Secret Managerに追加すれば、問題は解決します。
+新しいGemini APIキーを取得して、Secret Managerに追加すれば、問題�E解決します、E
 
-新しいAPIキーを取得したら、上記のステップ2のコマンドを実行して追加してください。
+新しいAPIキーを取得したら、上記�EスチE��チEのコマンドを実行して追加してください、E

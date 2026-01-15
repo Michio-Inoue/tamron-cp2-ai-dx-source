@@ -1,126 +1,126 @@
-# サービスアカウント権限エラーの解決方法
+# サービスアカウント権限エラーの解決方況E
 
 ## エラーの原因
 
-「メールアドレスとドメインは、有効な Google アカウント...」というエラーは、以下の理由で発生します：
+「メールアドレスとドメインは、有効な Google アカウンチE..」とぁE��エラーは、以下�E琁E��で発生します！E
 
-1. **App Engineがまだ初期化されていない**
-   - App Engineを初期化すると、デフォルトサービスアカウントが自動的に作成されます
+1. **App Engineがまだ初期化されてぁE��ぁE*
+   - App Engineを�E期化すると、デフォルトサービスアカウントが自動的に作�EされまぁE
 
-2. **サービスアカウントのメールアドレスが間違っている**
-   - プロジェクトIDではなく、プロジェクト番号を使用する必要がある場合があります
+2. **サービスアカウント�Eメールアドレスが間違ってぁE��**
+   - プロジェクチEDではなく、�Eロジェクト番号を使用する忁E��がある場合がありまぁE
 
-## 解決方法
+## 解決方況E
 
-### 方法1: App Engineを先に初期化する（推奨）
+### 方況E: App Engineを�Eに初期化する（推奨�E�E
 
-App Engineを初期化すると、正しいサービスアカウントが自動的に作成されます。
+App Engineを�E期化すると、正しいサービスアカウントが自動的に作�Eされます、E
 
-#### ステップ1: App Engineを初期化
+#### スチE��チE: App Engineを�E期化
 
-1. 以下のURLにアクセス：
+1. 以下�EURLにアクセス�E�E
    ```
    https://console.cloud.google.com/appengine?project=singular-server-480006-s8
    ```
 
-2. 「アプリケーションを作成」をクリック
+2. 「アプリケーションを作�E」をクリチE��
 
-3. リージョンを選択（推奨: `asia-northeast1` または `asia-northeast2`）
+3. リージョンを選択（推奨: `asia-northeast1` また�E `asia-northeast2`�E�E
 
-4. 「作成」をクリック
+4. 「作�E」をクリチE��
 
-5. 初期化には数分かかります
+5. 初期化には数刁E��かりまぁE
 
-#### ステップ2: サービスアカウントを確認
+#### スチE��チE: サービスアカウントを確誁E
 
-初期化後、以下のコマンドでサービスアカウントを確認：
+初期化後、以下�Eコマンドでサービスアカウントを確認！E
 
 ```bash
 gcloud iam service-accounts list --project=singular-server-480006-s8
 ```
 
-または、Google Cloud Consoleで：
-1. 「IAMと管理」→「サービスアカウント」にアクセス
-2. `*@appspot.gserviceaccount.com` または `*@project.gserviceaccount.com` で終わるアカウントを探す
+また�E、Google Cloud Consoleで�E�E
+1. 「IAMと管琁E���E「サービスアカウント」にアクセス
+2. `*@appspot.gserviceaccount.com` また�E `*@project.gserviceaccount.com` で終わるアカウントを探ぁE
 
-#### ステップ3: 正しいサービスアカウントに権限を付与
+#### スチE��チE: 正しいサービスアカウントに権限を付丁E
 
-Secret Managerで、確認したサービスアカウントに権限を付与します。
+Secret Managerで、確認したサービスアカウントに権限を付与します、E
 
-### 方法2: プロジェクト番号を使用する
+### 方況E: プロジェクト番号を使用する
 
-プロジェクト番号を確認して、それを使用します。
+プロジェクト番号を確認して、それを使用します、E
 
-#### ステップ1: プロジェクト番号を確認
+#### スチE��チE: プロジェクト番号を確誁E
 
-Google Cloud Consoleで：
-1. プロジェクト選択ドロップダウンをクリック
-2. プロジェクト番号を確認（例: `123456789012`）
+Google Cloud Consoleで�E�E
+1. プロジェクト選択ドロチE�EダウンをクリチE��
+2. プロジェクト番号を確認（侁E `123456789012`�E�E
 
-または、コマンドラインで：
+また�E、コマンドラインで�E�E
 ```bash
 gcloud projects describe singular-server-480006-s8 --format="value(projectNumber)"
 ```
 
-#### ステップ2: サービスアカウントのメールアドレスを構築
+#### スチE��チE: サービスアカウント�Eメールアドレスを構篁E
 
-サービスアカウントのメールアドレスは以下の形式です：
+サービスアカウント�Eメールアドレスは以下�E形式です！E
 ```
 PROJECT_NUMBER@project.gserviceaccount.com
 ```
 
-例: `123456789012@project.gserviceaccount.com`
+侁E `123456789012@project.gserviceaccount.com`
 
-#### ステップ3: Secret Managerで権限を付与
+#### スチE��チE: Secret Managerで権限を付丁E
 
-1. Secret Managerで `gemini-api-key` を開く
-2. 「権限」タブをクリック
-3. 「プリンシパルを追加」をクリック
-4. **新しいプリンシパル**: `PROJECT_NUMBER@project.gserviceaccount.com` を入力
-5. **ロール**: 「Secret Manager シークレット アクセサー」を選択
-6. 「保存」をクリック
+1. Secret Managerで `gemini-api-key` を開ぁE
+2. 「権限」タブをクリチE��
+3. 「�Eリンシパルを追加」をクリチE��
+4. **新しいプリンシパル**: `PROJECT_NUMBER@project.gserviceaccount.com` を�E劁E
+5. **ロール**: 「Secret Manager シークレチE�� アクセサー」を選抁E
+6. 「保存」をクリチE��
 
-### 方法3: コマンドラインで権限を付与（プロジェクト番号を使用）
+### 方況E: コマンドラインで権限を付与（�Eロジェクト番号を使用�E�E
 
-プロジェクト番号が分かっている場合：
+プロジェクト番号が�EかってぁE��場合！E
 
 ```bash
-# プロジェクト番号を取得（例: 123456789012）
+# プロジェクト番号を取得（侁E 123456789012�E�E
 PROJECT_NUMBER=$(gcloud projects describe singular-server-480006-s8 --format="value(projectNumber)")
 
-# 権限を付与
+# 権限を付丁E
 gcloud secrets add-iam-policy-binding gemini-api-key \
     --member="serviceAccount:${PROJECT_NUMBER}@project.gserviceaccount.com" \
     --role="roles/secretmanager.secretAccessor" \
     --project=singular-server-480006-s8
 ```
 
-## 確認方法
+## 確認方況E
 
-### サービスアカウントの一覧を確認
+### サービスアカウント�E一覧を確誁E
 
-Google Cloud Consoleで：
-1. 「IAMと管理」→「サービスアカウント」にアクセス
-2. 以下の形式のアカウントを探す：
+Google Cloud Consoleで�E�E
+1. 「IAMと管琁E���E「サービスアカウント」にアクセス
+2. 以下�E形式�Eアカウントを探す！E
    - `PROJECT_NUMBER@project.gserviceaccount.com`
    - `PROJECT_ID@appspot.gserviceaccount.com`
 
-### 権限が正しく付与されているか確認
+### 権限が正しく付与されてぁE��か確誁E
 
-Secret Managerで：
-1. `gemini-api-key` を開く
-2. 「権限」タブを確認
-3. サービスアカウントが表示されていればOK ✓
+Secret Managerで�E�E
+1. `gemini-api-key` を開ぁE
+2. 「権限」タブを確誁E
+3. サービスアカウントが表示されてぁE��ばOK ✁E
 
-## 推奨手順
+## 推奨手頁E
 
-1. **まずApp Engineを初期化**（方法1）
-   - これにより、正しいサービスアカウントが自動的に作成されます
+1. **まずApp Engineを�E期化**�E�方況E�E�E
+   - これにより、正しいサービスアカウントが自動的に作�EされまぁE
 
-2. **サービスアカウントを確認**
+2. **サービスアカウントを確誁E*
 
-3. **Secret Managerで権限を付与**
+3. **Secret Managerで権限を付丁E*
 
-この順序で進めると、エラーを回避できます。
+こ�E頁E��で進めると、エラーを回避できます、E
 
 

@@ -1,60 +1,60 @@
-# 既存のサービスアカウント（git-deployer）を使用する方法
+# 既存�Eサービスアカウント！Eit-deployer�E�を使用する方況E
 
-## 回答
+## 回筁E
 
-**はい、既存のサービスアカウント（git-deployer）を使用できます！**
+**はぁE��既存�Eサービスアカウント！Eit-deployer�E�を使用できます！E*
 
-App Engineの初期化では、サービスアカウントを選択する必要はありません。初期化後、既存のサービスアカウントにSecret Managerへの権限を付与すれば使用できます。
+App Engineの初期化では、サービスアカウントを選択する忁E���Eありません。�E期化後、既存�EサービスアカウントにSecret Managerへの権限を付与すれ�E使用できます、E
 
-## 手順
+## 手頁E
 
-### ステップ1: App Engineを初期化（そのまま進める）
+### スチE��チE: App Engineを�E期化�E�そのまま進める�E�E
 
-1. App Engineページにアクセス：
+1. App Engineペ�Eジにアクセス�E�E
    ```
    https://console.cloud.google.com/appengine?project=singular-server-480006-s8
    ```
 
-2. 「アプリケーションを作成」をクリック
+2. 「アプリケーションを作�E」をクリチE��
 
-3. リージョンを選択して「作成」をクリック
+3. リージョンを選択して「作�E」をクリチE��
 
-4. 初期化を完了（サービスアカウントの選択は不要）
+4. 初期化を完亁E��サービスアカウント�E選択�E不要E��E
 
-### ステップ2: 既存のサービスアカウント（git-deployer）を確認
+### スチE��チE: 既存�Eサービスアカウント！Eit-deployer�E�を確誁E
 
-1. サービスアカウントページにアクセス：
+1. サービスアカウント�Eージにアクセス�E�E
    ```
    https://console.cloud.google.com/iam-admin/serviceaccounts?project=singular-server-480006-s8
    ```
 
-2. `git-deployer` という名前のサービスアカウントを探す
+2. `git-deployer` とぁE��名前のサービスアカウントを探ぁE
 
-3. メールアドレスを確認（例: `git-deployer@singular-server-480006-s8.iam.gserviceaccount.com`）
+3. メールアドレスを確認（侁E `git-deployer@singular-server-480006-s8.iam.gserviceaccount.com`�E�E
 
-### ステップ3: Secret Managerで権限を付与
+### スチE��チE: Secret Managerで権限を付丁E
 
-1. Secret Managerページで `gemini-api-key` を開く：
+1. Secret Managerペ�Eジで `gemini-api-key` を開く！E
    ```
    https://console.cloud.google.com/security/secret-manager?project=singular-server-480006-s8
    ```
 
-2. 「権限」タブをクリック
+2. 「権限」タブをクリチE��
 
-3. 「プリンシパルを追加」をクリック
+3. 「�Eリンシパルを追加」をクリチE��
 
-4. 以下の情報を入力：
-   - **新しいプリンシパル**: `git-deployer` のメールアドレスを入力
-     - 例: `git-deployer@singular-server-480006-s8.iam.gserviceaccount.com`
-   - **ロール**: 「Secret Manager シークレット アクセサー」を選択
+4. 以下�E惁E��を�E力！E
+   - **新しいプリンシパル**: `git-deployer` のメールアドレスを�E劁E
+     - 侁E `git-deployer@singular-server-480006-s8.iam.gserviceaccount.com`
+   - **ロール**: 「Secret Manager シークレチE�� アクセサー」を選抁E
 
-5. 「保存」をクリック
+5. 「保存」をクリチE��
 
-### ステップ4: App Engineでサービスアカウントを指定（オプション）
+### スチE��チE: App Engineでサービスアカウントを持E��（オプション�E�E
 
-既存のサービスアカウント（git-deployer）をApp Engineで使用する場合：
+既存�Eサービスアカウント！Eit-deployer�E�をApp Engineで使用する場合！E
 
-1. `backend/app.yaml` を編集して、サービスアカウントを指定：
+1. `backend/app.yaml` を編雁E��て、サービスアカウントを持E��！E
 
 ```yaml
 runtime: nodejs20
@@ -63,36 +63,36 @@ env_variables:
   GEMINI_API_KEY_SECRET_NAME: 'gemini-api-key'
   NODE_ENV: 'production'
 
-# 既存のサービスアカウントを指定
+# 既存�Eサービスアカウントを持E��E
 service_account: git-deployer@singular-server-480006-s8.iam.gserviceaccount.com
 ```
 
-**注意**: サービスアカウントのメールアドレスは、実際のメールアドレスに置き換えてください。
+**注愁E*: サービスアカウント�Eメールアドレスは、実際のメールアドレスに置き換えてください、E
 
-## メリット
+## メリチE��
 
-既存のサービスアカウント（git-deployer）を使用するメリット：
+既存�Eサービスアカウント！Eit-deployer�E�を使用するメリチE���E�E
 - 既に設定済みのサービスアカウントを再利用できる
-- 権限管理が統一される
-- 新しいサービスアカウントを作成する必要がない
+- 権限管琁E��統一されめE
+- 新しいサービスアカウントを作�Eする忁E��がなぁE
 
-## 注意事項
+## 注意事頁E
 
-- サービスアカウントのメールアドレスは、Google Cloud Consoleで確認してください
-- サービスアカウント名が異なる場合（例: `git-deployer-xxx`）は、そのメールアドレスを使用してください
-- `app.yaml` でサービスアカウントを指定しない場合、App Engineのデフォルトサービスアカウントが使用されます
+- サービスアカウント�Eメールアドレスは、Google Cloud Consoleで確認してください
+- サービスアカウント名が異なる場合（侁E `git-deployer-xxx`�E��E、そのメールアドレスを使用してください
+- `app.yaml` でサービスアカウントを持E��しなぁE��合、App EngineのチE��ォルトサービスアカウントが使用されまぁE
 
-## 確認方法
+## 確認方況E
 
-サービスアカウントのメールアドレスを確認するには：
+サービスアカウント�Eメールアドレスを確認するには�E�E
 
-1. サービスアカウントページにアクセス：
+1. サービスアカウント�Eージにアクセス�E�E
    ```
    https://console.cloud.google.com/iam-admin/serviceaccounts?project=singular-server-480006-s8
    ```
 
-2. `git-deployer` をクリック
+2. `git-deployer` をクリチE��
 
-3. 「詳細」タブでメールアドレスを確認
+3. 「詳細」タブでメールアドレスを確誁E
 
 

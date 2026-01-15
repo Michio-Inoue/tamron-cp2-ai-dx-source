@@ -1,20 +1,20 @@
-# 新しいプロジェクトへの移行手順
+# 新しいプロジェクトへの移行手頁E
 
 ## 新しいプロジェクト情報
 
-- **プロジェクトID**: `tamron-cloudrun-prod-new`
+- **プロジェクチED**: `tamron-cloudrun-prod-new`
 - **ドメイン**: `tamron-compo2.com`
 - **APIキー**: `a6a925178e7669bd8305d58899a3c4d0330dabf0`
 
-## セットアップ手順
+## セチE��アチE�E手頁E
 
-### ステップ1: プロジェクトを切り替え
+### スチE��チE: プロジェクトを刁E��替ぁE
 
 ```powershell
 gcloud config set project tamron-cloudrun-prod-new
 ```
 
-### ステップ2: 必要なAPIを有効化
+### スチE��チE: 忁E��なAPIを有効匁E
 
 ```powershell
 gcloud services enable run.googleapis.com --project=tamron-cloudrun-prod-new
@@ -23,7 +23,7 @@ gcloud services enable cloudbuild.googleapis.com --project=tamron-cloudrun-prod-
 gcloud services enable artifactregistry.googleapis.com --project=tamron-cloudrun-prod-new
 ```
 
-### ステップ3: Artifact Registryリポジトリを作成
+### スチE��チE: Artifact Registryリポジトリを作�E
 
 ```powershell
 gcloud artifacts repositories create ai-drbfm-backend `
@@ -33,37 +33,37 @@ gcloud artifacts repositories create ai-drbfm-backend `
     --description="AI-DRBFM Backend Docker images"
 ```
 
-### ステップ4: Secret ManagerにAPIキーを追加
+### スチE��チE: Secret ManagerにAPIキーを追加
 
 ```powershell
-# Secretを作成
+# Secretを作�E
 gcloud secrets create gemini-api-key --project=tamron-cloudrun-prod-new
 
 # APIキーを追加
 echo "a6a925178e7669bd8305d58899a3c4d0330dabf0" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
 ```
 
-### ステップ5: Secret Managerへのアクセス権限を設定
+### スチE��チE: Secret Managerへのアクセス権限を設宁E
 
 ```powershell
-# Cloud Runサービスアカウントに権限を付与
+# Cloud Runサービスアカウントに権限を付丁E
 gcloud secrets add-iam-policy-binding gemini-api-key `
     --member="serviceAccount:$(gcloud projects describe tamron-cloudrun-prod-new --format='value(projectNumber)')-compute@developer.gserviceaccount.com" `
     --role="roles/secretmanager.secretAccessor" `
     --project=tamron-cloudrun-prod-new
 ```
 
-### ステップ6: cloudbuild.yamlを確認
+### スチE��チE: cloudbuild.yamlを確誁E
 
-`cloudbuild.yaml`の`$PROJECT_ID`が新しいプロジェクトIDを参照することを確認してください。
+`cloudbuild.yaml`の`$PROJECT_ID`が新しいプロジェクチEDを参照することを確認してください、E
 
-### ステップ7: Cloud Buildサービスアカウントに権限を付与
+### スチE��チE: Cloud Buildサービスアカウントに権限を付丁E
 
 ```powershell
-# プロジェクト番号を取得
+# プロジェクト番号を取征E
 $PROJECT_NUMBER = gcloud projects describe tamron-cloudrun-prod-new --format='value(projectNumber)'
 
-# Cloud Buildサービスアカウントに権限を付与
+# Cloud Buildサービスアカウントに権限を付丁E
 gcloud projects add-iam-policy-binding tamron-cloudrun-prod-new `
     --member="serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com" `
     --role="roles/storage.admin"
@@ -89,13 +89,13 @@ gcloud projects add-iam-policy-binding tamron-cloudrun-prod-new `
     --role="roles/logging.logWriter"
 ```
 
-### ステップ8: デプロイ
+### スチE��チE: チE�Eロイ
 
 ```powershell
 gcloud builds submit --config=cloudbuild.yaml --project=tamron-cloudrun-prod-new
 ```
 
-### ステップ9: 公開アクセスを許可
+### スチE��チE: 公開アクセスを許可
 
 ```powershell
 gcloud run services add-iam-policy-binding ai-drbfm-backend `
@@ -105,12 +105,12 @@ gcloud run services add-iam-policy-binding ai-drbfm-backend `
     --project=tamron-cloudrun-prod-new
 ```
 
-## 確認事項
+## 確認事頁E
 
-- 新しいプロジェクトID: `tamron-cloudrun-prod-new`
+- 新しいプロジェクチED: `tamron-cloudrun-prod-new`
 - APIキー: `a6a925178e7669bd8305d58899a3c4d0330dabf0`
 - リージョン: `asia-northeast1`
 
-上記の手順を実行しますか？それとも、特定のステップから始めますか？
+上記�E手頁E��実行しますか�E�それとも、特定�EスチE��プから始めますか�E�E
 
 

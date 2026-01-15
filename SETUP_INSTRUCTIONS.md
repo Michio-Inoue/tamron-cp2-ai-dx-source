@@ -1,27 +1,27 @@
-# Google Cloud セットアップ手順
+# Google Cloud セチE��アチE�E手頁E
 
 ## プロジェクト情報
 - **プロジェクト名**: Tamron-cp2-AI-DX
-- **プロジェクトID**: `singular-server-480006-s8`
+- **プロジェクチED**: `singular-server-480006-s8`
 
-## 手動セットアップ手順
+## 手動セチE��アチE�E手頁E
 
-### ステップ1: 再認証とプロジェクト設定
+### スチE��チE: 再認証とプロジェクト設宁E
 
-PowerShellまたはコマンドプロンプトで以下を実行：
+PowerShellまた�Eコマンド�Eロンプトで以下を実行！E
 
 ```bash
-# 1. 再認証（ブラウザが開きます）
+# 1. 再認証�E�ブラウザが開きます！E
 gcloud auth login
 
-# 2. プロジェクトを設定
+# 2. プロジェクトを設宁E
 gcloud config set project singular-server-480006-s8
 
-# 3. 設定を確認
+# 3. 設定を確誁E
 gcloud config get-value project
 ```
 
-### ステップ2: 必要なAPIを有効化
+### スチE��チE: 忁E��なAPIを有効匁E
 
 ```bash
 gcloud services enable secretmanager.googleapis.com
@@ -29,23 +29,23 @@ gcloud services enable appengine.googleapis.com
 gcloud services enable cloudbuild.googleapis.com
 ```
 
-### ステップ3: Secret ManagerにAPIキーを保存
+### スチE��チE: Secret ManagerにAPIキーを保孁E
 
 ```bash
-# 方法1: コマンドラインから（推奨）
+# 方況E: コマンドラインから�E�推奨�E�E
 echo -n "YOUR_GEMINI_API_KEY" | gcloud secrets create gemini-api-key --data-file=- --replication-policy="automatic"
 
-# 方法2: Google Cloud Consoleから
+# 方況E: Google Cloud Consoleから
 # 1. https://console.cloud.google.com/security/secret-manager?project=singular-server-480006-s8 にアクセス
-# 2. 「シークレットを作成」をクリック
+# 2. 「シークレチE��を作�E」をクリチE��
 # 3. 名前: gemini-api-key
-# 4. シークレットの値: あなたのGemini APIキーを入力
-# 5. 「作成」をクリック
+# 4. シークレチE��の値: あなた�EGemini APIキーを�E劁E
+# 5. 「作�E」をクリチE��
 ```
 
-**注意**: `YOUR_GEMINI_API_KEY` を実際のAPIキーに置き換えてください。
+**注愁E*: `YOUR_GEMINI_API_KEY` を実際のAPIキーに置き換えてください、E
 
-### ステップ4: サービスアカウントに権限を付与
+### スチE��チE: サービスアカウントに権限を付丁E
 
 ```bash
 gcloud secrets add-iam-policy-binding gemini-api-key \
@@ -53,7 +53,7 @@ gcloud secrets add-iam-policy-binding gemini-api-key \
     --role="roles/secretmanager.secretAccessor"
 ```
 
-### ステップ5: バックエンドをデプロイ
+### スチE��チE: バックエンドをチE�Eロイ
 
 ```bash
 cd backend
@@ -61,32 +61,32 @@ npm install
 gcloud app deploy app.yaml
 ```
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### 再認証が必要な場合
+### 再認証が忁E��な場吁E
 
 ```bash
-# アプリケーションのデフォルト認証情報を設定
+# アプリケーションのチE��ォルト認証惁E��を設宁E
 gcloud auth application-default login
 ```
 
-### プロジェクトにアクセスできない場合
+### プロジェクトにアクセスできなぁE��吁E
 
-1. プロジェクトの所有者または編集者権限があるか確認
-2. 正しいGoogleアカウント（inoue@tamron-compo2.com）でログインしているか確認
+1. プロジェクト�E所有老E��た�E編雁E��E��限があるか確誁E
+2. 正しいGoogleアカウント！Enoue@tamron-compo2.com�E�でログインしてぁE��か確誁E
 
-### Secret Managerが既に存在する場合
+### Secret Managerが既に存在する場吁E
 
 ```bash
-# 既存のシークレットに新しいバージョンを追加
+# 既存�EシークレチE��に新しいバ�Eジョンを追加
 echo -n "YOUR_GEMINI_API_KEY" | gcloud secrets versions add gemini-api-key --data-file=-
 ```
 
-## 次のステップ
+## 次のスチE��チE
 
-デプロイが完了したら：
-1. バックエンドAPIのURLを確認（例: `https://singular-server-480006-s8.appspot.com`）
-2. フロントエンドをバックエンドAPI経由で呼び出すように変更（オプション）
-3. 動作確認
+チE�Eロイが完亁E��たら�E�E
+1. バックエンドAPIのURLを確認（侁E `https://singular-server-480006-s8.appspot.com`�E�E
+2. フロントエンドをバックエンドAPI経由で呼び出すよぁE��変更�E�オプション�E�E
+3. 動作確誁E
 
 

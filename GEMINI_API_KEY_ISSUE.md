@@ -1,4 +1,4 @@
-# Gemini APIキーの問題
+# Gemini APIキーの問顁E
 
 ## エラー
 
@@ -8,38 +8,38 @@ Your API key was reported as leaked. Please use another API key.
 
 ## 原因
 
-`ai-drbfm.html`に設定されているGemini APIキー（`[REDACTED]`）も、**漏洩したと報告されて無効**になっています。
+`ai-drbfm.html`に設定されてぁE��Gemini APIキー�E�E[REDACTED]`�E�も、E*漏洩したと報告されて無効**になってぁE��す、E
 
-## 解決方法
+## 解決方況E
 
-### 新しいGemini APIキーを取得する必要があります
+### 新しいGemini APIキーを取得する忁E��がありまぁE
 
 1. **Google AI Studioにアクセス**
    - https://aistudio.google.com/apikey
 
-2. **新しいAPIキーを作成**
-   - 「Create API Key」をクリック
-   - プロジェクト `tamron-cloudrun-prod-new` を選択
-   - 新しいAPIキーをコピー
+2. **新しいAPIキーを作�E**
+   - 「Create API Key」をクリチE��
+   - プロジェクチE`tamron-cloudrun-prod-new` を選抁E
+   - 新しいAPIキーをコピ�E
 
 3. **Secret Managerに追加**
    ```powershell
    echo "YOUR_NEW_GEMINI_API_KEY" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
    ```
 
-## 注意事項
+## 注意事頁E
 
-- 既存のAPIキーは漏洩したと報告されているため、新しいAPIキーが必要です
-- 新しいAPIキーは、公開リポジトリやコードに含めないでください
-- Secret Managerで安全に管理してください
+- 既存�EAPIキーは漏洩したと報告されてぁE��ため、新しいAPIキーが忁E��でぁE
+- 新しいAPIキーは、�E開リポジトリめE��ードに含めなぁE��ください
+- Secret Managerで安�Eに管琁E��てください
 
-## 現在の状態
+## 現在の状慁E
 
-- ❌ **Secret ManagerのGemini APIキー（バージョン1）**: 無効（漏洩報告）
-- ❌ **Secret ManagerのGemini APIキー（バージョン2）**: 無効（漏洩報告）
-- ✅ **バックエンドAPI**: 正常に動作
-- ✅ **認証ミドルウェア**: 正常に動作
+- ❁E**Secret ManagerのGemini APIキー�E�バージョン1�E�E*: 無効�E�漏洩報告！E
+- ❁E**Secret ManagerのGemini APIキー�E�バージョン2�E�E*: 無効�E�漏洩報告！E
+- ✁E**バックエンドAPI**: 正常に動佁E
+- ✁E**認証ミドルウェア**: 正常に動佁E
 
-## 次のステップ
+## 次のスチE��チE
 
-新しいGemini APIキーを取得して、Secret Managerに追加してください。
+新しいGemini APIキーを取得して、Secret Managerに追加してください、E

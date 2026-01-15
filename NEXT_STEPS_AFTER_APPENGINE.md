@@ -1,124 +1,124 @@
-# App Engine初期化後の次のステップ
+# App Engine初期化後�E次のスチE��チE
 
-## 現在の状態
-✅ App Engineの初期化完了
-✅ デフォルトサービスアカウントが自動的に作成されました
+## 現在の状慁E
+✁EApp Engineの初期化完亁E
+✁EチE��ォルトサービスアカウントが自動的に作�Eされました
 
-## 次のステップ
+## 次のスチE��チE
 
-### ステップ1: デフォルトサービスアカウントのメールアドレスを確認
+### スチE��チE: チE��ォルトサービスアカウント�Eメールアドレスを確誁E
 
-1. 以下のURLにアクセス：
+1. 以下�EURLにアクセス�E�E
    ```
    https://console.cloud.google.com/iam-admin/serviceaccounts?project=singular-server-480006-s8
    ```
 
-2. サービスアカウントの一覧から、以下のいずれかの形式のアカウントを探します：
-   - `PROJECT_NUMBER@project.gserviceaccount.com`（例: `123456789012@project.gserviceaccount.com`）
+2. サービスアカウント�E一覧から、以下�EぁE��れかの形式�Eアカウントを探します！E
+   - `PROJECT_NUMBER@project.gserviceaccount.com`�E�侁E `123456789012@project.gserviceaccount.com`�E�E
    - `singular-server-480006-s8@appspot.gserviceaccount.com`
-   - 「App Engine デフォルトサービスアカウント」という表示名のアカウント
+   - 「App Engine チE��ォルトサービスアカウント」とぁE��表示名�EアカウンチE
 
-3. **メールアドレスをコピー**します（次のステップで使用します）
+3. **メールアドレスをコピ�E**します（次のスチE��プで使用します！E
 
-### ステップ2: Secret Managerで権限を付与
+### スチE��チE: Secret Managerで権限を付丁E
 
-1. Secret Managerページにアクセス：
+1. Secret Managerペ�Eジにアクセス�E�E
    ```
    https://console.cloud.google.com/security/secret-manager?project=singular-server-480006-s8
    ```
 
-2. `gemini-api-key` シークレットをクリック
+2. `gemini-api-key` シークレチE��をクリチE��
 
-3. 「権限」タブをクリック
+3. 「権限」タブをクリチE��
 
-4. 「プリンシパルを追加」ボタンをクリック
+4. 「�Eリンシパルを追加」�EタンをクリチE��
 
-5. 以下の情報を入力：
-   - **新しいプリンシパル**: ステップ1で確認したサービスアカウントのメールアドレスを貼り付け
-     - 例: `123456789012@project.gserviceaccount.com`
-     - または: `singular-server-480006-s8@appspot.gserviceaccount.com`
-   - **ロール**: 「Secret Manager シークレット アクセサー」を選択
+5. 以下�E惁E��を�E力！E
+   - **新しいプリンシパル**: スチE��チEで確認したサービスアカウント�Eメールアドレスを貼り付け
+     - 侁E `123456789012@project.gserviceaccount.com`
+     - また�E: `singular-server-480006-s8@appspot.gserviceaccount.com`
+   - **ロール**: 「Secret Manager シークレチE�� アクセサー」を選抁E
 
-6. 「保存」ボタンをクリック
+6. 「保存」�EタンをクリチE��
 
-7. 数秒で完了します ✓
+7. 数秒で完亁E��まぁE✁E
 
-### ステップ3: 必要なAPIを有効化（まだの場合）
+### スチE��チE: 忁E��なAPIを有効化（まだの場合！E
 
-以下のAPIが有効になっているか確認：
+以下�EAPIが有効になってぁE��か確認！E
 
-1. APIライブラリページにアクセス：
+1. APIライブラリペ�Eジにアクセス�E�E
    ```
    https://console.cloud.google.com/apis/library?project=singular-server-480006-s8
    ```
 
-2. 以下のAPIを検索して、「有効」になっているか確認：
-   - **Secret Manager API** ✓
-   - **App Engine Admin API** ✓
-   - **Cloud Build API** ✓
+2. 以下�EAPIを検索して、「有効」になってぁE��か確認！E
+   - **Secret Manager API** ✁E
+   - **App Engine Admin API** ✁E
+   - **Cloud Build API** ✁E
 
-3. 有効になっていない場合は、「有効にする」をクリック
+3. 有効になってぁE��ぁE��合�E、「有効にする」をクリチE��
 
-### ステップ4: Secret ManagerにAPIキーが保存されているか確認
+### スチE��チE: Secret ManagerにAPIキーが保存されてぁE��か確誁E
 
-1. Secret Managerページにアクセス：
+1. Secret Managerペ�Eジにアクセス�E�E
    ```
    https://console.cloud.google.com/security/secret-manager?project=singular-server-480006-s8
    ```
 
-2. `gemini-api-key` が表示されているか確認
+2. `gemini-api-key` が表示されてぁE��か確誁E
 
-3. 存在しない場合は、作成：
-   - 「シークレットを作成」をクリック
+3. 存在しなぁE��合�E、作�E�E�E
+   - 「シークレチE��を作�E」をクリチE��
    - 名前: `gemini-api-key`
-   - シークレットの値: `[REDACTED]`
-   - 「作成」をクリック
+   - シークレチE��の値: `[REDACTED]`
+   - 「作�E」をクリチE��
 
-### ステップ5: バックエンドをデプロイ
+### スチE��チE: バックエンドをチE�Eロイ
 
-すべての設定が完了したら、PowerShellで以下のコマンドを実行：
+すべての設定が完亁E��たら、PowerShellで以下�Eコマンドを実行！E
 
 ```powershell
-# プロジェクトを設定
+# プロジェクトを設宁E
 gcloud config set project singular-server-480006-s8
 
-# バックエンドディレクトリに移動
+# バックエンドディレクトリに移勁E
 cd backend
 
-# デプロイ実行
+# チE�Eロイ実衁E
 gcloud app deploy app.yaml
 ```
 
-デプロイには5〜10分かかることがあります。
+チE�Eロイには5、E0刁E��かることがあります、E
 
-デプロイが完了すると、以下のようなURLが表示されます：
+チE�Eロイが完亁E��ると、以下�EようなURLが表示されます！E
 ```
 https://singular-server-480006-s8.appspot.com
 ```
 
-## チェックリスト
+## チェチE��リスチE
 
-セットアップの確認：
+セチE��アチE�Eの確認！E
 
-- [ ] App Engineの初期化完了
-- [ ] デフォルトサービスアカウントのメールアドレスを確認
+- [ ] App Engineの初期化完亁E
+- [ ] チE��ォルトサービスアカウント�Eメールアドレスを確誁E
 - [ ] Secret Managerで `gemini-api-key` が存在
-- [ ] サービスアカウントにSecret Managerへの権限を付与
-- [ ] 必要なAPIが有効化されている
-- [ ] バックエンドをデプロイ
+- [ ] サービスアカウントにSecret Managerへの権限を付丁E
+- [ ] 忁E��なAPIが有効化されてぁE��
+- [ ] バックエンドをチE�Eロイ
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### サービスアカウントが見つからない場合
+### サービスアカウントが見つからなぁE��吁E
 
-1. App Engineの初期化が完全に完了しているか確認
-2. プロジェクトが正しく選択されているか確認
-3. 数分待ってから再度確認
+1. App Engineの初期化が完�Eに完亁E��てぁE��か確誁E
+2. プロジェクトが正しく選択されてぁE��か確誁E
+3. 数刁E��E��てから再度確誁E
 
-### 権限の付与が失敗する場合
+### 権限�E付与が失敗する場吁E
 
-1. サービスアカウントのメールアドレスが正しいか確認
-2. Secret Manager APIが有効になっているか確認
-3. プロジェクトの所有者または編集者権限があるか確認
+1. サービスアカウント�Eメールアドレスが正しいか確誁E
+2. Secret Manager APIが有効になってぁE��か確誁E
+3. プロジェクト�E所有老E��た�E編雁E��E��限があるか確誁E
 
 

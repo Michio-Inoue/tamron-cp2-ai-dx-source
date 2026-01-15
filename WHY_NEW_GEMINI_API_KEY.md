@@ -1,6 +1,6 @@
-# なぜ新しいGemini APIキーが必要なのか
+# なぜ新しいGemini APIキーが忁E��なのぁE
 
-## 現在の状況
+## 現在の状況E
 
 ### エラー
 ```
@@ -9,38 +9,38 @@ API key not valid. Please pass a valid API key.
 
 ### 原因
 
-Secret Managerに保存されているGemini APIキー（`a6a925178e7669bd8305d58899a3c4d0330dabf0`）が**無効**になっています。
+Secret Managerに保存されてぁE��Gemini APIキー�E�Ea6a925178e7669bd8305d58899a3c4d0330dabf0`�E�が**無効**になってぁE��す、E
 
-## なぜ無効になったのか
+## なぜ無効になった�EぁE
 
 ### 1. APIキーが漏洩した可能性
 
-以前のエラーログに以下のメッセージがありました：
+以前�Eエラーログに以下�EメチE��ージがありました�E�E
 ```
 Your API key was reported as leaked. Please use another API key.
 ```
 
-これは、APIキーが公開リポジトリやコードに含まれていた可能性があり、Googleがセキュリティ上の理由で無効化したことを示しています。
+これは、APIキーが�E開リポジトリめE��ードに含まれてぁE��可能性があり、GoogleがセキュリチE��上�E琁E��で無効化したことを示してぁE��す、E
 
-### 2. 現在の実装
+### 2. 現在の実裁E
 
-現在の実装では：
+現在の実裁E��は�E�E
 
-1. **フロントエンド** → バックエンドAPIを呼び出す（APIキー認証を使用）
-2. **バックエンド** → Secret ManagerからGemini APIキーを取得
-3. **バックエンド** → Gemini APIを呼び出す
+1. **フロントエンチE* ↁEバックエンドAPIを呼び出す！EPIキー認証を使用�E�E
+2. **バックエンチE* ↁESecret ManagerからGemini APIキーを取征E
+3. **バックエンチE* ↁEGemini APIを呼び出ぁE
 
-つまり、**バックエンドがSecret Managerから取得したGemini APIキーを使用**しています。
+つまり、E*バックエンドがSecret Managerから取得したGemini APIキーを使用**してぁE��す、E
 
 ### 3. 問題点
 
-Secret Managerに保存されているGemini APIキーが無効なため、バックエンドがGemini APIを呼び出すことができません。
+Secret Managerに保存されてぁE��Gemini APIキーが無効なため、バチE��エンドがGemini APIを呼び出すことができません、E
 
-## 解決方法
+## 解決方況E
 
-### オプション1: 新しいGemini APIキーを取得してSecret Managerに追加（推奨）
+### オプション1: 新しいGemini APIキーを取得してSecret Managerに追加�E�推奨�E�E
 
-1. **Google AI Studioで新しいAPIキーを作成**
+1. **Google AI Studioで新しいAPIキーを作�E**
    - https://aistudio.google.com/apikey
 
 2. **Secret Managerに追加**
@@ -48,20 +48,20 @@ Secret Managerに保存されているGemini APIキーが無効なため、バ�
    echo "YOUR_NEW_GEMINI_API_KEY" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
    ```
 
-### オプション2: 既存のAPIキーを使用（`ai-drbfm.html`に設定されているもの）
+### オプション2: 既存�EAPIキーを使用�E�Eai-drbfm.html`に設定されてぁE��も�E�E�E
 
-`ai-drbfm.html`には別のGemini APIキー（`[REDACTED]`）が設定されています。
+`ai-drbfm.html`には別のGemini APIキー�E�E[REDACTED]`�E�が設定されてぁE��す、E
 
-このキーが有効であれば、Secret Managerに追加できます：
+こ�Eキーが有効であれば、Secret Managerに追加できます！E
 
 ```powershell
 echo "[REDACTED]" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
 ```
 
-## まとめ
+## まとめE
 
 - **現在のSecret ManagerのGemini APIキー**: 無効
-- **理由**: セキュリティ上の理由で無効化された可能性
-- **解決**: 新しい有効なAPIキーをSecret Managerに追加する必要がある
+- **琁E��**: セキュリチE��上�E琁E��で無効化された可能性
+- **解決**: 新しい有効なAPIキーをSecret Managerに追加する忁E��がある
 
-新しいAPIキーを追加すれば、バックエンドが自動的に最新バージョンを使用します。
+新しいAPIキーを追加すれば、バチE��エンドが自動的に最新バ�Eジョンを使用します、E

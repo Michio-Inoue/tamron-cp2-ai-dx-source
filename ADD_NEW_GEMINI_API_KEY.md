@@ -1,59 +1,59 @@
-# 新しいGemini APIキーの追加手順
+# 新しいGemini APIキーの追加手頁E
 
-## 現在の状況
+## 現在の状況E
 
-- ❌ Secret ManagerのGemini APIキー（バージョン1）: 無効（漏洩報告）
-- ❌ Secret ManagerのGemini APIキー（バージョン2）: 無効（漏洩報告）
-- ✅ バックエンドAPI: 正常に動作
-- ✅ 認証ミドルウェア: 正常に動作
+- ❁ESecret ManagerのGemini APIキー�E�バージョン1�E�E 無効�E�漏洩報告！E
+- ❁ESecret ManagerのGemini APIキー�E�バージョン2�E�E 無効�E�漏洩報告！E
+- ✁EバックエンドAPI: 正常に動佁E
+- ✁E認証ミドルウェア: 正常に動佁E
 
 ## 新しいGemini APIキーの取得と追加
 
-### ステップ1: 新しいAPIキーを取得
+### スチE��チE: 新しいAPIキーを取征E
 
 1. **Google AI Studioにアクセス**
    ```
    https://aistudio.google.com/apikey
    ```
 
-2. **新しいAPIキーを作成**
-   - 「Create API Key」ボタンをクリック
-   - プロジェクト `tamron-cloudrun-prod-new` を選択
-   - 新しいAPIキーをコピー（`[REDACTED]...`で始まる文字列）
+2. **新しいAPIキーを作�E**
+   - 「Create API Key」�EタンをクリチE��
+   - プロジェクチE`tamron-cloudrun-prod-new` を選抁E
+   - 新しいAPIキーをコピ�E�E�E[REDACTED]...`で始まる文字�E�E�E
 
-### ステップ2: Secret Managerに追加
+### スチE��チE: Secret Managerに追加
 
-新しいAPIキーを取得したら、以下のコマンドでSecret Managerに追加してください：
+新しいAPIキーを取得したら、以下�EコマンドでSecret Managerに追加してください�E�E
 
 ```powershell
 echo "YOUR_NEW_GEMINI_API_KEY" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
 ```
 
-**例：**
+**例！E*
 ```powershell
 echo "[REDACTED]" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
 ```
 
-### ステップ3: 確認
+### スチE��チE: 確誁E
 
-追加後、バージョンが作成されたことを確認：
+追加後、バージョンが作�Eされたことを確認！E
 
 ```powershell
 gcloud secrets versions list gemini-api-key --project=tamron-cloudrun-prod-new
 ```
 
-### ステップ4: テスト
+### スチE��チE: チE��チE
 
-新しいAPIキーを追加した後、数秒待ってからフロントエンドからAPIを呼び出してテストしてください。
+新しいAPIキーを追加した後、数秒征E��てからフロントエンドからAPIを呼び出してチE��トしてください、E
 
-## 注意事項
+## 注意事頁E
 
-- 新しいAPIキーは、公開リポジトリやコードに含めないでください
-- Secret Managerで安全に管理してください
-- バックエンドには5分間のキャッシュがあるため、反映まで数秒かかる場合があります
+- 新しいAPIキーは、�E開リポジトリめE��ードに含めなぁE��ください
+- Secret Managerで安�Eに管琁E��てください
+- バックエンドには5刁E��のキャチE��ュがあるため、反映まで数秒かかる場合がありまぁE
 
-## 現在の設定
+## 現在の設宁E
 
 - **バックエンドURL**: `https://ai-drbfm-backend-43iql33sfa-an.a.run.app`
-- **バックエンドAPIキー**: `Lh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`（正常）
-- **Gemini APIキー**: 新しいキーが必要
+- **バックエンドAPIキー**: `Lh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`�E�正常�E�E
+- **Gemini APIキー**: 新しいキーが忁E��E

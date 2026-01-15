@@ -1,61 +1,61 @@
-# GCRアクセスエラーの解決方法
+# GCRアクセスエラーの解決方況E
 
-## 問題の原因
+## 問題�E原因
 
-App Engineの自動ビルドシステムが、古いContainer Registry (GCR) のキャッシュを使用しようとしていますが、Cloud BuildサービスアカウントにGCRへのアクセス権限がないため、ビルドが失敗しています。
+App Engineの自動ビルドシスチE��が、古いContainer Registry (GCR) のキャチE��ュを使用しよぁE��してぁE��すが、Cloud BuildサービスアカウントにGCRへのアクセス権限がなぁE��め、ビルドが失敗してぁE��す、E
 
-## 解決策
+## 解決筁E
 
-### ステップ1: Cloud Buildトリガーを確認
+### スチE��チE: Cloud Buildトリガーを確誁E
 
-Google Cloud Consoleで以下を確認：
+Google Cloud Consoleで以下を確認！E
 ```
 https://console.cloud.google.com/cloud-build/triggers?project=singular-server-480006-s8
 ```
 
-確認事項：
-- App Engineのデプロイを検知してビルドを開始しているトリガーがないか
-- 自動生成されたトリガーがないか
-- ソースがGitHubではないトリガーがないか
+確認事頁E��E
+- App EngineのチE�Eロイを検知してビルドを開始してぁE��トリガーがなぁE��
+- 自動生成されたトリガーがなぁE��
+- ソースがGitHubではなぁE��リガーがなぁE��
 
-### ステップ2: 古いトリガーを無効化または削除
+### スチE��チE: 古ぁE��リガーを無効化また�E削除
 
-見つかった古いトリガーを：
-- 無効化する（推奨：後で必要になる可能性があるため）
-- または削除する
+見つかった古ぁE��リガーを！E
+- 無効化する（推奨�E�後で忁E��になる可能性があるためE��E
+- また�E削除する
 
-### ステップ3: GitHub連携による新規トリガーの確認
+### スチE��チE: GitHub連携による新規トリガーの確誁E
 
-以下のトリガーが有効になっているか確認：
+以下�Eトリガーが有効になってぁE��か確認！E
 - ソース: GitHub (Cloud Build)
 - リポジトリ: tamron-cp2-ai-dx-source
-- 構成ファイル: /cloudbuild.yaml
+- 構�Eファイル: /cloudbuild.yaml
 
-### ステップ4: App Engineサービスを削除（オプション）
+### スチE��チE: App Engineサービスを削除�E�オプション�E�E
 
-App Engineを使用しない場合：
+App Engineを使用しなぁE��合！E
 ```
 https://console.cloud.google.com/appengine?project=singular-server-480006-s8
 ```
 
-「設定」または「サービス」で、デプロイされているサービスを無効化または削除
+「設定」また�E「サービス」で、デプロイされてぁE��サービスを無効化また�E削除
 
-### ステップ5: Cloud Runへのデプロイ
+### スチE��チE: Cloud RunへのチE�Eロイ
 
-GitHubにプッシュして、新しいCloud Runトリガーを起動
+GitHubにプッシュして、新しいCloud Runトリガーを起勁E
 
-## 代替案: App Engineを続行する場合
+## 代替桁E App Engineを続行する場吁E
 
-App Engineを続行する場合は、GCRへのアクセス権限を付与：
+App Engineを続行する場合�E、GCRへのアクセス権限を付与！E
 
 ```powershell
-# Container Registry APIを有効化
+# Container Registry APIを有効匁E
 gcloud services enable containerregistry.googleapis.com --project=singular-server-480006-s8
 
-# Cloud BuildサービスアカウントにGCRへのアクセス権限を付与
+# Cloud BuildサービスアカウントにGCRへのアクセス権限を付丁E
 gcloud projects add-iam-policy-binding singular-server-480006-s8 \
     --member="serviceAccount:284805971012@cloudbuild.gserviceaccount.com" \
     --role="roles/storage.admin"
 ```
 
-ただし、GCRは廃止予定なので、Artifact Registryへの移行を推奨します。
+ただし、GCRは廁E��予定なので、Artifact Registryへの移行を推奨します、E

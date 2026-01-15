@@ -1,61 +1,61 @@
-# 高速セットアップ方法
+# 高速セチE��アチE�E方況E
 
-## 問題の原因
+## 問題�E原因
 
-コマンドが遅い/キャンセルされる理由：
-1. **認証が必要** - 対話的な操作が必要な場合、自動実行できません
-2. **ネットワーク遅延** - Google Cloud APIへの接続が遅い可能性
-3. **権限確認** - プロジェクトへのアクセス権限の確認に時間がかかる
+コマンドが遁E��/キャンセルされる理由�E�E
+1. **認証が忁E��E* - 対話皁E��操作が忁E��な場合、�E動実行できません
+2. **ネットワーク遁E��** - Google Cloud APIへの接続が遁E��可能性
+3. **権限確誁E* - プロジェクトへのアクセス権限�E確認に時間がかかる
 
-## 解決策：Google Cloud Consoleを使用（最も速い方法）
+## 解決策：Google Cloud Consoleを使用�E�最も速い方法！E
 
-コマンドラインではなく、**Google Cloud Console（Web UI）**を使用すると、より速く確実に設定できます。
+コマンドラインではなく、E*Google Cloud Console�E�Eeb UI�E�E*を使用すると、より速く確実に設定できます、E
 
-### ステップ1: Secret ManagerにAPIキーを保存
+### スチE��チE: Secret ManagerにAPIキーを保孁E
 
-1. ブラウザで以下にアクセス：
+1. ブラウザで以下にアクセス�E�E
    ```
    https://console.cloud.google.com/security/secret-manager?project=singular-server-480006-s8
    ```
 
-2. 「シークレットを作成」をクリック
+2. 「シークレチE��を作�E」をクリチE��
 
-3. 以下の情報を入力：
+3. 以下�E惁E��を�E力！E
    - **名前**: `gemini-api-key`
-   - **シークレットの値**: `[REDACTED]`
+   - **シークレチE��の値**: `[REDACTED]`
    - **リージョン**: `自動`
 
-4. 「作成」をクリック（数秒で完了）
+4. 「作�E」をクリチE���E�数秒で完亁E��E
 
-### ステップ2: サービスアカウントに権限を付与
+### スチE��チE: サービスアカウントに権限を付丁E
 
-1. 作成したシークレット `gemini-api-key` をクリック
+1. 作�EしたシークレチE�� `gemini-api-key` をクリチE��
 
-2. 「権限」タブをクリック
+2. 「権限」タブをクリチE��
 
-3. 「プリンシパルを追加」をクリック
+3. 「�Eリンシパルを追加」をクリチE��
 
-4. 以下を入力：
+4. 以下を入力！E
    - **新しいプリンシパル**: `singular-server-480006-s8@appspot.gserviceaccount.com`
-   - **ロール**: `Secret Manager シークレット アクセサー`
+   - **ロール**: `Secret Manager シークレチE�� アクセサー`
 
-5. 「保存」をクリック
+5. 「保存」をクリチE��
 
-### ステップ3: 必要なAPIを有効化
+### スチE��チE: 忁E��なAPIを有効匁E
 
-1. 以下にアクセス：
+1. 以下にアクセス�E�E
    ```
    https://console.cloud.google.com/apis/library?project=singular-server-480006-s8
    ```
 
-2. 以下のAPIを検索して有効化（各APIで「有効にする」をクリック）：
+2. 以下�EAPIを検索して有効化（各APIで「有効にする」をクリチE���E�！E
    - `Secret Manager API`
    - `App Engine Admin API`
    - `Cloud Build API`
 
-### ステップ4: バックエンドをデプロイ（コマンドライン）
+### スチE��チE: バックエンドをチE�Eロイ�E�コマンドライン�E�E
 
-APIが有効化されたら、以下のコマンドを実行：
+APIが有効化されたら、以下�Eコマンドを実行！E
 
 ```bash
 cd backend
@@ -63,32 +63,32 @@ npm install
 gcloud app deploy app.yaml
 ```
 
-## コマンドラインで実行する場合（対話が必要）
+## コマンドラインで実行する場合（対話が忁E��E��E
 
-もしコマンドラインで実行する場合は、**一度に1つずつ**実行してください：
+もしコマンドラインで実行する場合�E、E*一度に1つずつ**実行してください�E�E
 
 ```bash
-# 1. プロジェクト設定（数秒）
+# 1. プロジェクト設定（数秒！E
 gcloud config set project singular-server-480006-s8
 
-# 2. API有効化（各APIで30秒〜1分程度）
+# 2. API有効化（各APIで30秒、E刁E��度�E�E
 gcloud services enable secretmanager.googleapis.com --project=singular-server-480006-s8
 gcloud services enable appengine.googleapis.com --project=singular-server-480006-s8
 gcloud services enable cloudbuild.googleapis.com --project=singular-server-480006-s8
 
-# 3. Secret Manager（数秒）
+# 3. Secret Manager�E�数秒！E
 echo "[REDACTED]" | gcloud secrets create gemini-api-key --data-file=- --replication-policy="automatic" --project=singular-server-480006-s8
 
-# 4. 権限付与（数秒）
+# 4. 権限付与（数秒！E
 gcloud secrets add-iam-policy-binding gemini-api-key --member="serviceAccount:singular-server-480006-s8@appspot.gserviceaccount.com" --role="roles/secretmanager.secretAccessor" --project=singular-server-480006-s8
 ```
 
-## 推奨方法
+## 推奨方況E
 
-**Google Cloud Console（Web UI）を使用することを強く推奨します。**
-- より速い（数秒で完了）
+**Google Cloud Console�E�Eeb UI�E�を使用することを強く推奨します、E*
+- より速い�E�数秒で完亁E��E
 - 視覚的に確認できる
-- エラーメッセージが分かりやすい
-- 対話的な操作が不要
+- エラーメチE��ージが�EかりめE��ぁE
+- 対話皁E��操作が不要E
 
 

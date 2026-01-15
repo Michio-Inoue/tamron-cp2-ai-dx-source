@@ -1,38 +1,38 @@
-# Secret ManagerのAPIキー名
+# Secret ManagerのAPIキー吁E
 
 ## 現在のAPIキー
 
-Secret Managerに保存されているAPIキーは以下の2つです：
+Secret Managerに保存されてぁE��APIキーは以下�E2つです！E
 
 ### 1. Gemini APIキー
-- **シークレット名**: `gemini-api-key`
-- **用途**: Gemini APIを呼び出すために使用
-- **現在の状態**: 無効（漏洩報告により無効化）
-- **バージョン**: 2（両方とも無効）
+- **シークレチE��吁E*: `gemini-api-key`
+- **用送E*: Gemini APIを呼び出すために使用
+- **現在の状慁E*: 無効�E�漏洩報告により無効化！E
+- **バ�Eジョン**: 2�E�両方とも無効�E�E
 
 ### 2. バックエンドAPIキー
-- **シークレット名**: `backend-api-key`
-- **用途**: フロントエンドからバックエンドAPIにアクセスする際の認証に使用
-- **現在の状態**: 正常
+- **シークレチE��吁E*: `backend-api-key`
+- **用送E*: フロントエンドからバチE��エンドAPIにアクセスする際�E認証に使用
+- **現在の状慁E*: 正常
 - **値**: `Lh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`
 
-## 新しいGemini APIキーを追加する場合
+## 新しいGemini APIキーを追加する場吁E
 
-新しいGemini APIキーを取得したら、以下のコマンドで`gemini-api-key`に追加してください：
+新しいGemini APIキーを取得したら、以下�Eコマンドで`gemini-api-key`に追加してください�E�E
 
 ```powershell
 echo "YOUR_NEW_GEMINI_API_KEY" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
 ```
 
-## 確認方法
+## 確認方況E
 
-現在のシークレット一覧を確認：
+現在のシークレチE��一覧を確認！E
 
 ```powershell
 gcloud secrets list --project=tamron-cloudrun-prod-new
 ```
 
-特定のシークレットのバージョンを確認：
+特定�EシークレチE��のバ�Eジョンを確認！E
 
 ```powershell
 gcloud secrets versions list gemini-api-key --project=tamron-cloudrun-prod-new

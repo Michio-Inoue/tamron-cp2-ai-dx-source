@@ -1,27 +1,27 @@
-# IAMポリシー設定手順
+# IAMポリシー設定手頁E
 
-## 現在の状況
+## 現在の状況E
 
-Cloud RunサービスのIAMポリシーが空のため、公開アクセスが許可されていません。
+Cloud RunサービスのIAMポリシーが空のため、�E開アクセスが許可されてぁE��せん、E
 
-## 解決方法
+## 解決方況E
 
-### 方法1: Google Cloud Consoleから設定（推奨）
+### 方況E: Google Cloud Consoleから設定（推奨�E�E
 
 1. **Cloud Runコンソールにアクセス**
    - URL: https://console.cloud.google.com/run/detail/asia-northeast1/ai-drbfm-backend/permissions?project=singular-server-480006-s8
 
-2. **「プリンシパルを追加」をクリック**
+2. **「�Eリンシパルを追加」をクリチE��**
 
-3. **以下の設定を入力**
+3. **以下�E設定を入劁E*
    - **新しいプリンシパル**: `allUsers`
-   - **ロールを選択**: `Cloud Run 起動元` (Cloud Run Invoker)
+   - **ロールを選抁E*: `Cloud Run 起動�E` (Cloud Run Invoker)
 
-4. **「保存」をクリック**
+4. **「保存」をクリチE��**
 
-### 方法2: コマンドラインから設定
+### 方況E: コマンドラインから設宁E
 
-以下のコマンドを実行してください：
+以下�Eコマンドを実行してください�E�E
 
 ```powershell
 gcloud run services add-iam-policy-binding ai-drbfm-backend `
@@ -31,11 +31,11 @@ gcloud run services add-iam-policy-binding ai-drbfm-backend `
     --project=singular-server-480006-s8
 ```
 
-**注意**: 組織ポリシーにより`allUsers`が許可されていない場合は、このコマンドは失敗します。その場合は、方法1（Google Cloud Console）を使用してください。
+**注愁E*: 絁E���Eリシーにより`allUsers`が許可されてぁE��ぁE��合�E、このコマンド�E失敗します。その場合�E、方況E�E�Eoogle Cloud Console�E�を使用してください、E
 
-### 方法3: 認証トークンを使用してテスト
+### 方況E: 認証ト�Eクンを使用してチE��チE
 
-IAMポリシーを設定する前に、認証トークンを使用してAPIが正常に動作するか確認できます：
+IAMポリシーを設定する前に、認証ト�Eクンを使用してAPIが正常に動作するか確認できます！E
 
 ```powershell
 $token = gcloud auth print-identity-token
@@ -44,14 +44,14 @@ $body = @{ prompt = "こんにちは" } | ConvertTo-Json
 Invoke-WebRequest -Uri "https://ai-drbfm-backend-636nanwcsq-an.a.run.app/api/gemini" -Method POST -Body $body -ContentType "application/json" -Headers $headers
 ```
 
-## 確認
+## 確誁E
 
-IAMポリシーを設定した後、以下のコマンドで確認できます：
+IAMポリシーを設定した後、以下�Eコマンドで確認できます！E
 
 ```powershell
 gcloud run services get-iam-policy ai-drbfm-backend --region=asia-northeast1 --project=singular-server-480006-s8
 ```
 
-`allUsers`が`roles/run.invoker`として表示されていれば、設定は成功しています。
+`allUsers`が`roles/run.invoker`として表示されてぁE��ば、設定�E成功してぁE��す、E
 
 

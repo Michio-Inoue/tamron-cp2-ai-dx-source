@@ -1,67 +1,67 @@
-# デプロイ状態の確認方法
+# チE�Eロイ状態�E確認方況E
 
-## 現在の状態を確認する方法
+## 現在の状態を確認する方況E
 
-### 1. App Engineのバージョン確認
+### 1. App Engineのバ�Eジョン確誁E
 
 ```powershell
 gcloud app versions list --project=singular-server-480006-s8
 ```
 
-### 2. デプロイされたURLの確認
+### 2. チE�EロイされたURLの確誁E
 
 ```powershell
 gcloud app describe --project=singular-server-480006-s8
 ```
 
-### 3. ビルドの状態確認
+### 3. ビルド�E状態確誁E
 
 ```powershell
 gcloud builds list --project=singular-server-480006-s8 --limit=5
 ```
 
-### 4. アプリケーションの動作確認
+### 4. アプリケーションの動作確誁E
 
-ブラウザで以下にアクセス：
+ブラウザで以下にアクセス�E�E
 ```
 https://singular-server-480006-s8.appspot.com
 ```
 
-正常に動作していれば、以下が表示されます：
+正常に動作してぁE��ば、以下が表示されます！E
 ```json
 {"message":"AI-DRBFM Analysis Server"}
 ```
 
-### 5. ログの確認
+### 5. ログの確誁E
 
 ```powershell
 gcloud app logs tail -s default --project=singular-server-480006-s8
 ```
 
-## デプロイの状態
+## チE�Eロイの状慁E
 
-- **進行中**: ビルドとデプロイが実行中
-- **成功**: アプリケーションが正常にデプロイされ、アクセス可能
-- **失敗**: エラーメッセージが表示される
+- **進行中**: ビルドとチE�Eロイが実行中
+- **成功**: アプリケーションが正常にチE�Eロイされ、アクセス可能
+- **失敁E*: エラーメチE��ージが表示されめE
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### デプロイが失敗した場合
+### チE�Eロイが失敗した場吁E
 
-1. エラーメッセージを確認
-2. ビルドログを確認：
+1. エラーメチE��ージを確誁E
+2. ビルドログを確認！E
    ```powershell
    gcloud builds log BUILD_ID --project=singular-server-480006-s8
    ```
-3. アプリケーションログを確認：
+3. アプリケーションログを確認！E
    ```powershell
    gcloud app logs tail -s default --project=singular-server-480006-s8
    ```
 
 ### よくあるエラー
 
-- **Secret Managerへのアクセスエラー**: 権限が正しく付与されているか確認
-- **依存関係のエラー**: `npm install` を再実行
-- **APIが有効化されていない**: 必要なAPIが有効になっているか確認
+- **Secret Managerへのアクセスエラー**: 権限が正しく付与されてぁE��か確誁E
+- **依存関係�Eエラー**: `npm install` を�E実衁E
+- **APIが有効化されてぁE��ぁE*: 忁E��なAPIが有効になってぁE��か確誁E
 
 

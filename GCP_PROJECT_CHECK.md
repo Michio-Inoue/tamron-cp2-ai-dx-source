@@ -1,11 +1,11 @@
-# Google Cloud プロジェクト確認方法
+# Google Cloud プロジェクト確認方況E
 
-## 方法1: gcloudコマンドで確認（推奨）
+## 方況E: gcloudコマンドで確認（推奨�E�E
 
-### 現在のプロジェクトを確認
+### 現在のプロジェクトを確誁E
 
 ```bash
-# 現在設定されているプロジェクトを確認
+# 現在設定されてぁE��プロジェクトを確誁E
 gcloud config get-value project
 ```
 
@@ -16,106 +16,106 @@ gcloud config get-value project
 gcloud projects list
 ```
 
-### プロジェクトの詳細情報を確認
+### プロジェクト�E詳細惁E��を確誁E
 
 ```bash
-# プロジェクトIDを指定して詳細情報を表示
+# プロジェクチEDを指定して詳細惁E��を表示
 gcloud projects describe PROJECT_ID
 
-# または、現在のプロジェクトの詳細を表示
+# また�E、現在のプロジェクト�E詳細を表示
 gcloud projects describe $(gcloud config get-value project)
 ```
 
-### プロジェクトを切り替える
+### プロジェクトを刁E��替える
 
 ```bash
-# プロジェクトを設定/切り替え
+# プロジェクトを設宁E刁E��替ぁE
 gcloud config set project PROJECT_ID
 ```
 
-## 方法2: Google Cloud Consoleで確認
+## 方況E: Google Cloud Consoleで確誁E
 
 1. [Google Cloud Console](https://console.cloud.google.com/) にアクセス
-2. 画面上部のプロジェクト選択ドロップダウンをクリック
-3. アクセス可能なすべてのプロジェクトが表示されます
-4. プロジェクト名をクリックすると、プロジェクトIDも表示されます
+2. 画面上部のプロジェクト選択ドロチE�EダウンをクリチE��
+3. アクセス可能なすべてのプロジェクトが表示されまぁE
+4. プロジェクト名をクリチE��すると、�EロジェクチEDも表示されまぁE
 
-## 方法3: 認証状態を確認
+## 方況E: 認証状態を確誁E
 
 ```bash
-# 現在ログインしているアカウントを確認
+# 現在ログインしてぁE��アカウントを確誁E
 gcloud auth list
 
-# ログインが必要な場合
+# ログインが忁E��な場吁E
 gcloud auth login
 ```
 
-## 方法4: 設定情報をすべて確認
+## 方況E: 設定情報をすべて確誁E
 
 ```bash
 # すべての設定情報を表示
 gcloud config list
 
-# 設定可能な項目を表示
+# 設定可能な頁E��を表示
 gcloud config list --all
 ```
 
-## よく使うコマンド一覧
+## よく使ぁE��マンド一覧
 
 ```bash
-# 現在のプロジェクトIDを取得（スクリプトで使用）
+# 現在のプロジェクチEDを取得（スクリプトで使用�E�E
 gcloud config get-value project
 
-# プロジェクト一覧をJSON形式で取得
+# プロジェクト一覧をJSON形式で取征E
 gcloud projects list --format="json"
 
-# プロジェクト一覧を表形式で表示（プロジェクトID、名前、プロジェクト番号）
+# プロジェクト一覧を表形式で表示�E��EロジェクチED、名前、�Eロジェクト番号�E�E
 gcloud projects list --format="table(projectId,name,projectNumber)"
 ```
 
-## プロジェクトが見つからない場合
+## プロジェクトが見つからなぁE��吁E
 
-### 新しいプロジェクトを作成
+### 新しいプロジェクトを作�E
 
 ```bash
-# プロジェクトを作成
+# プロジェクトを作�E
 gcloud projects create PROJECT_ID --name="プロジェクト名"
 
-# プロジェクトを設定
+# プロジェクトを設宁E
 gcloud config set project PROJECT_ID
 
-# 請求先アカウントをリンク（初回のみ）
+# 請求�Eアカウントをリンク�E��E回�Eみ�E�E
 gcloud billing projects link PROJECT_ID --billing-account=BILLING_ACCOUNT_ID
 ```
 
-または、Google Cloud Consoleから：
-1. [プロジェクト作成ページ](https://console.cloud.google.com/projectcreate)にアクセス
-2. プロジェクト名を入力
-3. 「作成」をクリック
+また�E、Google Cloud Consoleから�E�E
+1. [プロジェクト作�Eペ�Eジ](https://console.cloud.google.com/projectcreate)にアクセス
+2. プロジェクト名を�E劁E
+3. 「作�E」をクリチE��
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### 認証エラーが発生する場合
+### 認証エラーが発生する場吁E
 
 ```bash
 # 再認証
 gcloud auth login
 
-# アプリケーションのデフォルト認証情報を設定
+# アプリケーションのチE��ォルト認証惁E��を設宁E
 gcloud auth application-default login
 ```
 
-### プロジェクトにアクセスできない場合
+### プロジェクトにアクセスできなぁE��吁E
 
-1. プロジェクトの所有者または編集者権限があるか確認
-2. 正しいGoogleアカウントでログインしているか確認
-3. 組織のポリシーでプロジェクトへのアクセスが制限されていないか確認
+1. プロジェクト�E所有老E��た�E編雁E��E��限があるか確誁E
+2. 正しいGoogleアカウントでログインしてぁE��か確誁E
+3. 絁E���Eポリシーでプロジェクトへのアクセスが制限されてぁE��ぁE��確誁E
 
-### プロジェクトIDとプロジェクト番号の違い
+### プロジェクチEDとプロジェクト番号の違い
 
-- **プロジェクトID**: 人間が読みやすい識別子（例: `my-project-12345`）
-- **プロジェクト番号**: システムが使用する数値識別子（例: `123456789012`）
+- **プロジェクチED**: 人間が読みめE��ぁE��別子（侁E `my-project-12345`�E�E
+- **プロジェクト番号**: シスチE��が使用する数値識別子（侁E `123456789012`�E�E
 
-どちらもプロジェクトを一意に識別しますが、コマンドでは通常プロジェクトIDを使用します。
+どちらもプロジェクトを一意に識別しますが、コマンドでは通常プロジェクチEDを使用します、E
 
 

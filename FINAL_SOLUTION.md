@@ -1,62 +1,62 @@
-# 最終的な解決方法
+# 最終的な解決方況E
 
-## 問題の特定
+## 問題�E特宁E
 
-App Engineの設定に `gcrDomain: asia.gcr.io` が残っており、古いContainer Registry形式を参照しています。
+App Engineの設定に `gcrDomain: asia.gcr.io` が残っており、古いContainer Registry形式を参�EしてぁE��す、E
 
-## 解決方法の選択肢
+## 解決方法�E選択肢
 
-### オプション1: キャッシュを無効化してデプロイ（試行中）
+### オプション1: キャチE��ュを無効化してチE�Eロイ�E�試行中�E�E
 
-`--no-cache` フラグを使用して、キャッシュを無効化してデプロイを試行しています。
+`--no-cache` フラグを使用して、キャチE��ュを無効化してチE�Eロイを試行してぁE��す、E
 
-### オプション2: Google Cloud Consoleで設定を確認
+### オプション2: Google Cloud Consoleで設定を確誁E
 
-1. **App Engine設定を確認**：
+1. **App Engine設定を確誁E*�E�E
    ```
    https://console.cloud.google.com/appengine/settings?project=singular-server-480006-s8
    ```
 
-2. **古い設定があれば更新**
+2. **古ぁE��定があれば更新**
 
-### オプション3: Cloud Runに切り替え（推奨）
+### オプション3: Cloud Runに刁E��替え（推奨�E�E
 
-App Engineでのデプロイが続けて失敗する場合は、Cloud Runに切り替えることを強く推奨します。
+App EngineでのチE�Eロイが続けて失敗する場合�E、Cloud Runに刁E��替えることを強く推奨します、E
 
-**理由：**
-- Cloud RunはDockerコンテナベースで、この問題を回避できる
+**琁E���E�E*
+- Cloud RunはDockerコンチE��ベ�Eスで、この問題を回避できる
 - より柔軟な設定が可能
-- より詳細なログとデバッグが可能
+- より詳細なログとチE��チE��が可能
 - 最新のGoogle Cloudサービス
 
-**手順：**
-1. Dockerfileを作成
-2. cloudbuild.yamlを作成（ユーザーが以前提案した内容）
-3. Cloud Runにデプロイ
+**手頁E��E*
+1. Dockerfileを作�E
+2. cloudbuild.yamlを作�E�E�ユーザーが以前提案した�E容�E�E
+3. Cloud RunにチE�Eロイ
 
-詳細は `CLOUD_RUN_DEPLOYMENT.md` を参照してください。
+詳細は `CLOUD_RUN_DEPLOYMENT.md` を参照してください、E
 
-### オプション4: GitHub連携とCloud Buildトリガー（ユーザー提案）
+### オプション4: GitHub連携とCloud Buildトリガー�E�ユーザー提案！E
 
-ユーザーが提案している方法：
+ユーザーが提案してぁE��方法！E
 1. GitHubリポジトリと連携
-2. Cloud Buildトリガーを作成
-3. cloudbuild.yamlを使用してデプロイ
+2. Cloud Buildトリガーを作�E
+3. cloudbuild.yamlを使用してチE�Eロイ
 
-この方法も有効ですが、現在の直接デプロイとは異なるアプローチです。
+こ�E方法も有効ですが、現在の直接チE�Eロイとは異なるアプローチです、E
 
-## 推奨される次のステップ
+## 推奨される次のスチE��チE
 
-1. **まず、`--no-cache` でのデプロイ結果を確認**
+1. **まず、`--no-cache` でのチE�Eロイ結果を確誁E*
 
-2. **それでも失敗する場合は、Cloud Runに切り替えを検討**
+2. **それでも失敗する場合�E、Cloud Runに刁E��替えを検訁E*
 
-3. **または、GitHub連携とCloud Buildトリガーを設定**
+3. **また�E、GitHub連携とCloud Buildトリガーを設宁E*
 
-## 現在の状態
+## 現在の状慁E
 
-- App Engine初期化: 完了 ✓
-- Secret Manager設定: 完了 ✓
-- 権限設定: 完了 ✓
-- デプロイ: 進行中（GCR参照の問題で失敗）
+- App Engine初期匁E 完亁E✁E
+- Secret Manager設宁E 完亁E✁E
+- 権限設宁E 完亁E✁E
+- チE�Eロイ: 進行中�E�ECR参�Eの問題で失敗！E
 

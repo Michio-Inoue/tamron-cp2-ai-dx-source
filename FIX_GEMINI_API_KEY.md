@@ -1,4 +1,4 @@
-# Gemini APIキーの問題と解決方法
+# Gemini APIキーの問題と解決方況E
 
 ## エラー
 
@@ -8,19 +8,19 @@ API key not valid. Please pass a valid API key.
 
 ## 原因
 
-Secret Managerに保存されているGemini APIキーが無効か、期限切れです。
+Secret Managerに保存されてぁE��Gemini APIキーが無効か、期限�Eれです、E
 
-## 解決方法
+## 解決方況E
 
-### 1. 新しいGemini APIキーを取得
+### 1. 新しいGemini APIキーを取征E
 
 1. **Google AI Studioにアクセス**
    - https://aistudio.google.com/apikey
 
-2. **新しいAPIキーを作成**
-   - 「Create API Key」をクリック
-   - プロジェクトを選択
-   - 新しいAPIキーをコピー
+2. **新しいAPIキーを作�E**
+   - 「Create API Key」をクリチE��
+   - プロジェクトを選抁E
+   - 新しいAPIキーをコピ�E
 
 ### 2. Secret Managerに新しいAPIキーを追加
 
@@ -29,19 +29,19 @@ Secret Managerに保存されているGemini APIキーが無効か、期限切�
 echo "YOUR_NEW_GEMINI_API_KEY" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
 ```
 
-### 3. デプロイ（必要に応じて）
+### 3. チE�Eロイ�E�忁E��に応じて�E�E
 
-新しいAPIキーを追加した後、バックエンドは自動的に最新バージョンのAPIキーを使用します。
+新しいAPIキーを追加した後、バチE��エンド�E自動的に最新バ�EジョンのAPIキーを使用します、E
 
-Secret Managerは`latest`バージョンを取得するため、新しいバージョンを追加すれば自動的に使用されます。
+Secret Managerは`latest`バ�Eジョンを取得するため、新しいバ�Eジョンを追加すれば自動的に使用されます、E
 
-## 現在の状態
+## 現在の状慁E
 
-- **バックエンドAPI**: 正常に動作
-- **認証ミドルウェア**: 正常に動作
-- **Gemini APIキー**: 無効（更新が必要）
+- **バックエンドAPI**: 正常に動佁E
+- **認証ミドルウェア**: 正常に動佁E
+- **Gemini APIキー**: 無効�E�更新が忁E��E��E
 
-## 注意事項
+## 注意事頁E
 
-- 古いAPIキーは削除せず、新しいバージョンとして追加してください
-- これにより、問題が発生した場合にロールバックが可能です
+- 古いAPIキーは削除せず、新しいバ�Eジョンとして追加してください
+- これにより、問題が発生した場合にロールバックが可能でぁE

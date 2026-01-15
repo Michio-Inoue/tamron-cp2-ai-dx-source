@@ -1,17 +1,17 @@
-# App Engineデプロイ問題の解決方法
+# App EngineチE�Eロイ問題�E解決方況E
 
-## 問題の分析
+## 問題�E刁E��
 
-ユーザーの分析によると：
-- App Engineが古いContainer Registry (GCR) 形式（`asia.gcr.io`）を参照している
-- これは廃止予定の形式で、現在はArtifact Registryを使用する必要がある
-- エラーはキャッシュイメージへのアクセスに関するもの
+ユーザーの刁E��によると�E�E
+- App Engineが古いContainer Registry (GCR) 形式！Easia.gcr.io`�E�を参�EしてぁE��
+- これは廁E��予定�E形式で、現在はArtifact Registryを使用する忁E��がある
+- エラーはキャチE��ュイメージへのアクセスに関するも�E
 
-## 解決方法
+## 解決方況E
 
-### 方法1: App Engineの設定を明示的に指定
+### 方況E: App Engineの設定を明示皁E��持E��E
 
-`app.yaml` に明示的な設定を追加して、Artifact Registryを強制：
+`app.yaml` に明示皁E��設定を追加して、Artifact Registryを強制�E�E
 
 ```yaml
 runtime: nodejs20
@@ -20,57 +20,57 @@ env_variables:
   GEMINI_API_KEY_SECRET_NAME: 'gemini-api-key'
   NODE_ENV: 'production'
 
-# ビルド設定を明示的に指定
-# これにより、古いGCR形式の参照を回避できる可能性があります
+# ビルド設定を明示皁E��持E��E
+# これにより、古いGCR形式�E参�Eを回避できる可能性がありまぁE
 ```
 
-### 方法2: キャッシュを無効化してデプロイ
+### 方況E: キャチE��ュを無効化してチE�Eロイ
 
-キャッシュを使用せずにデプロイを試行：
+キャチE��ュを使用せずにチE�Eロイを試行！E
 
 ```powershell
 gcloud app deploy app.yaml --project=singular-server-480006-s8 --no-promote --version=$(Get-Date -Format "yyyyMMddHHmmss")
 ```
 
-### 方法3: Google Cloud Consoleで設定を確認
+### 方況E: Google Cloud Consoleで設定を確誁E
 
-1. **App Engine設定を確認**：
+1. **App Engine設定を確誁E*�E�E
    ```
    https://console.cloud.google.com/appengine/settings?project=singular-server-480006-s8
    ```
 
-2. **Cloud Build設定を確認**：
+2. **Cloud Build設定を確誁E*�E�E
    ```
    https://console.cloud.google.com/cloud-build/settings?project=singular-server-480006-s8
    ```
 
-3. **古い設定があれば削除または更新**
+3. **古ぁE��定があれば削除また�E更新**
 
-### 方法4: 最小限のアプリケーションでテスト
+### 方況E: 最小限のアプリケーションでチE��チE
 
-まず、最小限のアプリケーションでデプロイを試行して、問題を特定：
+まず、最小限のアプリケーションでチE�Eロイを試行して、問題を特定！E
 
-1. 新しい`app.yaml`を作成（最小限の設定）
-2. 簡単な`server.js`でテスト
-3. 成功したら、段階的に機能を追加
+1. 新しい`app.yaml`を作�E�E�最小限の設定！E
+2. 簡単な`server.js`でチE��チE
+3. 成功したら、段階的に機�Eを追加
 
-## 推奨される手順
+## 推奨される手頁E
 
-1. **まず、Google Cloud Consoleで以下を確認**：
-   - App Engine設定
-   - Cloud Build設定
-   - 古いトリガーや設定がないか
+1. **まず、Google Cloud Consoleで以下を確誁E*�E�E
+   - App Engine設宁E
+   - Cloud Build設宁E
+   - 古ぁE��リガーめE��定がなぁE��
 
-2. **キャッシュを無効化してデプロイを試行**
+2. **キャチE��ュを無効化してチE�Eロイを試衁E*
 
-3. **それでも失敗する場合は、Cloud Runに切り替えを検討**
+3. **それでも失敗する場合�E、Cloud Runに刁E��替えを検訁E*
 
-## 代替案: Cloud Runに切り替え
+## 代替桁E Cloud Runに刁E��替ぁE
 
-App Engineでのデプロイが続けて失敗する場合は、Cloud Runに切り替えることを検討してください。Cloud Runは：
+App EngineでのチE�Eロイが続けて失敗する場合�E、Cloud Runに刁E��替えることを検討してください、Eloud Runは�E�E
 - より柔軟な設定が可能
-- Dockerコンテナベースで、この問題を回避できる
-- より詳細なログとデバッグが可能
+- DockerコンチE��ベ�Eスで、この問題を回避できる
+- より詳細なログとチE��チE��が可能
 
-詳細は `CLOUD_RUN_DEPLOYMENT.md` を参照してください。
+詳細は `CLOUD_RUN_DEPLOYMENT.md` を参照してください、E
 

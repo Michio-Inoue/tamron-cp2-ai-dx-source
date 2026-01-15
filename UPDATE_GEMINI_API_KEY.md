@@ -1,56 +1,56 @@
-# Gemini APIキーの更新手順
+# Gemini APIキーの更新手頁E
 
-## 現在の状態
+## 現在の状慁E
 
-- **Secret ManagerのGemini APIキー**: `a6a925178e7669bd8305d58899a3c4d0330dabf0`（無効）
+- **Secret ManagerのGemini APIキー**: `a6a925178e7669bd8305d58899a3c4d0330dabf0`�E�無効�E�E
 - **エラー**: `API key not valid. Please pass a valid API key.`
 
-## 解決方法
+## 解決方況E
 
-### ステップ1: 新しいGemini APIキーを取得
+### スチE��チE: 新しいGemini APIキーを取征E
 
 1. **Google AI Studioにアクセス**
    ```
    https://aistudio.google.com/apikey
    ```
 
-2. **新しいAPIキーを作成**
-   - 「Create API Key」ボタンをクリック
-   - プロジェクト `tamron-cloudrun-prod-new` を選択
-   - 新しいAPIキーをコピー
+2. **新しいAPIキーを作�E**
+   - 「Create API Key」�EタンをクリチE��
+   - プロジェクチE`tamron-cloudrun-prod-new` を選抁E
+   - 新しいAPIキーをコピ�E
 
-### ステップ2: Secret Managerに新しいAPIキーを追加
+### スチE��チE: Secret Managerに新しいAPIキーを追加
 
-新しいAPIキーを取得したら、以下のコマンドでSecret Managerに追加してください：
+新しいAPIキーを取得したら、以下�EコマンドでSecret Managerに追加してください�E�E
 
 ```powershell
 # 新しいAPIキーをSecret Managerに追加
 echo "YOUR_NEW_GEMINI_API_KEY" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
 ```
 
-**例：**
+**例！E*
 ```powershell
 echo "[REDACTED]" | gcloud secrets versions add gemini-api-key --data-file=- --project=tamron-cloudrun-prod-new
 ```
 
-### ステップ3: 確認
+### スチE��チE: 確誁E
 
-新しいAPIキーを追加した後、バックエンドは自動的に最新バージョンのAPIキーを使用します。
+新しいAPIキーを追加した後、バチE��エンド�E自動的に最新バ�EジョンのAPIキーを使用します、E
 
-Secret Managerは`latest`バージョンを取得するため、新しいバージョンを追加すれば自動的に使用されます。
+Secret Managerは`latest`バ�Eジョンを取得するため、新しいバ�Eジョンを追加すれば自動的に使用されます、E
 
-### ステップ4: テスト
+### スチE��チE: チE��チE
 
-フロントエンドから再度APIを呼び出して、正常に動作することを確認してください。
+フロントエンドから�E度APIを呼び出して、正常に動作することを確認してください、E
 
-## 注意事項
+## 注意事頁E
 
-- 古いAPIキーは削除せず、新しいバージョンとして追加してください
-- これにより、問題が発生した場合にロールバックが可能です
-- 新しいAPIキーを追加した後、数秒待ってからテストしてください（キャッシュのため）
+- 古いAPIキーは削除せず、新しいバ�Eジョンとして追加してください
+- これにより、問題が発生した場合にロールバックが可能でぁE
+- 新しいAPIキーを追加した後、数秒征E��てからチE��トしてください�E�キャチE��ュのため�E�E
 
-## 現在の設定
+## 現在の設宁E
 
 - **バックエンドURL**: `https://ai-drbfm-backend-43iql33sfa-an.a.run.app`
-- **バックエンドAPIキー**: `Lh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`（正常）
-- **Gemini APIキー**: 無効（更新が必要）
+- **バックエンドAPIキー**: `Lh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`�E�正常�E�E
+- **Gemini APIキー**: 無効�E�更新が忁E��E��E

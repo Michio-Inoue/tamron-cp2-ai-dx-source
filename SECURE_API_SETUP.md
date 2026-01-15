@@ -1,25 +1,25 @@
-# セキュアなAPIアクセスの設定方法
+# セキュアなAPIアクセスの設定方況E
 
-## 概要
+## 概要E
 
-`allUsers`への公開アクセスを許可せず、APIキーを使用した認証を実装しました。
+`allUsers`への公開アクセスを許可せず、APIキーを使用した認証を実裁E��ました、E
 
-## 実装内容
+## 実裁E�E容
 
 ### 1. 認証ミドルウェアの追加
 
-`backend/auth-middleware.js`を作成し、APIキー検証機能を実装しました。
+`backend/auth-middleware.js`を作�Eし、APIキー検証機�Eを実裁E��ました、E
 
-### 2. APIキーの管理
+### 2. APIキーの管琁E
 
-- **本番環境**: Secret Managerに`backend-api-key`という名前で保存
-- **ローカル環境**: 環境変数`BACKEND_API_KEY`または`API_ACCESS_KEY`から取得
+- **本番環墁E*: Secret Managerに`backend-api-key`とぁE��名前で保孁E
+- **ローカル環墁E*: 環墁E��数`BACKEND_API_KEY`また�E`API_ACCESS_KEY`から取征E
 
-### 3. 認証方法
+### 3. 認証方況E
 
-フロントエンドからAPIを呼び出す際に、以下のいずれかの方法でAPIキーを送信：
+フロントエンドからAPIを呼び出す際に、以下�EぁE��れかの方法でAPIキーを送信�E�E
 
-#### 方法1: ヘッダーにAPIキーを追加（推奨）
+#### 方況E: ヘッダーにAPIキーを追加�E�推奨�E�E
 
 ```javascript
 fetch('https://ai-drbfm-backend-43iql33sfa-an.a.run.app/api/gemini', {
@@ -32,20 +32,20 @@ fetch('https://ai-drbfm-backend-43iql33sfa-an.a.run.app/api/gemini', {
 });
 ```
 
-#### 方法2: Authorizationヘッダーに追加
+#### 方況E: Authorizationヘッダーに追加
 
 ```javascript
 fetch('https://ai-drbfm-backend-43iql33sfa-an.a.run.app/api/gemini', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_API_KEY'  // Bearerトークンとして送信
+        'Authorization': 'Bearer YOUR_API_KEY'  // Bearerト�Eクンとして送信
     },
     body: JSON.stringify({ ... })
 });
 ```
 
-#### 方法3: リクエストボディに追加
+#### 方況E: リクエスト�EチE��に追加
 
 ```javascript
 fetch('https://ai-drbfm-backend-43iql33sfa-an.a.run.app/api/gemini', {
@@ -61,24 +61,24 @@ fetch('https://ai-drbfm-backend-43iql33sfa-an.a.run.app/api/gemini', {
 });
 ```
 
-## セットアップ手順
+## セチE��アチE�E手頁E
 
-### 1. Secret ManagerにAPIキーを保存
+### 1. Secret ManagerにAPIキーを保孁E
 
 ```powershell
-# ランダムなAPIキーを生成
+# ランダムなAPIキーを生戁E
 $apiKey = -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 32 | ForEach-Object {[char]$_})
 
-# Secret Managerに保存
+# Secret Managerに保孁E
 echo $apiKey | gcloud secrets create backend-api-key --data-file=- --project=tamron-cloudrun-prod-new
 
-# または既存のシークレットにバージョンを追加
+# また�E既存�EシークレチE��にバ�Eジョンを追加
 echo $apiKey | gcloud secrets versions add backend-api-key --data-file=- --project=tamron-cloudrun-prod-new
 ```
 
-### 2. 環境変数を設定
+### 2. 環墁E��数を設宁E
 
-`cloudbuild.yaml`に環境変数を追加：
+`cloudbuild.yaml`に環墁E��数を追加�E�E
 
 ```yaml
 - '--set-env-vars'
@@ -87,29 +87,29 @@ echo $apiKey | gcloud secrets versions add backend-api-key --data-file=- --proje
 
 ### 3. フロントエンドを更新
 
-`ai-drbfm.js`を更新して、APIキーを送信するようにします。
+`ai-drbfm.js`を更新して、APIキーを送信するようにします、E
 
-## セキュリティ上の注意事項
+## セキュリチE��上�E注意事頁E
 
-1. **APIキーの管理**
-   - APIキーはSecret Managerで管理
-   - フロントエンドに埋め込む場合は、レート制限などの追加保護を検討
+1. **APIキーの管琁E*
+   - APIキーはSecret Managerで管琁E
+   - フロントエンドに埋め込む場合�E、レート制限などの追加保護を検訁E
 
 2. **HTTPSの使用**
    - すべての通信はHTTPS経由で行う
 
-3. **レート制限**
-   - 必要に応じて、レート制限を追加することを推奨
+3. **レート制陁E*
+   - 忁E��に応じて、レート制限を追加することを推奨
 
-4. **CORS設定**
-   - 必要に応じて、CORS設定を特定のドメインに制限
+4. **CORS設宁E*
+   - 忁E��に応じて、CORS設定を特定�Eドメインに制陁E
 
-## フロントエンドの更新
+## フロントエンド�E更新
 
-`ai-drbfm.js`を更新して、APIキーを送信するようにします：
+`ai-drbfm.js`を更新して、APIキーを送信するようにします！E
 
 ```javascript
-// APIキーを設定（環境変数または設定ファイルから取得）
+// APIキーを設定（環墁E��数また�E設定ファイルから取得！E
 const BACKEND_API_KEY = window.BACKEND_API_KEY || 'YOUR_API_KEY';
 
 // API呼び出し時にAPIキーを追加
@@ -123,13 +123,13 @@ const response = await fetch(apiUrl, {
 });
 ```
 
-## テスト方法
+## チE��ト方況E
 
 ```powershell
-# APIキーを取得
+# APIキーを取征E
 $apiKey = gcloud secrets versions access latest --secret=backend-api-key --project=tamron-cloudrun-prod-new
 
-# APIをテスト
+# APIをテスチE
 $headers = @{
     'Content-Type' = 'application/json'
     'X-API-Key' = $apiKey

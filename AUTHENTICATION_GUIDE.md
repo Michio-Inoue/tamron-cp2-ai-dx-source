@@ -1,91 +1,91 @@
-# Google Cloud CLI 認証手順
+# Google Cloud CLI 認証手頁E
 
-## 再認証が必要な場合
+## 再認証が忁E��な場吁E
 
-`Please enter your password:` というメッセージが表示された場合、Google Cloud CLIの再認証が必要です。
+`Please enter your password:` とぁE��メチE��ージが表示された場合、Google Cloud CLIの再認証が忁E��です、E
 
-## 認証方法
+## 認証方況E
 
-### 方法1: ブラウザで認証（推奨）
+### 方況E: ブラウザで認証�E�推奨�E�E
 
-PowerShellで以下を実行：
+PowerShellで以下を実行！E
 
 ```powershell
 gcloud auth login
 ```
 
-1. コマンドを実行すると、ブラウザが自動的に開きます
-2. Googleアカウント（`inoue@tamron-compo2.com`）でログイン
-3. 「許可」をクリック
-4. 認証が完了すると、PowerShellに「認証が成功しました」と表示されます
+1. コマンドを実行すると、ブラウザが�E動的に開きまぁE
+2. Googleアカウント！Einoue@tamron-compo2.com`�E�でログイン
+3. 「許可」をクリチE��
+4. 認証が完亁E��ると、PowerShellに「認証が�E功しました」と表示されまぁE
 
-### 方法2: アプリケーションのデフォルト認証情報を設定
+### 方況E: アプリケーションのチE��ォルト認証惁E��を設宁E
 
 ```powershell
 gcloud auth application-default login
 ```
 
-このコマンドもブラウザで認証を行います。
+こ�Eコマンドもブラウザで認証を行います、E
 
-## 認証後の確認
+## 認証後�E確誁E
 
-認証が完了したら、以下で確認：
+認証が完亁E��たら、以下で確認！E
 
 ```powershell
 gcloud auth list
 ```
 
-以下のように表示されればOK：
+以下�Eように表示されれ�EOK�E�E
 ```
 Credentialed Accounts
 ACTIVE  ACCOUNT
 *       inoue@tamron-compo2.com
 ```
 
-## 認証後の次のステップ
+## 認証後�E次のスチE��チE
 
-認証が完了したら、以下を実行：
+認証が完亁E��たら、以下を実行！E
 
 ```powershell
-# プロジェクトを設定
+# プロジェクトを設宁E
 gcloud config set project singular-server-480006-s8
 
-# 設定を確認
+# 設定を確誁E
 gcloud config get-value project
 ```
 
-その後、デプロイを実行：
+そ�E後、デプロイを実行！E
 
 ```powershell
 cd backend
 gcloud app deploy app.yaml
 ```
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### ブラウザが開かない場合
+### ブラウザが開かなぁE��吁E
 
-1. 手動でブラウザを開く
-2. 以下のURLにアクセス：
+1. 手動でブラウザを開ぁE
+2. 以下�EURLにアクセス�E�E
    ```
    https://accounts.google.com/o/oauth2/auth?...
    ```
-   （コマンド実行時に表示されるURLを使用）
+   �E�コマンド実行時に表示されるURLを使用�E�E
 
-### 認証が失敗する場合
+### 認証が失敗する場吁E
 
-1. 正しいGoogleアカウントでログインしているか確認
-2. プロジェクトへのアクセス権限があるか確認
-3. ネットワーク接続を確認
+1. 正しいGoogleアカウントでログインしてぁE��か確誁E
+2. プロジェクトへのアクセス権限があるか確誁E
+3. ネットワーク接続を確誁E
 
-### 認証後も「Please enter your password:」が表示される場合
+### 認証後も「Please enter your password:」が表示される場吁E
 
-1. 認証状態を確認：
+1. 認証状態を確認！E
    ```powershell
    gcloud auth list
    ```
 
-2. 再度認証を試す：
+2. 再度認証を試す！E
    ```powershell
    gcloud auth login --no-launch-browser
    ```

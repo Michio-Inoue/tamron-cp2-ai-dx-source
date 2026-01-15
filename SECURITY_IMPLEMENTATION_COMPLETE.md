@@ -1,78 +1,78 @@
-# セキュアなAPI認証の実装完了
+# セキュアなAPI認証の実裁E��亁E
 
-## 実装内容
+## 実裁E�E容
 
 ### 1. 認証ミドルウェアの追加
 
-`backend/auth-middleware.js`を作成し、APIキー検証機能を実装しました。
+`backend/auth-middleware.js`を作�Eし、APIキー検証機�Eを実裁E��ました、E
 
-### 2. APIキーの管理
+### 2. APIキーの管琁E
 
-- **Secret Manager**: `backend-api-key`という名前で保存
-- **生成されたAPIキー**: `Lh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`
-- **IAM権限**: Compute Engineサービスアカウントに`secretmanager.secretAccessor`権限を付与
+- **Secret Manager**: `backend-api-key`とぁE��名前で保孁E
+- **生�EされたAPIキー**: `Lh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`
+- **IAM権陁E*: Compute Engineサービスアカウントに`secretmanager.secretAccessor`権限を付丁E
 
-### 3. フロントエンドの更新
+### 3. フロントエンド�E更新
 
-- `ai-drbfm.html`: APIキーを設定
+- `ai-drbfm.html`: APIキーを設宁E
 - `ai-drbfm.js`: API呼び出し時に`X-API-Key`ヘッダーにAPIキーを追加
 
-### 4. デプロイ
+### 4. チE�Eロイ
 
-- Cloud Runサービスに認証ミドルウェアを含むバックエンドをデプロイ
-- Secret ManagerからAPIキーを取得するように設定
+- Cloud Runサービスに認証ミドルウェアを含むバックエンドをチE�Eロイ
+- Secret ManagerからAPIキーを取得するよぁE��設宁E
 
-## セキュリティ上の利点
+## セキュリチE��上�E利点
 
-1. **`allUsers`への公開アクセス不要**
-   - Cloud Runサービス自体は`--allow-unauthenticated`フラグで公開されていますが、
-   - アプリケーションレベルの認証（APIキー）で保護されています
+1. **`allUsers`への公開アクセス不要E*
+   - Cloud Runサービス自体�E`--allow-unauthenticated`フラグで公開されてぁE��すが、E
+   - アプリケーションレベルの認証�E�EPIキー�E�で保護されてぁE��ぁE
 
-2. **APIキーの管理**
-   - Secret Managerで安全に管理
-   - フロントエンドに埋め込まれていますが、必要に応じて環境変数から取得することも可能
+2. **APIキーの管琁E*
+   - Secret Managerで安�Eに管琁E
+   - フロントエンドに埋め込まれてぁE��すが、忁E��に応じて環墁E��数から取得することも可能
 
-3. **認証の実装**
-   - すべての`/api/gemini`、`/api/analyze`、`/api/save`エンドポイントは認証が必要
-   - `/`、`/health`エンドポイントは認証不要（公開）
+3. **認証の実裁E*
+   - すべての`/api/gemini`、`/api/analyze`、`/api/save`エンド�Eイント�E認証が忁E��E
+   - `/`、`/health`エンド�Eイント�E認証不要E���E開！E
 
-## 使用方法
+## 使用方況E
 
-### フロントエンドからAPIを呼び出す
+### フロントエンドからAPIを呼び出ぁE
 
-フロントエンドは自動的にAPIキーを送信します：
+フロントエンド�E自動的にAPIキーを送信します！E
 
 ```javascript
 fetch('https://ai-drbfm-backend-43iql33sfa-an.a.run.app/api/gemini', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': window.BACKEND_API_KEY  // 自動的に追加される
+        'X-API-Key': window.BACKEND_API_KEY  // 自動的に追加されめE
     },
     body: JSON.stringify({ ... })
 });
 ```
 
-### APIキーを変更する場合
+### APIキーを変更する場吁E
 
-1. 新しいAPIキーを生成
-2. Secret Managerに保存
-3. フロントエンドの`ai-drbfm.html`を更新
+1. 新しいAPIキーを生戁E
+2. Secret Managerに保孁E
+3. フロントエンド�E`ai-drbfm.html`を更新
 
-## 注意事項
+## 注意事頁E
 
 1. **APIキーの保護**
-   - 現在、APIキーはフロントエンドに埋め込まれています
-   - より安全にする場合は、環境変数から取得するか、別の認証方法を検討してください
+   - 現在、APIキーはフロントエンドに埋め込まれてぁE��ぁE
+   - より安�Eにする場合�E、環墁E��数から取得するか、別の認証方法を検討してください
 
-2. **レート制限**
-   - 必要に応じて、レート制限を追加することを推奨します
+2. **レート制陁E*
+   - 忁E��に応じて、レート制限を追加することを推奨しまぁE
 
-3. **CORS設定**
-   - 必要に応じて、CORS設定を特定のドメインに制限してください
+3. **CORS設宁E*
+   - 忁E��に応じて、CORS設定を特定�Eドメインに制限してください
 
-## 次のステップ
+## 次のスチE��チE
 
-1. フロントエンドからAPIを呼び出して動作確認
-2. 必要に応じて、レート制限やCORS設定を追加
-3. APIキーのローテーションを検討
+1. フロントエンドからAPIを呼び出して動作確誁E
+2. 忁E��に応じて、レート制限やCORS設定を追加
+3. APIキーのローチE�Eションを検訁E

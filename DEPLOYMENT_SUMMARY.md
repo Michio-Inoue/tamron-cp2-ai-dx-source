@@ -1,58 +1,58 @@
-# デプロイ状況まとめ
+# チE�Eロイ状況まとめE
 
-## 現在の状態
+## 現在の状慁E
 
-### ✅ 完了している項目
+### ✁E完亁E��てぁE��頁E��
 
-1. **認証とプロジェクト設定**
-   - Google Cloud CLI認証完了 ✓
-   - プロジェクト設定完了 ✓
+1. **認証とプロジェクト設宁E*
+   - Google Cloud CLI認証完亁E✁E
+   - プロジェクト設定完亁E✁E
 
-2. **App Engine初期化**
-   - App Engine初期化完了 ✓
-   - デフォルトサービスアカウント作成済み ✓
+2. **App Engine初期匁E*
+   - App Engine初期化完亁E✁E
+   - チE��ォルトサービスアカウント作�E済み ✁E
 
-3. **Secret Manager設定**
-   - `gemini-api-key` シークレット作成済み ✓
-   - サービスアカウントに権限付与済み ✓
+3. **Secret Manager設宁E*
+   - `gemini-api-key` シークレチE��作�E済み ✁E
+   - サービスアカウントに権限付与済み ✁E
 
-4. **権限設定**
-   - Storage管理者権限付与済み ✓
-   - Artifact Registry読み書き権限付与済み ✓
+4. **権限設宁E*
+   - Storage管琁E��E��限付与済み ✁E
+   - Artifact Registry読み書き権限付与済み ✁E
 
-### ⚠️ 現在の問題
+### ⚠�E�E現在の問顁E
 
 **Artifact Registryリポジトリへのアクセスエラー**
 
-エラーメッセージ：
+エラーメチE��ージ�E�E
 ```
 Permission "artifactregistry.repositories.downloadArtifacts" denied on resource 
 "projects/singular-server-480006-s8/locations/asia/repositories/asia.gcr.io" 
 (or it may not exist)
 ```
 
-## 解決方法
+## 解決方況E
 
-### 方法1: Google Cloud Consoleでビルドログを確認（推奨）
+### 方況E: Google Cloud Consoleでビルドログを確認（推奨�E�E
 
-以下のURLでビルドログを確認：
+以下�EURLでビルドログを確認！E
 ```
 https://console.cloud.google.com/cloud-build/builds?project=singular-server-480006-s8
 ```
 
-最新のビルドをクリックして、詳細なエラーメッセージを確認してください。
+最新のビルドをクリチE��して、詳細なエラーメチE��ージを確認してください、E
 
-### 方法2: Artifact Registry APIを有効化
+### 方況E: Artifact Registry APIを有効匁E
 
 ```powershell
 gcloud services enable artifactregistry.googleapis.com --project=singular-server-480006-s8
 ```
 
-### 方法3: リポジトリが存在しない場合
+### 方況E: リポジトリが存在しなぁE��吁E
 
-エラーメッセージに「(or it may not exist)」とあるので、リポジトリが存在しない可能性があります。
+エラーメチE��ージに、Eor it may not exist)」とあるので、リポジトリが存在しなぁE��能性があります、E
 
-App Engineのデプロイ時に自動的に作成されるはずですが、手動で作成することもできます：
+App EngineのチE�Eロイ時に自動的に作�Eされる�Eずですが、手動で作�Eすることもできます！E
 
 ```powershell
 gcloud artifacts repositories create app-engine-tmp \
@@ -61,22 +61,22 @@ gcloud artifacts repositories create app-engine-tmp \
     --project=singular-server-480006-s8
 ```
 
-## 次のステップ
+## 次のスチE��チE
 
-1. **Google Cloud Consoleでビルドログを確認**
-   - より詳細なエラーメッセージを確認
+1. **Google Cloud Consoleでビルドログを確誁E*
+   - より詳細なエラーメチE��ージを確誁E
 
-2. **Artifact Registry APIが有効か確認**
+2. **Artifact Registry APIが有効か確誁E*
    - https://console.cloud.google.com/apis/library?project=singular-server-480006-s8
-   - 「Artifact Registry API」を検索して有効化
+   - 「Artifact Registry API」を検索して有効匁E
 
-3. **必要に応じてリポジトリを作成**
+3. **忁E��に応じてリポジトリを作�E**
 
-4. **再度デプロイを試行**
+4. **再度チE�Eロイを試衁E*
 
-## 参考情報
+## 参老E��報
 
 - ビルドログURL: https://console.cloud.google.com/cloud-build/builds?project=singular-server-480006-s8
-- App Engineダッシュボード: https://console.cloud.google.com/appengine?project=singular-server-480006-s8
+- App EngineダチE��ュボ�EチE https://console.cloud.google.com/appengine?project=singular-server-480006-s8
 
 

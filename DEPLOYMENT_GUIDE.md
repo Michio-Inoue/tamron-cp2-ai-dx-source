@@ -1,58 +1,58 @@
-# Google Cloud Secret Managerを使用したデプロイガイド
+# Google Cloud Secret Managerを使用したチE�EロイガイチE
 
 ## 前提条件
 
-1. Google Cloud Projectが作成されていること
-2. Secret Manager APIが有効になっていること
-3. Cloud FunctionsまたはApp Engineのデプロイ権限があること
+1. Google Cloud Projectが作�EされてぁE��こと
+2. Secret Manager APIが有効になってぁE��こと
+3. Cloud Functionsまた�EApp EngineのチE�Eロイ権限があること
 
-## 手順
+## 手頁E
 
-### 1. Secret ManagerにAPIキーを保存
+### 1. Secret ManagerにAPIキーを保孁E
 
 ```bash
 # Google Cloud CLIでログイン
 gcloud auth login
 
-# プロジェクトを設定
+# プロジェクトを設宁E
 gcloud config set project YOUR_PROJECT_ID
 
-# Secret ManagerにAPIキーを保存
+# Secret ManagerにAPIキーを保孁E
 echo -n "YOUR_GEMINI_API_KEY" | gcloud secrets create gemini-api-key \
     --data-file=- \
     --replication-policy="automatic"
 ```
 
-または、Google Cloud Consoleから：
+また�E、Google Cloud Consoleから�E�E
 1. [Secret Manager](https://console.cloud.google.com/security/secret-manager)にアクセス
-2. 「シークレットを作成」をクリック
+2. 「シークレチE��を作�E」をクリチE��
 3. 名前: `gemini-api-key`
-4. シークレットの値: あなたのGemini APIキーを入力
-5. 「作成」をクリック
+4. シークレチE��の値: あなた�EGemini APIキーを�E劁E
+5. 「作�E」をクリチE��
 
-### 2. Secret Managerへのアクセス権限を設定
+### 2. Secret Managerへのアクセス権限を設宁E
 
-Cloud FunctionsまたはApp EngineのサービスアカウントにSecret Managerへのアクセス権限を付与：
+Cloud Functionsまた�EApp EngineのサービスアカウントにSecret Managerへのアクセス権限を付与！E
 
 ```bash
-# サービスアカウントのメールアドレスを取得
+# サービスアカウント�Eメールアドレスを取征E
 SERVICE_ACCOUNT=$(gcloud iam service-accounts list --filter="displayName:App Engine default service account" --format="value(email)")
 
-# Secret Managerへのアクセス権限を付与
+# Secret Managerへのアクセス権限を付丁E
 gcloud secrets add-iam-policy-binding gemini-api-key \
     --member="serviceAccount:${SERVICE_ACCOUNT}" \
     --role="roles/secretmanager.secretAccessor"
 ```
 
-### 3. Cloud Functionsにデプロイ
+### 3. Cloud FunctionsにチE�Eロイ
 
 ```bash
 cd backend
 
-# 依存関係をインストール
+# 依存関係をインスト�Eル
 npm install
 
-# Cloud Functionsにデプロイ
+# Cloud FunctionsにチE�Eロイ
 gcloud functions deploy geminiProxy \
     --runtime nodejs20 \
     --trigger http \
@@ -61,40 +61,40 @@ gcloud functions deploy geminiProxy \
     --region asia-northeast1
 ```
 
-### 4. App Engineにデプロイ（オプション）
+### 4. App EngineにチE�Eロイ�E�オプション�E�E
 
 ```bash
 cd backend
 
-# 依存関係をインストール
+# 依存関係をインスト�Eル
 npm install
 
-# App Engineにデプロイ
+# App EngineにチE�Eロイ
 gcloud app deploy app.yaml
 ```
 
-### 5. フロントエンドコードの更新
+### 5. フロントエンドコード�E更新
 
-`ai-drbfm.js`と`license-management.js`を更新して、バックエンドAPIを呼び出すように変更します。
+`ai-drbfm.js`と`license-management.js`を更新して、バチE��エンドAPIを呼び出すよぁE��変更します、E
 
-## 環境変数の設定
+## 環墁E��数の設宁E
 
-Cloud FunctionsまたはApp Engineの環境変数として以下を設定：
+Cloud Functionsまた�EApp Engineの環墁E��数として以下を設定！E
 
-- `GEMINI_API_KEY_SECRET_NAME`: Secret Managerのシークレット名（デフォルト: `gemini-api-key`）
-- `GOOGLE_CLOUD_PROJECT`: Google Cloud Project ID（自動設定される場合あり）
+- `GEMINI_API_KEY_SECRET_NAME`: Secret ManagerのシークレチE��名（デフォルチE `gemini-api-key`�E�E
+- `GOOGLE_CLOUD_PROJECT`: Google Cloud Project ID�E��E動設定される場合あり！E
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### Secret ManagerからAPIキーが取得できない
+### Secret ManagerからAPIキーが取得できなぁE
 
-1. サービスアカウントに適切な権限があるか確認
-2. シークレット名が正しいか確認
-3. プロジェクトIDが正しいか確認
+1. サービスアカウントに適刁E��権限があるか確誁E
+2. シークレチE��名が正しいか確誁E
+3. プロジェクチEDが正しいか確誁E
 
-### CORSエラーが発生する
+### CORSエラーが発生すめE
 
-Cloud FunctionsまたはApp EngineのCORS設定を確認してください。
+Cloud Functionsまた�EApp EngineのCORS設定を確認してください、E
 
 
 

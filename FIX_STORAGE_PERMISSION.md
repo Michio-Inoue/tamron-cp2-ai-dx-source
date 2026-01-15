@@ -1,6 +1,6 @@
-# Cloud Storageバケットアクセス権限エラーの解決方法
+# Cloud StorageバケチE��アクセス権限エラーの解決方況E
 
-## エラー内容
+## エラー冁E��
 
 ```
 invalid bucket "staging.singular-server-480006-s8.appspot.com"; 
@@ -10,87 +10,87 @@ does not have access to the bucket
 
 ## 原因
 
-App Engineのデプロイ時に使用されるステージングバケット（`staging.singular-server-480006-s8.appspot.com`）に、サービスアカウントがアクセスできない。
+App EngineのチE�Eロイ時に使用されるスチE�EジングバケチE���E�Estaging.singular-server-480006-s8.appspot.com`�E�に、サービスアカウントがアクセスできなぁE��E
 
-## 解決方法
+## 解決方況E
 
-### 方法1: Google Cloud Consoleで権限を付与（推奨）
+### 方況E: Google Cloud Consoleで権限を付与（推奨�E�E
 
-1. **Cloud Storageバケットページにアクセス**：
+1. **Cloud StorageバケチE��ペ�Eジにアクセス**�E�E
    ```
    https://console.cloud.google.com/storage/browser?project=singular-server-480006-s8
    ```
 
-2. **ステージングバケットを探す**：
-   - `staging.singular-server-480006-s8.appspot.com` という名前のバケットを探す
-   - または、`gs://staging.singular-server-480006-s8.appspot.com` を検索
+2. **スチE�EジングバケチE��を探ぁE*�E�E
+   - `staging.singular-server-480006-s8.appspot.com` とぁE��名前のバケチE��を探ぁE
+   - また�E、`gs://staging.singular-server-480006-s8.appspot.com` を検索
 
-3. **バケットをクリック**
+3. **バケチE��をクリチE��**
 
-4. **「権限」タブをクリック**
+4. **「権限」タブをクリチE��**
 
-5. **「プリンシパルを追加」をクリック**
+5. **「�Eリンシパルを追加」をクリチE��**
 
-6. **以下の情報を入力**：
+6. **以下�E惁E��を�E劁E*�E�E
    - **新しいプリンシパル**: `singular-server-480006-s8@appspot.gserviceaccount.com`
-   - **ロール**: 「Storage オブジェクト管理者」または「Storage 管理者」を選択
+   - **ロール**: 「Storage オブジェクト管琁E��E��また�E「Storage 管琁E��E��を選抁E
 
-7. **「保存」をクリック**
+7. **「保存」をクリチE��**
 
-### 方法2: コマンドラインで権限を付与
+### 方況E: コマンドラインで権限を付丁E
 
 ```powershell
-# サービスアカウントにStorage管理者権限を付与
+# サービスアカウントにStorage管琁E��E��限を付丁E
 gsutil iam ch serviceAccount:singular-server-480006-s8@appspot.gserviceaccount.com:roles/storage.admin gs://staging.singular-server-480006-s8.appspot.com
 ```
 
-または、より限定的な権限：
+また�E、より限定的な権限！E
 
 ```powershell
-# Storageオブジェクト管理者権限を付与
+# Storageオブジェクト管琁E��E��限を付丁E
 gsutil iam ch serviceAccount:singular-server-480006-s8@appspot.gserviceaccount.com:roles/storage.objectAdmin gs://staging.singular-server-480006-s8.appspot.com
 ```
 
-### 方法3: プロジェクトレベルで権限を付与
+### 方況E: プロジェクトレベルで権限を付丁E
 
 ```powershell
-# プロジェクトレベルでStorage管理者権限を付与
+# プロジェクトレベルでStorage管琁E��E��限を付丁E
 gcloud projects add-iam-policy-binding singular-server-480006-s8 \
     --member="serviceAccount:singular-server-480006-s8@appspot.gserviceaccount.com" \
     --role="roles/storage.admin"
 ```
 
-## 確認方法
+## 確認方況E
 
-権限が正しく付与されたか確認：
+権限が正しく付与されたか確認！E
 
 ```powershell
-# バケットの権限を確認
+# バケチE��の権限を確誁E
 gsutil iam get gs://staging.singular-server-480006-s8.appspot.com
 ```
 
-## 権限付与後のデプロイ
+## 権限付与後�EチE�Eロイ
 
-権限を付与したら、再度デプロイを実行：
+権限を付与したら、�E度チE�Eロイを実行！E
 
 ```powershell
 gcloud app deploy app.yaml --project=singular-server-480006-s8
 ```
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### バケットが見つからない場合
+### バケチE��が見つからなぁE��吁E
 
-App Engineの初期化時に自動的に作成されるはずですが、見つからない場合は：
+App Engineの初期化時に自動的に作�Eされる�Eずですが、見つからなぁE��合�E�E�E
 
-1. App Engineが正しく初期化されているか確認
-2. プロジェクトが正しく選択されているか確認
-3. 数分待ってから再度確認
+1. App Engineが正しく初期化されてぁE��か確誁E
+2. プロジェクトが正しく選択されてぁE��か確誁E
+3. 数刁E��E��てから再度確誁E
 
-### 権限の付与が失敗する場合
+### 権限�E付与が失敗する場吁E
 
-1. プロジェクトの所有者または編集者権限があるか確認
-2. Cloud Storage APIが有効になっているか確認
-3. サービスアカウントのメールアドレスが正しいか確認
+1. プロジェクト�E所有老E��た�E編雁E��E��限があるか確誁E
+2. Cloud Storage APIが有効になってぁE��か確誁E
+3. サービスアカウント�Eメールアドレスが正しいか確誁E
 
 

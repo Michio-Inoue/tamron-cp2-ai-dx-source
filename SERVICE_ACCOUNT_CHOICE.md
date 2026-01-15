@@ -1,94 +1,94 @@
-# サービスアカウントの選択：既存 vs 新規
+# サービスアカウント�E選択：既孁Evs 新要E
 
-## 重要なポイント
+## 重要なポインチE
 
-**App Engineの初期化時には、サービスアカウントを選択する必要はありません。**
-App Engineは自動的にデフォルトのサービスアカウントを作成します。
+**App Engineの初期化時には、サービスアカウントを選択する忁E���Eありません、E*
+App Engineは自動的にチE��ォルト�Eサービスアカウントを作�Eします、E
 
-## 選択肢の比較
+## 選択肢の比輁E
 
-### オプション1: 既存のサービスアカウント（git-deployer）を使用
+### オプション1: 既存�Eサービスアカウント！Eit-deployer�E�を使用
 
-**メリット:**
-- ✅ 既に設定済みで、権限管理が統一される
-- ✅ 新しいサービスアカウントを作成する必要がない
-- ✅ 既存のワークフローと統合しやすい
+**メリチE��:**
+- ✁E既に設定済みで、権限管琁E��統一されめE
+- ✁E新しいサービスアカウントを作�Eする忁E��がなぁE
+- ✁E既存�Eワークフローと統合しめE��ぁE
 
-**デメリット:**
-- ⚠️ 他の用途（Gitデプロイなど）と混在する可能性
-- ⚠️ 権限が広すぎる可能性（最小権限の原則に反する）
+**チE��リチE��:**
+- ⚠�E�E他�E用途！EitチE�Eロイなど�E�と混在する可能性
+- ⚠�E�E権限が庁E��ぎる可能性�E�最小権限�E原則に反する！E
 
-**推奨される場合:**
-- 既にgit-deployerが適切に設定されている
-- 権限管理を統一したい
-- シンプルに運用したい
+**推奨される場吁E**
+- 既にgit-deployerが適刁E��設定されてぁE��
+- 権限管琁E��統一したぁE
+- シンプルに運用したぁE
 
-### オプション2: App Engineのデフォルトサービスアカウントを使用（推奨）
+### オプション2: App EngineのチE��ォルトサービスアカウントを使用�E�推奨�E�E
 
-**メリット:**
-- ✅ App Engine専用のサービスアカウントで、用途が明確
-- ✅ 最小権限の原則に従える
-- ✅ セキュリティベストプラクティスに準拠
-- ✅ App Engineが自動的に作成・管理するため、設定が簡単
+**メリチE��:**
+- ✁EApp Engine専用のサービスアカウントで、用途が明確
+- ✁E最小権限�E原則に従えめE
+- ✁EセキュリチE��ベスト�EラクチE��スに準拠
+- ✁EApp Engineが�E動的に作�E・管琁E��るため、設定が簡十E
 
-**デメリット:**
-- ⚠️ 新しいサービスアカウントが作成される（ただし自動）
+**チE��リチE��:**
+- ⚠�E�E新しいサービスアカウントが作�Eされる（ただし�E動！E
 
-**推奨される場合:**
-- セキュリティを重視する
-- 用途ごとにサービスアカウントを分けたい
-- Google Cloudのベストプラクティスに従いたい
+**推奨される場吁E**
+- セキュリチE��を重視すめE
+- 用途ごとにサービスアカウントを刁E��たい
+- Google Cloudのベスト�EラクチE��スに従いたい
 
-## 推奨事項
+## 推奨事頁E
 
-### 🎯 推奨: App Engineのデフォルトサービスアカウントを使用
+### 🎯 推奨: App EngineのチE��ォルトサービスアカウントを使用
 
-**理由:**
-1. **セキュリティ**: 最小権限の原則に従える
+**琁E��:**
+1. **セキュリチE��**: 最小権限�E原則に従えめE
 2. **明確性**: App Engine専用のサービスアカウントで、用途が明確
-3. **管理のしやすさ**: App Engineが自動的に管理する
-4. **ベストプラクティス**: Google Cloudの推奨方法
+3. **管琁E�Eしやすさ**: App Engineが�E動的に管琁E��めE
+4. **ベスト�EラクチE��ス**: Google Cloudの推奨方況E
 
-### 手順（デフォルトサービスアカウントを使用する場合）
+### 手頁E��デフォルトサービスアカウントを使用する場合！E
 
-1. **App Engineを初期化**（サービスアカウントの選択は不要）
-   - App Engineが自動的にデフォルトサービスアカウントを作成します
+1. **App Engineを�E期化**�E�サービスアカウント�E選択�E不要E��E
+   - App Engineが�E動的にチE��ォルトサービスアカウントを作�EしまぁE
 
-2. **デフォルトサービスアカウントのメールアドレスを確認**
-   - 形式: `PROJECT_NUMBER@project.gserviceaccount.com`
-   - または: `PROJECT_ID@appspot.gserviceaccount.com`
-   - 確認方法: https://console.cloud.google.com/iam-admin/serviceaccounts?project=singular-server-480006-s8
+2. **チE��ォルトサービスアカウント�Eメールアドレスを確誁E*
+   - 形弁E `PROJECT_NUMBER@project.gserviceaccount.com`
+   - また�E: `PROJECT_ID@appspot.gserviceaccount.com`
+   - 確認方況E https://console.cloud.google.com/iam-admin/serviceaccounts?project=singular-server-480006-s8
 
-3. **Secret Managerで権限を付与**
-   - 確認したデフォルトサービスアカウントのメールアドレスを使用
+3. **Secret Managerで権限を付丁E*
+   - 確認したデフォルトサービスアカウント�Eメールアドレスを使用
 
-4. **app.yamlはそのまま使用**
+4. **app.yamlはそ�Eまま使用**
    - `service_account: default` のままでOK
 
-### 既存のサービスアカウント（git-deployer）を使用する場合
+### 既存�Eサービスアカウント！Eit-deployer�E�を使用する場吁E
 
-もし既存のサービスアカウントを使いたい場合は：
+もし既存�Eサービスアカウントを使ぁE��ぁE��合�E�E�E
 
-1. **App Engineを初期化**（そのまま進める）
+1. **App Engineを�E期化**�E�そのまま進める�E�E
 
-2. **既存のサービスアカウント（git-deployer）に権限を付与**
+2. **既存�Eサービスアカウント！Eit-deployer�E�に権限を付丁E*
    - Secret Managerで `git-deployer` のメールアドレスを使用
 
-3. **app.yamlを更新**（オプション）
+3. **app.yamlを更新**�E�オプション�E�E
    ```yaml
    service_account: git-deployer@singular-server-480006-s8.iam.gserviceaccount.com
    ```
-   （実際のメールアドレスに置き換えてください）
+   �E�実際のメールアドレスに置き換えてください�E�E
 
-## 結論
+## 結諁E
 
-**推奨: App Engineのデフォルトサービスアカウントを使用**
+**推奨: App EngineのチE��ォルトサービスアカウントを使用**
 
 - App Engineの初期化を進める
-- 初期化後、自動的に作成されたデフォルトサービスアカウントを確認
-- そのサービスアカウントにSecret Managerへの権限を付与
+- 初期化後、�E動的に作�Eされたデフォルトサービスアカウントを確誁E
+- そ�EサービスアカウントにSecret Managerへの権限を付丁E
 - `app.yaml` は `service_account: default` のままでOK
 
-これが最もシンプルで、セキュリティベストプラクティスに準拠した方法です。
+これが最もシンプルで、セキュリチE��ベスト�EラクチE��スに準拠した方法です、E
 
 

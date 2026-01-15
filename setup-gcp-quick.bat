@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ========================================
-echo Google Cloud セットアップ（簡易版）
+echo Google Cloud セチE��アチE�E�E�簡易版�E�E
 echo ========================================
 echo.
 
@@ -12,46 +12,46 @@ set API_KEY=[REDACTED]
 echo [1/6] プロジェクトを設定中...
 gcloud config set project %PROJECT_ID%
 if %errorlevel% neq 0 (
-    echo エラー: プロジェクトの設定に失敗しました
+    echo エラー: プロジェクト�E設定に失敗しました
     echo 手動で実行してください: gcloud config set project %PROJECT_ID%
     pause
     exit /b 1
 )
-echo ✓ プロジェクト設定完了
+echo ✁Eプロジェクト設定完亁E
 
 echo.
-echo [2/6] 必要なAPIを有効化中...
+echo [2/6] 忁E��なAPIを有効化中...
 gcloud services enable secretmanager.googleapis.com --project=%PROJECT_ID% --quiet
 gcloud services enable appengine.googleapis.com --project=%PROJECT_ID% --quiet
 gcloud services enable cloudbuild.googleapis.com --project=%PROJECT_ID% --quiet
-echo ✓ API有効化完了
+echo ✁EAPI有効化完亁E
 
 echo.
 echo [3/6] Secret ManagerにAPIキーを保存中...
 echo %API_KEY% | gcloud secrets create %SECRET_NAME% --data-file=- --replication-policy="automatic" --project=%PROJECT_ID% 2>nul
 if %errorlevel% neq 0 (
-    echo シークレットが既に存在する可能性があります。更新を試みます...
+    echo シークレチE��が既に存在する可能性があります。更新を試みまぁE..
     echo %API_KEY% | gcloud secrets versions add %SECRET_NAME% --data-file=- --project=%PROJECT_ID%
     if %errorlevel% neq 0 (
-        echo 警告: シークレットの作成/更新に失敗しました。手動で確認してください。
+        echo 警呁E シークレチE��の作�E/更新に失敗しました。手動で確認してください、E
     ) else (
-        echo ✓ シークレット更新完了
+        echo ✁EシークレチE��更新完亁E
     )
 ) else (
-    echo ✓ シークレット作成完了
+    echo ✁EシークレチE��作�E完亁E
 )
 
 echo.
 echo [4/6] サービスアカウントに権限を付与中...
 gcloud secrets add-iam-policy-binding %SECRET_NAME% --member="serviceAccount:%PROJECT_ID%@appspot.gserviceaccount.com" --role="roles/secretmanager.secretAccessor" --project=%PROJECT_ID% --quiet
 if %errorlevel% neq 0 (
-    echo 警告: 権限の付与に失敗しました。手動で確認してください。
+    echo 警呁E 権限�E付与に失敗しました。手動で確認してください、E
 ) else (
-    echo ✓ 権限付与完了
+    echo ✁E権限付与完亁E
 )
 
 echo.
-echo [5/6] バックエンドの依存関係をインストール中...
+echo [5/6] バックエンド�E依存関係をインスト�Eル中...
 cd backend
 if exist package.json (
     call npm install
@@ -61,38 +61,38 @@ if exist package.json (
         pause
         exit /b 1
     )
-    echo ✓ 依存関係インストール完了
+    echo ✁E依存関係インスト�Eル完亁E
 ) else (
-    echo 警告: package.jsonが見つかりません
+    echo 警呁E package.jsonが見つかりません
 )
 cd ..
 
 echo.
-echo [6/6] デプロイ準備完了！
+echo [6/6] チE�Eロイ準備完亁E��E
 echo.
 echo ========================================
-echo 次のステップ:
+echo 次のスチE��チE
 echo ========================================
 echo.
-echo バックエンドをデプロイするには、以下を実行してください:
+echo バックエンドをチE�Eロイするには、以下を実行してください:
 echo   cd backend
 echo   gcloud app deploy app.yaml
 echo.
-echo または、このスクリプトを続行してデプロイを実行しますか？ (Y/N)
-set /p DEPLOY="デプロイを実行しますか？ (Y/N): "
+echo また�E、このスクリプトを続行してチE�Eロイを実行しますか�E�E(Y/N)
+set /p DEPLOY="チE�Eロイを実行しますか�E�E(Y/N): "
 if /i "%DEPLOY%"=="Y" (
     echo.
-    echo デプロイを開始します...
+    echo チE�Eロイを開始しまぁE..
     cd backend
     gcloud app deploy app.yaml
     cd ..
 ) else (
-    echo デプロイはスキップされました。
+    echo チE�EロイはスキチE�Eされました、E
 )
 
 echo.
 echo ========================================
-echo セットアップ完了！
+echo セチE��アチE�E完亁E��E
 echo ========================================
 pause
 

@@ -1,38 +1,38 @@
-# 403エラーの解決方法：認証トークンを使用
+# 403エラーの解決方法：認証ト�Eクンを使用
 
-## 問題の原因
+## 問題�E原因
 
-ブラウザから直接Cloud Run APIを呼び出す場合、認証情報が自動的に送信されないため、403エラーが発生します。
+ブラウザから直接Cloud Run APIを呼び出す場合、認証惁E��が�E動的に送信されなぁE��め、E03エラーが発生します、E
 
-## 解決方法
+## 解決方況E
 
-### 方法1: Google Identity Tokenを使用（推奨）
+### 方況E: Google Identity Tokenを使用�E�推奨�E�E
 
-ユーザーがGoogleアカウントでログインしている場合、Identity Tokenを使用してAPIを呼び出すことができます。
+ユーザーがGoogleアカウントでログインしてぁE��場合、Identity Tokenを使用してAPIを呼び出すことができます、E
 
-#### 実装手順
+#### 実裁E��頁E
 
 1. **Google Identity Servicesライブラリを読み込む**
-2. **認証トークンを取得**
-3. **API呼び出し時にトークンをヘッダーに追加**
+2. **認証ト�Eクンを取征E*
+3. **API呼び出し時にト�Eクンを�EチE��ーに追加**
 
-### 方法2: 公開アクセスを許可する
+### 方況E: 公開アクセスを許可する
 
-組織ポリシーで許可されている場合、`allUsers`に`roles/run.invoker`を付与することで、認証なしでアクセスできます。
+絁E���Eリシーで許可されてぁE��場合、`allUsers`に`roles/run.invoker`を付与することで、認証なしでアクセスできます、E
 
-### 方法3: バックエンドで認証をスキップする（開発環境のみ）
+### 方況E: バックエンドで認証をスキチE�Eする�E�開発環墁E�Eみ�E�E
 
-開発環境では、バックエンドAPIを認証不要にすることもできますが、本番環境では推奨されません。
+開発環墁E��は、バチE��エンドAPIを認証不要にすることもできますが、本番環墁E��は推奨されません、E
 
-## 実装コード
+## 実裁E��ーチE
 
-### フロントエンド側（ai-drbfm.js）
+### フロントエンド�E�E�Ei-drbfm.js�E�E
 
 ```javascript
-// Google Identity Tokenを取得してAPIを呼び出す
+// Google Identity Tokenを取得してAPIを呼び出ぁE
 async function callBackendAPI(url, options) {
     try {
-        // Google Identity Tokenを取得
+        // Google Identity Tokenを取征E
         const token = await getGoogleIdentityToken();
         
         // 認証ヘッダーを追加
@@ -57,31 +57,31 @@ async function callBackendAPI(url, options) {
     }
 }
 
-// Google Identity Tokenを取得
+// Google Identity Tokenを取征E
 async function getGoogleIdentityToken() {
     try {
-        // gcloud CLIがインストールされている場合
-        // ただし、ブラウザからは直接呼び出せないため、
-        // バックエンドプロキシ経由で取得する必要があります
+        // gcloud CLIがインスト�EルされてぁE��場吁E
+        // ただし、ブラウザからは直接呼び出せなぁE��め、E
+        // バックエンド�Eロキシ経由で取得する忁E��がありまぁE
         
-        // または、Google Identity Servicesを使用
+        // また�E、Google Identity Servicesを使用
         // https://developers.google.com/identity/gsi/web
         
-        return null; // 実装が必要
+        return null; // 実裁E��忁E��E
     } catch (error) {
-        console.error('トークン取得エラー:', error);
+        console.error('ト�Eクン取得エラー:', error);
         return null;
     }
 }
 ```
 
-## 最も簡単な解決方法
+## 最も簡単な解決方況E
 
-**Google Cloud Consoleから`allUsers`に公開アクセスを許可する**のが最も簡単です。
+**Google Cloud Consoleから`allUsers`に公開アクセスを許可する**のが最も簡単です、E
 
-1. Cloud Runサービスページを開く
-2. 「権限」タブをクリック
-3. 「プリンシパルを追加」をクリック
-4. `allUsers`に`Cloud Run 起動元`ロールを付与
+1. Cloud Runサービスペ�Eジを開ぁE
+2. 「権限」タブをクリチE��
+3. 「�Eリンシパルを追加」をクリチE��
+4. `allUsers`に`Cloud Run 起動�E`ロールを付丁E
 
-これで、認証なしでAPIにアクセスできるようになります。
+これで、認証なしでAPIにアクセスできるようになります、E

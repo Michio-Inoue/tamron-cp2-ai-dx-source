@@ -1,99 +1,99 @@
-# 現在のデプロイ状態
+# 現在のチE�Eロイ状慁E
 
-## 問題の分析結果
+## 問題�E刁E��結果
 
-ユーザーの分析により、以下の問題が特定されました：
+ユーザーの刁E��により、以下�E問題が特定されました�E�E
 
-### 主な問題
+### 主な問顁E
 
-1. **古いContainer Registry (GCR) の参照**
-   - `asia.gcr.io/singular-server-480006-s8/app-engine-tmp/...` という古い形式を使用
-   - Artifact Registry (`asia-northeast1-docker.pkg.dev`) ではなく、廃止予定のGCRにアクセスしようとしている
+1. **古いContainer Registry (GCR) の参�E**
+   - `asia.gcr.io/singular-server-480006-s8/app-engine-tmp/...` とぁE��古ぁE��式を使用
+   - Artifact Registry (`asia-northeast1-docker.pkg.dev`) ではなく、廁E��予定�EGCRにアクセスしよぁE��してぁE��
 
-2. **App Engineの自動ビルド設定**
-   - `gcloud app deploy` コマンドが古いGCRを使用する設定になっている
-   - Cloud Buildトリガーとは別の仕組みで動作している
+2. **App Engineの自動ビルド設宁E*
+   - `gcloud app deploy` コマンドが古いGCRを使用する設定になってぁE��
+   - Cloud Buildトリガーとは別の仕絁E��で動作してぁE��
 
-3. **ビルド環境の不一致**
+3. **ビルド環墁E�E不一致**
    - `serverless-runtimes/google-22-full/builder/nodejs` はApp Engine Flexible Environment用
-   - 現在はApp Engine Standard Environmentを使用しているはず
+   - 現在はApp Engine Standard Environmentを使用してぁE��はぁE
 
-## 現在の状態
+## 現在の状慁E
 
-### ✅ 完了している項目
+### ✁E完亁E��てぁE��頁E��
 
-1. **認証とプロジェクト設定**
-   - Google Cloud CLI認証完了 ✓
-   - プロジェクト設定完了 ✓
+1. **認証とプロジェクト設宁E*
+   - Google Cloud CLI認証完亁E✁E
+   - プロジェクト設定完亁E✁E
 
-2. **App Engine初期化**
-   - App Engine初期化完了 ✓
-   - デフォルトサービスアカウント作成済み ✓
+2. **App Engine初期匁E*
+   - App Engine初期化完亁E✁E
+   - チE��ォルトサービスアカウント作�E済み ✁E
 
-3. **Secret Manager設定**
-   - `gemini-api-key` シークレット作成済み ✓
-   - サービスアカウントに権限付与済み ✓
+3. **Secret Manager設宁E*
+   - `gemini-api-key` シークレチE��作�E済み ✁E
+   - サービスアカウントに権限付与済み ✁E
 
-4. **権限設定**
-   - Storage管理者権限付与済み ✓
-   - Artifact Registry読み書き権限付与済み ✓
+4. **権限設宁E*
+   - Storage管琁E��E��限付与済み ✁E
+   - Artifact Registry読み書き権限付与済み ✁E
 
 5. **Artifact Registry**
-   - Artifact Registry API有効 ✓
-   - `app-engine-tmp` リポジトリ作成済み ✓
+   - Artifact Registry API有効 ✁E
+   - `app-engine-tmp` リポジトリ作�E済み ✁E
 
-### ⚠️ 現在の問題
+### ⚠�E�E現在の問顁E
 
-1. **デプロイの失敗**
-   - App Engineへのデプロイが失敗している
+1. **チE�Eロイの失敁E*
+   - App EngineへのチE�Eロイが失敗してぁE��
    - 古いGCRへのアクセスエラーが原因
 
 2. **Cloud Buildトリガー**
-   - 古いトリガーが存在する可能性
-   - App Engine自動デプロイ設定との競合
+   - 古ぁE��リガーが存在する可能性
+   - App Engine自動デプロイ設定との競吁E
 
-## 推奨される対応
+## 推奨される対忁E
 
-### オプション1: App Engineのデプロイ設定を修正（現在のアプローチを継続）
+### オプション1: App EngineのチE�Eロイ設定を修正�E�現在のアプローチを継続！E
 
-1. **古いGCRの参照を回避**
-   - App Engineのデプロイ設定を確認
-   - Artifact Registryを使用するように設定
+1. **古いGCRの参�Eを回避**
+   - App EngineのチE�Eロイ設定を確誁E
+   - Artifact Registryを使用するように設宁E
 
-2. **デプロイ方法の変更**
-   - `gcloud app deploy` の代わりに、明示的にArtifact Registryを使用
+2. **チE�Eロイ方法�E変更**
+   - `gcloud app deploy` の代わりに、�E示皁E��Artifact Registryを使用
 
-### オプション2: Cloud Runに切り替え（推奨）
+### オプション2: Cloud Runに刁E��替え（推奨�E�E
 
-1. **Cloud Runにデプロイ**
+1. **Cloud RunにチE�Eロイ**
    - より柔軟な設定が可能
    - Artifact Registryを直接使用
    - 古いGCRの問題を回避
 
 2. **cloudbuild.yamlを使用**
-   - 既に準備されている設定を使用
-   - Artifact RegistryとCloud Runへのデプロイ
+   - 既に準備されてぁE��設定を使用
+   - Artifact RegistryとCloud RunへのチE�Eロイ
 
 ### オプション3: Cloud Buildトリガーの確認と修正
 
-1. **古いトリガーの確認と無効化**
-   - Cloud Buildトリガーを確認
-   - App EngineやGCRを参照している古いトリガーを無効化
+1. **古ぁE��リガーの確認と無効匁E*
+   - Cloud Buildトリガーを確誁E
+   - App EngineやGCRを参照してぁE��古ぁE��リガーを無効匁E
 
-2. **新しいトリガーの作成**
-   - GitHub連携による新しいトリガーを作成
+2. **新しいトリガーの作�E**
+   - GitHub連携による新しいトリガーを作�E
    - Artifact RegistryとCloud Runを使用
 
-## 次のステップ
+## 次のスチE��チE
 
-1. **Cloud Buildトリガーを確認**
-   - 古いトリガーがないか確認
-   - 必要に応じて無効化
+1. **Cloud Buildトリガーを確誁E*
+   - 古ぁE��リガーがなぁE��確誁E
+   - 忁E��に応じて無効匁E
 
-2. **デプロイ方法を決定**
+2. **チE�Eロイ方法を決宁E*
    - App Engineを続行するか
-   - Cloud Runに切り替えるか
+   - Cloud Runに刁E��替えるぁE
 
-3. **デプロイを再実行**
+3. **チE�Eロイを�E実衁E*
 
 

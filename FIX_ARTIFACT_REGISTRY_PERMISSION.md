@@ -1,6 +1,6 @@
-# Artifact Registry権限エラーの解決方法
+# Artifact Registry権限エラーの解決方況E
 
-## エラー内容
+## エラー冁E��
 
 ```
 Permission "artifactregistry.repositories.downloadArtifacts" denied on resource 
@@ -9,27 +9,27 @@ Permission "artifactregistry.repositories.downloadArtifacts" denied on resource
 
 ## 原因
 
-Cloud BuildサービスアカウントがArtifact Registryにアクセスできない。
+Cloud BuildサービスアカウントがArtifact RegistryにアクセスできなぁE��E
 
-## 解決方法
+## 解決方況E
 
-Cloud BuildサービスアカウントにArtifact Registryへのアクセス権限を付与：
+Cloud BuildサービスアカウントにArtifact Registryへのアクセス権限を付与！E
 
 ```powershell
-# Artifact Registry書き込み権限
+# Artifact Registry書き込み権陁E
 gcloud projects add-iam-policy-binding singular-server-480006-s8 \
     --member="serviceAccount:284805971012@cloudbuild.gserviceaccount.com" \
     --role="roles/artifactregistry.writer"
 
-# Artifact Registry読み取り権限
+# Artifact Registry読み取り権陁E
 gcloud projects add-iam-policy-binding singular-server-480006-s8 \
     --member="serviceAccount:284805971012@cloudbuild.gserviceaccount.com" \
     --role="roles/artifactregistry.reader"
 ```
 
-## 確認方法
+## 確認方況E
 
-権限が正しく付与されたか確認：
+権限が正しく付与されたか確認！E
 
 ```powershell
 gcloud projects get-iam-policy singular-server-480006-s8 \
@@ -37,9 +37,9 @@ gcloud projects get-iam-policy singular-server-480006-s8 \
     --filter="bindings.members:284805971012@cloudbuild.gserviceaccount.com"
 ```
 
-## 権限付与後のデプロイ
+## 権限付与後�EチE�Eロイ
 
-権限を付与したら、再度デプロイを実行：
+権限を付与したら、�E度チE�Eロイを実行！E
 
 ```powershell
 gcloud app deploy app.yaml --project=singular-server-480006-s8

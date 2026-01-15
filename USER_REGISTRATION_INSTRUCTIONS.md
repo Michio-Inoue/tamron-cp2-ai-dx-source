@@ -1,58 +1,58 @@
-# ユーザー一括登録手順
+# ユーザー一括登録手頁E
 
 ## 前提条件
 
-Node.jsがインストールされている必要があります。
+Node.jsがインスト�EルされてぁE��忁E��があります、E
 
-### Node.jsのインストール確認
+### Node.jsのインスト�Eル確誁E
 
 ```powershell
 node --version
 ```
 
-インストールされていない場合は、以下からダウンロードしてください：
+インスト�EルされてぁE��ぁE��合�E、以下からダウンロードしてください�E�E
 https://nodejs.org/
 
-## ユーザー登録方法
+## ユーザー登録方況E
 
-### 方法1: 一括登録スクリプトを使用（推奨）
+### 方況E: 一括登録スクリプトを使用�E�推奨�E�E
 
-1. **backendディレクトリに移動**
+1. **backendチE��レクトリに移勁E*
    ```powershell
    cd backend
    ```
 
-2. **一括登録スクリプトを実行**
+2. **一括登録スクリプトを実衁E*
    ```powershell
    node bulk-create-users.js
    ```
 
-   または、個別に登録する場合：
+   また�E、個別に登録する場合！E
    ```powershell
-   node create-user.js <ユーザー名> init00@tamron
+   node create-user.js <ユーザー吁E init00@tamron
    ```
 
-### 方法2: 初期ユーザーデータを生成
+### 方況E: 初期ユーザーチE�Eタを生戁E
 
-1. **backendディレクトリに移動**
+1. **backendチE��レクトリに移勁E*
    ```powershell
    cd backend
    ```
 
-2. **users.jsonファイルを生成**
+2. **users.jsonファイルを生戁E*
    ```powershell
    node generate-users.js
    ```
 
-   これにより、`backend/users.json`ファイルが作成されます。
+   これにより、`backend/users.json`ファイルが作�Eされます、E
 
 3. **users.jsonをデプロイに含める**
-   - `users.json`は既に`.gitignore`に追加されているため、Gitにはコミットされません
-   - デプロイ時に`users.json`がコンテナに含まれるように、`.dockerignore`を確認してください
+   - `users.json`は既に`.gitignore`に追加されてぁE��ため、Gitにはコミットされません
+   - チE�Eロイ時に`users.json`がコンチE��に含まれるように、`.dockerignore`を確認してください
 
 ## 登録されるユーザー
 
-以下の19名のユーザーが登録されます（パスワード: `init00@tamron`）：
+以下�E19名�Eユーザーが登録されます（パスワーチE `init00@tamron`�E�！E
 
 - 0400259
 - 2400125
@@ -74,9 +74,9 @@ https://nodejs.org/
 - 0400275
 - 2500353
 
-## 注意事項
+## 注意事頁E
 
-1. **パスワード**: すべてのユーザーは初期パスワード `init00@tamron` で登録されます
-2. **セキュリティ**: 初回ログイン後、パスワードの変更を推奨します（現在のシステムではパスワード変更機能は未実装）
-3. **ファイルの場所**: `backend/users.json`に保存されます
-4. **Git管理**: `users.json`は`.gitignore`に追加されているため、Gitにはコミットされません
+1. **パスワーチE*: すべてのユーザーは初期パスワーチE`init00@tamron` で登録されまぁE
+2. **セキュリチE��**: 初回ログイン後、パスワード�E変更を推奨します（現在のシスチE��ではパスワード変更機�Eは未実裁E��E
+3. **ファイルの場所**: `backend/users.json`に保存されまぁE
+4. **Git管琁E*: `users.json`は`.gitignore`に追加されてぁE��ため、Gitにはコミットされません

@@ -1,35 +1,35 @@
-# 403エラーの解決方法
+# 403エラーの解決方況E
 
-## 問題
+## 問顁E
 
-フロントエンド（JavaScript）からバックエンドAPIを呼び出す際に、403エラーが発生しています。
+フロントエンド！EavaScript�E�からバチE��エンドAPIを呼び出す際に、E03エラーが発生してぁE��す、E
 
 ## 原因
 
-ブラウザから直接Cloud Run APIを呼び出す場合、認証情報が自動的に送信されないため、403エラーが発生します。
+ブラウザから直接Cloud Run APIを呼び出す場合、認証惁E��が�E動的に送信されなぁE��め、E03エラーが発生します、E
 
-## 解決方法
+## 解決方況E
 
-### 方法1: Google Cloud Consoleから公開アクセスを許可（最も簡単）
+### 方況E: Google Cloud Consoleから公開アクセスを許可�E�最も簡単！E
 
-**手順：**
+**手頁E��E*
 
-1. **以下のURLにアクセス**
+1. **以下�EURLにアクセス**
    ```
    https://console.cloud.google.com/run/detail/asia-northeast1/ai-drbfm-backend/permissions?project=tamron-cloudrun-prod-new
    ```
 
-2. **「プリンシパルを追加」ボタンをクリック**
+2. **「�Eリンシパルを追加」�EタンをクリチE��**
 
-3. **以下の情報を入力**
-   - **新しいプリンシパル**: `allUsers` と入力
-   - **ロール**: `Cloud Run 起動元` を選択（または `roles/run.invoker` と入力）
+3. **以下�E惁E��を�E劁E*
+   - **新しいプリンシパル**: `allUsers` と入劁E
+   - **ロール**: `Cloud Run 起動�E` を選択（また�E `roles/run.invoker` と入力！E
 
-4. **「保存」をクリック**
+4. **「保存」をクリチE��**
 
-これで、認証なしでAPIにアクセスできるようになります。
+これで、認証なしでAPIにアクセスできるようになります、E
 
-### 方法2: コマンドラインから設定（組織ポリシーで許可されている場合）
+### 方況E: コマンドラインから設定（絁E���Eリシーで許可されてぁE��場合！E
 
 ```powershell
 gcloud run services add-iam-policy-binding ai-drbfm-backend `
@@ -39,24 +39,24 @@ gcloud run services add-iam-policy-binding ai-drbfm-backend `
   --project=tamron-cloudrun-prod-new
 ```
 
-**注意**: 組織ポリシーで制限されている場合は、このコマンドは失敗します。その場合は、方法1を使用してください。
+**注愁E*: 絁E���Eリシーで制限されてぁE��場合�E、このコマンド�E失敗します。その場合�E、方況Eを使用してください、E
 
-### 方法3: 組織ポリシーを確認・変更
+### 方況E: 絁E���Eリシーを確認�E変更
 
-組織ポリシーで`allUsers`への公開アクセスが制限されている場合、組織管理者に依頼して以下のポリシーを確認・変更する必要があります：
+絁E���Eリシーで`allUsers`への公開アクセスが制限されてぁE��場合、絁E��管琁E��E��依頼して以下�Eポリシーを確認�E変更する忁E��があります！E
 
 - `constraints/iam.allowedPolicyMemberDomains`
 - `constraints/run.allowedIngress`
 
-## 確認方法
+## 確認方況E
 
-設定後、以下のコマンドで確認できます：
+設定後、以下�Eコマンドで確認できます！E
 
 ```powershell
 gcloud run services get-iam-policy ai-drbfm-backend --region=asia-northeast1 --project=tamron-cloudrun-prod-new
 ```
 
-出力に以下のような行が表示されれば成功です：
+出力に以下�Eような行が表示されれ�E成功です！E
 
 ```
 bindings:
@@ -65,9 +65,9 @@ bindings:
   role: roles/run.invoker
 ```
 
-## テスト方法
+## チE��ト方況E
 
-設定後、ブラウザの開発者ツール（F12）のコンソールで以下を実行：
+設定後、ブラウザの開発老E��ール�E�E12�E��Eコンソールで以下を実行！E
 
 ```javascript
 fetch('https://ai-drbfm-backend-43iql33sfa-an.a.run.app/', {
@@ -78,4 +78,4 @@ fetch('https://ai-drbfm-backend-43iql33sfa-an.a.run.app/', {
 .catch(error => console.error('エラー:', error));
 ```
 
-成功すれば、403エラーは解消されています。
+成功すれば、E03エラーは解消されてぁE��す、E

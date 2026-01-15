@@ -1,16 +1,16 @@
-# Google Cloud Secret Manager セットアップガイド
+# Google Cloud Secret Manager セチE��アチE�EガイチE
 
-## 概要
+## 概要E
 
-このガイドでは、Google Cloud Secret Managerを使用してGemini APIキーを安全に管理する方法を説明します。
+こ�Eガイドでは、Google Cloud Secret Managerを使用してGemini APIキーを安�Eに管琁E��る方法を説明します、E
 
 ## 前提条件
 
-1. Google Cloud Projectが作成されていること
-2. Google Cloud CLI (`gcloud`) がインストールされていること
-3. Secret Manager APIが有効になっていること
+1. Google Cloud Projectが作�EされてぁE��こと
+2. Google Cloud CLI (`gcloud`) がインスト�EルされてぁE��こと
+3. Secret Manager APIが有効になってぁE��こと
 
-## セットアップ手順
+## セチE��アチE�E手頁E
 
 ### 1. Google Cloud CLIでログイン
 
@@ -19,34 +19,34 @@ gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
 ```
 
-### 2. Secret Manager APIを有効化
+### 2. Secret Manager APIを有効匁E
 
 ```bash
 gcloud services enable secretmanager.googleapis.com
 ```
 
-### 3. Secret ManagerにAPIキーを保存
+### 3. Secret ManagerにAPIキーを保孁E
 
 ```bash
-# APIキーをSecret Managerに保存
+# APIキーをSecret Managerに保孁E
 echo -n "YOUR_GEMINI_API_KEY" | gcloud secrets create gemini-api-key \
     --data-file=- \
     --replication-policy="automatic"
 ```
 
-または、Google Cloud Consoleから：
+また�E、Google Cloud Consoleから�E�E
 1. [Secret Manager](https://console.cloud.google.com/security/secret-manager)にアクセス
-2. 「シークレットを作成」をクリック
+2. 「シークレチE��を作�E」をクリチE��
 3. 名前: `gemini-api-key`
-4. シークレットの値: あなたのGemini APIキーを入力
-5. 「作成」をクリック
+4. シークレチE��の値: あなた�EGemini APIキーを�E劁E
+5. 「作�E」をクリチE��
 
-### 4. サービスアカウントに権限を付与
+### 4. サービスアカウントに権限を付丁E
 
-#### App Engineの場合
+#### App Engineの場吁E
 
 ```bash
-# App Engineのデフォルトサービスアカウントに権限を付与
+# App EngineのチE��ォルトサービスアカウントに権限を付丁E
 SERVICE_ACCOUNT="YOUR_PROJECT_ID@appspot.gserviceaccount.com"
 
 gcloud secrets add-iam-policy-binding gemini-api-key \
@@ -54,10 +54,10 @@ gcloud secrets add-iam-policy-binding gemini-api-key \
     --role="roles/secretmanager.secretAccessor"
 ```
 
-#### Cloud Functionsの場合
+#### Cloud Functionsの場吁E
 
 ```bash
-# Cloud Functionsのデフォルトサービスアカウントに権限を付与
+# Cloud FunctionsのチE��ォルトサービスアカウントに権限を付丁E
 SERVICE_ACCOUNT="YOUR_PROJECT_ID@appspot.gserviceaccount.com"
 
 gcloud secrets add-iam-policy-binding gemini-api-key \
@@ -65,7 +65,7 @@ gcloud secrets add-iam-policy-binding gemini-api-key \
     --role="roles/secretmanager.secretAccessor"
 ```
 
-または、Cloud Functionsのデプロイ時に指定：
+また�E、Cloud FunctionsのチE�Eロイ時に持E��！E
 
 ```bash
 gcloud functions deploy geminiProxy \
@@ -76,7 +76,7 @@ gcloud functions deploy geminiProxy \
     --region asia-northeast1
 ```
 
-### 5. 環境変数の設定
+### 5. 環墁E��数の設宁E
 
 #### App Engine (`app.yaml`)
 
@@ -90,7 +90,7 @@ env_variables:
 
 #### Cloud Functions
 
-環境変数として設定：
+環墁E��数として設定！E
 
 ```bash
 gcloud functions deploy geminiProxy \
@@ -98,31 +98,31 @@ gcloud functions deploy geminiProxy \
     --region asia-northeast1
 ```
 
-### 6. ローカル開発環境の設定
+### 6. ローカル開発環墁E�E設宁E
 
-ローカル開発時は、環境変数から直接APIキーを取得できます：
+ローカル開発時�E、環墁E��数から直接APIキーを取得できます！E
 
 ```bash
-# .envファイルを作成（.gitignoreに追加済み）
+# .envファイルを作�E�E�Egitignoreに追加済み�E�E
 echo "GEMINI_API_KEY=your_api_key_here" > backend/.env
 ```
 
-または、環境変数として設定：
+また�E、環墁E��数として設定！E
 
 ```bash
 export GEMINI_API_KEY="your_api_key_here"
 ```
 
-## デプロイ
+## チE�Eロイ
 
-### App Engineにデプロイ
+### App EngineにチE�Eロイ
 
 ```bash
 cd backend
 gcloud app deploy app.yaml
 ```
 
-### Cloud Functionsにデプロイ
+### Cloud FunctionsにチE�Eロイ
 
 ```bash
 cd backend
@@ -135,45 +135,45 @@ gcloud functions deploy geminiProxy \
     --region asia-northeast1
 ```
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### Secret ManagerからAPIキーが取得できない
+### Secret ManagerからAPIキーが取得できなぁE
 
-1. サービスアカウントに適切な権限があるか確認：
+1. サービスアカウントに適刁E��権限があるか確認！E
    ```bash
    gcloud secrets get-iam-policy gemini-api-key
    ```
 
-2. シークレット名が正しいか確認：
+2. シークレチE��名が正しいか確認！E
    ```bash
    gcloud secrets list
    ```
 
-3. プロジェクトIDが正しいか確認：
+3. プロジェクチEDが正しいか確認！E
    ```bash
    gcloud config get-value project
    ```
 
-### ローカル環境で動作しない
+### ローカル環墁E��動作しなぁE
 
-ローカル環境では、環境変数 `GEMINI_API_KEY` を設定してください：
+ローカル環墁E��は、環墁E��数 `GEMINI_API_KEY` を設定してください�E�E
 
 ```bash
 export GEMINI_API_KEY="your_api_key_here"
 ```
 
-または、`.env`ファイルを作成：
+また�E、`.env`ファイルを作�E�E�E
 
 ```bash
 echo "GEMINI_API_KEY=your_api_key_here" > backend/.env
 ```
 
-## セキュリティのベストプラクティス
+## セキュリチE��のベスト�EラクチE��ス
 
-1. **APIキーのローテーション**: 定期的にAPIキーを更新し、Secret Managerの新しいバージョンを作成
-2. **最小権限の原則**: 必要なサービスアカウントにのみアクセス権限を付与
-3. **監査ログ**: Secret Managerのアクセスログを定期的に確認
-4. **環境分離**: 開発、ステージング、本番環境で異なるシークレットを使用
+1. **APIキーのローチE�Eション**: 定期皁E��APIキーを更新し、Secret Managerの新しいバ�Eジョンを作�E
+2. **最小権限�E原則**: 忁E��なサービスアカウントにのみアクセス権限を付丁E
+3. **監査ログ**: Secret Managerのアクセスログを定期皁E��確誁E
+4. **環墁E�E離**: 開発、スチE�Eジング、本番環墁E��異なるシークレチE��を使用
 
 
 

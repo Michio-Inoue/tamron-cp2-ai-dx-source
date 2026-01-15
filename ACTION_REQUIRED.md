@@ -1,72 +1,72 @@
-# 動作確認結果と必要な対応
+# 動作確認結果と忁E��な対忁E
 
-## 現在の状況
+## 現在の状況E
 
-✅ **Cloud Runサービスは正常にデプロイされています**
-- サービス名: `ai-drbfm-backend`
+✁E**Cloud Runサービスは正常にチE�EロイされてぁE��ぁE*
+- サービス吁E `ai-drbfm-backend`
 - リージョン: `asia-northeast1`
 - URL: `https://ai-drbfm-backend-636nanwcsq-an.a.run.app`
 - リビジョン: `ai-drbfm-backend-00003-km9`
-- ステータス: 正常に起動中（ログで確認済み）
+- スチE�Eタス: 正常に起動中�E�ログで確認済み�E�E
 
-⚠️ **未認証アクセスの設定が失敗しています**
-- 組織ポリシーにより、`allUsers`へのIAMポリシー設定が制限されている可能性があります
-- 現在、サービスは認証が必要な状態です
+⚠�E�E**未認証アクセスの設定が失敗してぁE��ぁE*
+- 絁E���Eリシーにより、`allUsers`へのIAMポリシー設定が制限されてぁE��可能性がありまぁE
+- 現在、サービスは認証が忁E��な状態でぁE
 
-## 必要な対応
+## 忁E��な対忁E
 
-### オプション1: Google Cloud ConsoleからIAMポリシーを設定（推奨）
+### オプション1: Google Cloud ConsoleからIAMポリシーを設定（推奨�E�E
 
 1. **Google Cloud Consoleにアクセス**
    - URL: https://console.cloud.google.com/run/detail/asia-northeast1/ai-drbfm-backend?project=singular-server-480006-s8
 
-2. **「権限」タブをクリック**
+2. **「権限」タブをクリチE��**
 
-3. **「プリンシパルを追加」をクリック**
+3. **「�Eリンシパルを追加」をクリチE��**
 
-4. **以下の設定を入力**
+4. **以下�E設定を入劁E*
    - **プリンシパル**: `allUsers`
-   - **ロール**: `Cloud Run 起動元`
+   - **ロール**: `Cloud Run 起動�E`
 
-5. **「保存」をクリック**
+5. **「保存」をクリチE��**
 
-### オプション2: 認証トークンを使用してテスト
+### オプション2: 認証ト�Eクンを使用してチE��チE
 
-認証が必要な状態でも、認証トークンを使用してAPIをテストできます：
+認証が忁E��な状態でも、認証ト�Eクンを使用してAPIをテストできます！E
 
 ```powershell
-# 認証トークンを取得
+# 認証ト�Eクンを取征E
 $token = gcloud auth print-identity-token
 
-# APIを呼び出す
+# APIを呼び出ぁE
 $headers = @{ Authorization = "Bearer $token" }
 Invoke-WebRequest -Uri "https://ai-drbfm-backend-636nanwcsq-an.a.run.app/" -Method GET -Headers $headers
 ```
 
 ### オプション3: サービスアカウントを使用
 
-フロントエンドから呼び出す場合は、サービスアカウントの認証情報を使用することもできます。
+フロントエンドから呼び出す場合�E、サービスアカウント�E認証惁E��を使用することもできます、E
 
-## 動作確認済み項目
+## 動作確認済み頁E��
 
-✅ サービスは正常に起動している（ログで確認）
-✅ Dockerイメージは正常にビルドされている
-✅ Artifact Registryへのプッシュは成功
-✅ Cloud Runへのデプロイは成功
-✅ Secret Managerへのアクセス権限は設定済み
+✁Eサービスは正常に起動してぁE���E�ログで確認！E
+✁EDockerイメージは正常にビルドされてぁE��
+✁EArtifact Registryへのプッシュは成功
+✁ECloud RunへのチE�Eロイは成功
+✁ESecret Managerへのアクセス権限�E設定済み
 
-## 次のステップ
+## 次のスチE��チE
 
-1. **IAMポリシーを設定**（上記のオプション1を推奨）
-2. **APIエンドポイントのテスト**
-   - `GET /` - ヘルスチェック
+1. **IAMポリシーを設宁E*�E�上記�Eオプション1を推奨�E�E
+2. **APIエンド�Eイント�EチE��チE*
+   - `GET /` - ヘルスチェチE��
    - `POST /api/gemini` - Gemini APIプロキシ
-3. **フロントエンドの更新**
+3. **フロントエンド�E更新**
    - `ai-drbfm.js`を更新して、Cloud RunのバックエンドAPIを使用するように変更
 
-## 参考情報
+## 参老E��報
 
 - Cloud Runコンソール: https://console.cloud.google.com/run?project=singular-server-480006-s8
-- IAMポリシーの設定: https://cloud.google.com/run/docs/securing/managing-access
+- IAMポリシーの設宁E https://cloud.google.com/run/docs/securing/managing-access
 
 

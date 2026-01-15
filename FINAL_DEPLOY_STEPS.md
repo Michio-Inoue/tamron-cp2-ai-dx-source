@@ -1,136 +1,136 @@
-# 最終ステップ: デプロイ準備と実行
+# 最終スチE��チE チE�Eロイ準備と実衁E
 
-## 完了した項目
-✅ App Engineの初期化完了
-✅ サービスアカウントの確認完了
-✅ Secret Managerへの権限付与完了
+## 完亁E��た頁E��
+✁EApp Engineの初期化完亁E
+✁Eサービスアカウント�E確認完亁E
+✁ESecret Managerへの権限付与完亁E
 
-## 次のステップ
+## 次のスチE��チE
 
-### ステップ1: 必要なAPIが有効化されているか確認
+### スチE��チE: 忁E��なAPIが有効化されてぁE��か確誁E
 
-1. APIライブラリページにアクセス：
+1. APIライブラリペ�Eジにアクセス�E�E
    ```
    https://console.cloud.google.com/apis/library?project=singular-server-480006-s8
    ```
 
-2. 以下のAPIを検索して、「有効」になっているか確認：
-   - **Secret Manager API** ✓
-   - **App Engine Admin API** ✓
-   - **Cloud Build API** ✓
+2. 以下�EAPIを検索して、「有効」になってぁE��か確認！E
+   - **Secret Manager API** ✁E
+   - **App Engine Admin API** ✁E
+   - **Cloud Build API** ✁E
 
-3. 有効になっていない場合は、「有効にする」をクリック
+3. 有効になってぁE��ぁE��合�E、「有効にする」をクリチE��
 
-### ステップ2: プロジェクト設定を確認
+### スチE��チE: プロジェクト設定を確誁E
 
-PowerShellで以下を実行して、プロジェクトが正しく設定されているか確認：
+PowerShellで以下を実行して、�Eロジェクトが正しく設定されてぁE��か確認！E
 
 ```powershell
 gcloud config set project singular-server-480006-s8
 gcloud config get-value project
 ```
 
-### ステップ3: バックエンドの依存関係を確認
+### スチE��チE: バックエンド�E依存関係を確誁E
 
 ```powershell
 cd backend
 npm list --depth=0
 ```
 
-必要なパッケージがインストールされているか確認します。
+忁E��なパッケージがインスト�EルされてぁE��か確認します、E
 
-### ステップ4: バックエンドをデプロイ
+### スチE��チE: バックエンドをチE�Eロイ
 
-すべての準備が整ったら、デプロイを実行：
+すべての準備が整ったら、デプロイを実行！E
 
 ```powershell
-# プロジェクトを設定（念のため）
+# プロジェクトを設定（念のため�E�E
 gcloud config set project singular-server-480006-s8
 
-# バックエンドディレクトリに移動
+# バックエンドディレクトリに移勁E
 cd backend
 
-# デプロイ実行
+# チE�Eロイ実衁E
 gcloud app deploy app.yaml
 ```
 
-デプロイには5〜10分かかることがあります。
+チE�Eロイには5、E0刁E��かることがあります、E
 
-### デプロイ時の確認事項
+### チE�Eロイ時�E確認事頁E
 
-デプロイ中に以下のメッセージが表示される場合があります：
+チE�Eロイ中に以下�EメチE��ージが表示される場合があります！E
 
-1. **「App Engineの場所を選択してください」**
-   - リージョンを選択（推奨: `asia-northeast1` または `asia-northeast2`）
+1. **「App Engineの場所を選択してください、E*
+   - リージョンを選択（推奨: `asia-northeast1` また�E `asia-northeast2`�E�E
 
-2. **「この操作により課金が発生する可能性があります」**
-   - `Y` を入力して続行
+2. **「この操作により課金が発生する可能性があります、E*
+   - `Y` を�E力して続衁E
 
-3. **デプロイの進行状況**
-   - ビルドとデプロイの進行状況が表示されます
+3. **チE�Eロイの進行状況E*
+   - ビルドとチE�Eロイの進行状況が表示されまぁE
 
-### デプロイ完了後
+### チE�Eロイ完亁E��E
 
-デプロイが完了すると、以下のようなURLが表示されます：
+チE�Eロイが完亁E��ると、以下�EようなURLが表示されます！E
 ```
 https://singular-server-480006-s8.appspot.com
 ```
 
-このURLにアクセスして、以下が表示されれば成功です：
+こ�EURLにアクセスして、以下が表示されれ�E成功です！E
 ```json
 {"message":"AI-DRBFM Analysis Server"}
 ```
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### デプロイが失敗する場合
+### チE�Eロイが失敗する場吁E
 
-1. **エラーログを確認**：
+1. **エラーログを確誁E*�E�E
    ```powershell
    gcloud app logs tail -s default
    ```
 
-2. **ビルドログを確認**：
+2. **ビルドログを確誁E*�E�E
    ```powershell
    gcloud builds list --limit=5
    ```
 
-3. **よくあるエラー**：
-   - **Secret Managerへのアクセスエラー**: 権限が正しく付与されているか確認
-   - **APIが有効化されていない**: 必要なAPIが有効になっているか確認
-   - **依存関係のエラー**: `npm install` を再実行
+3. **よくあるエラー**�E�E
+   - **Secret Managerへのアクセスエラー**: 権限が正しく付与されてぁE��か確誁E
+   - **APIが有効化されてぁE��ぁE*: 忁E��なAPIが有効になってぁE��か確誁E
+   - **依存関係�Eエラー**: `npm install` を�E実衁E
 
-### Secret ManagerからAPIキーが取得できない場合
+### Secret ManagerからAPIキーが取得できなぁE��吁E
 
-1. Secret Managerで `gemini-api-key` が存在するか確認
-2. サービスアカウントに権限が付与されているか確認
-3. `app.yaml` の `GEMINI_API_KEY_SECRET_NAME` が正しいか確認
+1. Secret Managerで `gemini-api-key` が存在するか確誁E
+2. サービスアカウントに権限が付与されてぁE��か確誁E
+3. `app.yaml` の `GEMINI_API_KEY_SECRET_NAME` が正しいか確誁E
 
-## デプロイ後の確認
+## チE�Eロイ後�E確誁E
 
-1. **バックエンドAPIが動作しているか確認**：
+1. **バックエンドAPIが動作してぁE��か確誁E*�E�E
    ```
    https://singular-server-480006-s8.appspot.com/
    ```
 
-2. **Gemini APIプロキシが動作しているか確認**：
-   - フロントエンドからバックエンドAPIを呼び出す
-   - または、Postmanなどでテスト
+2. **Gemini APIプロキシが動作してぁE��か確誁E*�E�E
+   - フロントエンドからバチE��エンドAPIを呼び出ぁE
+   - また�E、PostmanなどでチE��チE
 
-3. **ログを確認**：
+3. **ログを確誁E*�E�E
    ```powershell
    gcloud app logs tail -s default
    ```
 
-## 次のステップ（オプション）
+## 次のスチE��プ（オプション�E�E
 
-デプロイが完了したら：
+チE�Eロイが完亁E��たら�E�E
 
-1. **フロントエンドをバックエンドAPI経由で呼び出すように変更**
-   - `ai-drbfm.js` を更新して、バックエンドAPIを呼び出すように変更
+1. **フロントエンドをバックエンドAPI経由で呼び出すよぁE��変更**
+   - `ai-drbfm.js` を更新して、バチE��エンドAPIを呼び出すよぁE��変更
 
-2. **カスタムドメインの設定**（オプション）
+2. **カスタムドメインの設宁E*�E�オプション�E�E
 
-3. **モニタリングとアラートの設定**（オプション）
+3. **モニタリングとアラート�E設宁E*�E�オプション�E�E
 
 

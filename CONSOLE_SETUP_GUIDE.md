@@ -1,209 +1,209 @@
-# Google Cloud Console でのセットアップ手順
+# Google Cloud Console でのセチE��アチE�E手頁E
 
 ## プロジェクト情報
 - **プロジェクト名**: Tamron-cp2-AI-DX
-- **プロジェクトID**: `singular-server-480006-s8`
+- **プロジェクチED**: `singular-server-480006-s8`
 
 ---
 
-## ステップ1: Secret ManagerにAPIキーを保存
+## スチE��チE: Secret ManagerにAPIキーを保孁E
 
-### 1-1. Secret Managerページにアクセス
+### 1-1. Secret Managerペ�Eジにアクセス
 
-以下のURLをブラウザで開いてください：
+以下�EURLをブラウザで開いてください�E�E
 ```
 https://console.cloud.google.com/security/secret-manager?project=singular-server-480006-s8
 ```
 
-または：
+また�E�E�E
 1. [Google Cloud Console](https://console.cloud.google.com/) にアクセス
-2. 画面上部のプロジェクト選択で「singular-server-480006-s8」を選択
-3. 左メニューから「セキュリティ」→「Secret Manager」をクリック
+2. 画面上部のプロジェクト選択で「singular-server-480006-s8」を選抁E
+3. 左メニューから「セキュリチE��」�E「Secret Manager」をクリチE��
 
-### 1-2. シークレットを作成
+### 1-2. シークレチE��を作�E
 
-1. 「シークレットを作成」ボタンをクリック
-2. 以下の情報を入力：
-   - **名前**: `gemini-api-key`（必ずこの名前）
-   - **シークレットの値**: `[REDACTED]`
-   - **リージョン**: 「自動」を選択
-3. 「作成」ボタンをクリック
-4. 数秒で完了します ✓
+1. 「シークレチE��を作�E」�EタンをクリチE��
+2. 以下�E惁E��を�E力！E
+   - **名前**: `gemini-api-key`�E�忁E��こ�E名前�E�E
+   - **シークレチE��の値**: `[REDACTED]`
+   - **リージョン**: 「�E動」を選抁E
+3. 「作�E」�EタンをクリチE��
+4. 数秒で完亁E��まぁE✁E
 
-**注意**: 既に `gemini-api-key` が存在する場合は、シークレットをクリックして「新しいバージョンを追加」から更新できます。
+**注愁E*: 既に `gemini-api-key` が存在する場合�E、シークレチE��をクリチE��して「新しいバ�Eジョンを追加」から更新できます、E
 
 ---
 
-## ステップ1.5: App Engineを初期化（重要！）
+## スチE��チE.5: App Engineを�E期化�E�重要E��E��E
 
-**注意**: サービスアカウントに権限を付与する前に、App Engineを初期化する必要があります。
+**注愁E*: サービスアカウントに権限を付与する前に、App Engineを�E期化する忁E��があります、E
 
-### 1.5-1. App Engineページにアクセス
+### 1.5-1. App Engineペ�Eジにアクセス
 
-以下のURLをブラウザで開いてください：
+以下�EURLをブラウザで開いてください�E�E
 ```
 https://console.cloud.google.com/appengine?project=singular-server-480006-s8
 ```
 
-### 1.5-2. アプリケーションを作成
+### 1.5-2. アプリケーションを作�E
 
-1. 「アプリケーションを作成」ボタンをクリック
-2. **リージョン**を選択：
-   - 推奨: `asia-northeast1`（東京）または `asia-northeast2`（大阪）
-   - その他のリージョンでも可
-3. 「作成」ボタンをクリック
-4. 初期化には**3〜5分**かかります
-5. 「アプリケーションが作成されました」と表示されれば完了 ✓
+1. 「アプリケーションを作�E」�EタンをクリチE��
+2. **リージョン**を選択！E
+   - 推奨: `asia-northeast1`�E�東京�E�また�E `asia-northeast2`�E�大阪�E�E
+   - そ�E他�Eリージョンでも可
+3. 「作�E」�EタンをクリチE��
+4. 初期化には**3、E刁E*かかりまぁE
+5. 「アプリケーションが作�Eされました」と表示されれ�E完亁E✁E
 
-**重要**: このステップを完了すると、正しいサービスアカウントが自動的に作成されます。
+**重要E*: こ�EスチE��プを完亁E��ると、正しいサービスアカウントが自動的に作�Eされます、E
 
 ---
 
-## ステップ2: サービスアカウントに権限を付与
+## スチE��チE: サービスアカウントに権限を付丁E
 
-### 2-1. サービスアカウントのメールアドレスを確認
+### 2-1. サービスアカウント�Eメールアドレスを確誁E
 
-まず、正しいサービスアカウントのメールアドレスを確認します：
+まず、正しいサービスアカウント�Eメールアドレスを確認します！E
 
-1. 以下のURLにアクセス：
+1. 以下�EURLにアクセス�E�E
    ```
    https://console.cloud.google.com/iam-admin/serviceaccounts?project=singular-server-480006-s8
    ```
 
-2. 以下のいずれかの形式のサービスアカウントを探します：
-   - `PROJECT_NUMBER@project.gserviceaccount.com`（例: `123456789012@project.gserviceaccount.com`）
+2. 以下�EぁE��れかの形式�Eサービスアカウントを探します！E
+   - `PROJECT_NUMBER@project.gserviceaccount.com`�E�侁E `123456789012@project.gserviceaccount.com`�E�E
    - `singular-server-480006-s8@appspot.gserviceaccount.com`
 
-3. メールアドレスをコピーします
+3. メールアドレスをコピ�EしまぁE
 
 ### 2-2. Secret Managerで権限を追加
 
-1. Secret Managerページで `gemini-api-key` をクリック
-2. 「権限」タブをクリック
-3. 「プリンシパルを追加」ボタンをクリック
-4. 以下の情報を入力：
-   - **新しいプリンシパル**: 上記で確認したサービスアカウントのメールアドレスを貼り付け
-     - 例: `123456789012@project.gserviceaccount.com`
-     - または: `singular-server-480006-s8@appspot.gserviceaccount.com`
-   - **ロール**: 「Secret Manager シークレット アクセサー」を選択
-5. 「保存」ボタンをクリック
-6. 数秒で完了します ✓
+1. Secret Managerペ�Eジで `gemini-api-key` をクリチE��
+2. 「権限」タブをクリチE��
+3. 「�Eリンシパルを追加」�EタンをクリチE��
+4. 以下�E惁E��を�E力！E
+   - **新しいプリンシパル**: 上記で確認したサービスアカウント�Eメールアドレスを貼り付け
+     - 侁E `123456789012@project.gserviceaccount.com`
+     - また�E: `singular-server-480006-s8@appspot.gserviceaccount.com`
+   - **ロール**: 「Secret Manager シークレチE�� アクセサー」を選抁E
+5. 「保存」�EタンをクリチE��
+6. 数秒で完亁E��まぁE✁E
 
 ---
 
-## ステップ3: 必要なAPIを有効化
+## スチE��チE: 忁E��なAPIを有効匁E
 
-### 3-1. APIライブラリページにアクセス
+### 3-1. APIライブラリペ�Eジにアクセス
 
-以下のURLをブラウザで開いてください：
+以下�EURLをブラウザで開いてください�E�E
 ```
 https://console.cloud.google.com/apis/library?project=singular-server-480006-s8
 ```
 
-または：
-1. Google Cloud Consoleで「APIとサービス」→「ライブラリ」をクリック
+また�E�E�E
+1. Google Cloud Consoleで「APIとサービス」�E「ライブラリ」をクリチE��
 
-### 3-2. 各APIを有効化
+### 3-2. 各APIを有効匁E
 
-以下の3つのAPIを検索して、それぞれ「有効にする」をクリック：
+以下�E3つのAPIを検索して、それぞれ「有効にする」をクリチE���E�E
 
 #### ① Secret Manager API
-1. 検索ボックスに「Secret Manager API」と入力
-2. 「Secret Manager API」をクリック
-3. 「有効にする」ボタンをクリック
-4. 有効化完了まで数秒待つ ✓
+1. 検索ボックスに「Secret Manager API」と入劁E
+2. 「Secret Manager API」をクリチE��
+3. 「有効にする」�EタンをクリチE��
+4. 有効化完亁E��で数秒征E�� ✁E
 
 #### ② App Engine Admin API
-1. 検索ボックスに「App Engine Admin API」と入力
-2. 「App Engine Admin API」をクリック
-3. 「有効にする」ボタンをクリック
-4. 有効化完了まで数秒待つ ✓
+1. 検索ボックスに「App Engine Admin API」と入劁E
+2. 「App Engine Admin API」をクリチE��
+3. 「有効にする」�EタンをクリチE��
+4. 有効化完亁E��で数秒征E�� ✁E
 
 #### ③ Cloud Build API
-1. 検索ボックスに「Cloud Build API」と入力
-2. 「Cloud Build API」をクリック
-3. 「有効にする」ボタンをクリック
-4. 有効化完了まで数秒待つ ✓
+1. 検索ボックスに「Cloud Build API」と入劁E
+2. 「Cloud Build API」をクリチE��
+3. 「有効にする」�EタンをクリチE��
+4. 有効化完亁E��で数秒征E�� ✁E
 
 ---
 
-## ステップ4: バックエンドをデプロイ（コマンドライン）
+## スチE��チE: バックエンドをチE�Eロイ�E�コマンドライン�E�E
 
-上記の設定が完了したら、PowerShellで以下のコマンドを実行：
+上記�E設定が完亁E��たら、PowerShellで以下�Eコマンドを実行！E
 
 ```powershell
-# プロジェクトを設定
+# プロジェクトを設宁E
 gcloud config set project singular-server-480006-s8
 
-# バックエンドディレクトリに移動
+# バックエンドディレクトリに移勁E
 cd backend
 
-# デプロイ実行
+# チE�Eロイ実衁E
 gcloud app deploy app.yaml
 ```
 
-デプロイには5〜10分かかることがあります。
+チE�Eロイには5、E0刁E��かることがあります、E
 
-デプロイが完了すると、以下のようなURLが表示されます：
+チE�Eロイが完亁E��ると、以下�EようなURLが表示されます！E
 ```
 https://singular-server-480006-s8.appspot.com
 ```
 
 ---
 
-## 確認方法
+## 確認方況E
 
-### Secret Managerの確認
+### Secret Managerの確誁E
 - URL: https://console.cloud.google.com/security/secret-manager?project=singular-server-480006-s8
-- `gemini-api-key` が表示されていればOK ✓
+- `gemini-api-key` が表示されてぁE��ばOK ✁E
 
-### API有効化の確認
+### API有効化�E確誁E
 - URL: https://console.cloud.google.com/apis/dashboard?project=singular-server-480006-s8
-- 以下のAPIが「有効」になっていればOK ✓
+- 以下�EAPIが「有効」になってぁE��ばOK ✁E
   - Secret Manager API
   - App Engine Admin API
   - Cloud Build API
 
-### デプロイの確認
+### チE�Eロイの確誁E
 - URL: https://singular-server-480006-s8.appspot.com
-- `{"message":"AI-DRBFM Analysis Server"}` が表示されればOK ✓
+- `{"message":"AI-DRBFM Analysis Server"}` が表示されれ�EOK ✁E
 
 ---
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### Secret Managerが見つからない場合
-- プロジェクトが正しく選択されているか確認
-- URLに `project=singular-server-480006-s8` が含まれているか確認
+### Secret Managerが見つからなぁE��吁E
+- プロジェクトが正しく選択されてぁE��か確誁E
+- URLに `project=singular-server-480006-s8` が含まれてぁE��か確誁E
 
-### APIが有効化できない場合
-- プロジェクトの所有者または編集者権限があるか確認
-- 請求先アカウントがリンクされているか確認
+### APIが有効化できなぁE��吁E
+- プロジェクト�E所有老E��た�E編雁E��E��限があるか確誁E
+- 請求�EアカウントがリンクされてぁE��か確誁E
 
-### デプロイが失敗する場合
-1. ログを確認：
+### チE�Eロイが失敗する場吁E
+1. ログを確認！E
    ```bash
    gcloud app logs tail -s default
    ```
-2. エラーメッセージを確認して、必要な設定を追加
+2. エラーメチE��ージを確認して、忁E��な設定を追加
 
 ---
 
-## 所要時間の目安
+## 所要時間�E目宁E
 
-- Secret Manager設定: 約1分
-- 権限付与: 約30秒
-- API有効化: 約2分（各APIで30秒程度）
-- デプロイ: 約5〜10分
+- Secret Manager設宁E 紁E刁E
+- 権限付丁E 紁E0私E
+- API有効匁E 紁E刁E��各APIで30秒程度�E�E
+- チE�Eロイ: 紁E、E0刁E
 
-**合計: 約10〜15分**（コマンドラインより大幅に速い）
+**合訁E 紁E0、E5刁E*�E�コマンドラインより大幁E��速い�E�E
 
 ---
 
-## 次のステップ
+## 次のスチE��チE
 
-デプロイが完了したら：
-1. バックエンドAPIのURLを確認
-2. フロントエンドをバックエンドAPI経由で呼び出すように変更（オプション）
-3. 動作確認
+チE�Eロイが完亁E��たら�E�E
+1. バックエンドAPIのURLを確誁E
+2. フロントエンドをバックエンドAPI経由で呼び出すよぁE��変更�E�オプション�E�E
+3. 動作確誁E
 

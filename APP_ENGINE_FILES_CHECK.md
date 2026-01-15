@@ -4,57 +4,57 @@
 
 ### 存在するファイル
 
-1. **`backend/app.yaml`** ✓
+1. **`backend/app.yaml`** ✁E
    - 場所: `backend/app.yaml`
-   - 用途: App Engineへのデプロイ用（意図的に作成）
-   - 状態: 存在
+   - 用送E App EngineへのチE�Eロイ用�E�意図皁E��作�E�E�E
+   - 状慁E 存在
 
-### 存在しないファイル
+### 存在しなぁE��ァイル
 
-1. **`app.yaml`** (ルートディレクトリ) ✓
-   - 状態: 存在しない
+1. **`app.yaml`** (ルートディレクトリ) ✁E
+   - 状慁E 存在しなぁE
 
-2. **`app.json`** ✓
-   - 状態: 存在しない
+2. **`app.json`** ✁E
+   - 状慁E 存在しなぁE
 
-3. **`index.yaml`** ✓
-   - 状態: 存在しない
+3. **`index.yaml`** ✁E
+   - 状慁E 存在しなぁE
 
-## 分析
+## 刁E��
 
-### 現在の状況
+### 現在の状況E
 
-- ルートディレクトリにはApp Engine設定ファイルが存在しない ✓
-- `backend/app.yaml` は `backend` ディレクトリ内にあるため、Cloud Buildがルートで実行される場合は直接検出されない
+- ルートディレクトリにはApp Engine設定ファイルが存在しなぁE✁E
+- `backend/app.yaml` は `backend` チE��レクトリ冁E��あるため、Cloud Buildがルートで実行される場合�E直接検�EされなぁE
 
-### Cloud Buildの動作
+### Cloud Buildの動佁E
 
-Cloud Buildがルートディレクトリで実行される場合：
-- ルートに `app.yaml` がないため、App Engineとして認識されない ✓
-- `backend/app.yaml` は `backend` ディレクトリ内にあるため、ルートからのビルドでは検出されない
+Cloud Buildがルートディレクトリで実行される場合！E
+- ルートに `app.yaml` がなぁE��め、App Engineとして認識されなぁE✁E
+- `backend/app.yaml` は `backend` チE��レクトリ冁E��あるため、ルートから�Eビルドでは検�EされなぁE
 
-### Cloud Runに切り替える場合
+### Cloud Runに刁E��替える場吁E
 
-Cloud Runに切り替える場合：
-- `backend/app.yaml` は使用されない
-- `cloudbuild.yaml` を使用してCloud Runにデプロイ
+Cloud Runに刁E��替える場合！E
+- `backend/app.yaml` は使用されなぁE
+- `cloudbuild.yaml` を使用してCloud RunにチE�Eロイ
 - App Engine設定ファイルは無視される
 
-## 推奨事項
+## 推奨事頁E
 
-### オプション1: Cloud Runに切り替え（推奨）
+### オプション1: Cloud Runに刁E��替え（推奨�E�E
 
-1. `cloudbuild.yaml` を作成（ルートディレクトリ）
-2. Cloud Runへのデプロイ設定
-3. `backend/app.yaml` はそのまま残す（使用されない）
+1. `cloudbuild.yaml` を作�E�E�ルートディレクトリ�E�E
+2. Cloud RunへのチE�Eロイ設宁E
+3. `backend/app.yaml` はそ�Eまま残す�E�使用されなぁE��E
 
-### オプション2: App Engineを続行する場合
+### オプション2: App Engineを続行する場吁E
 
-1. `.gcloudignore` を作成して `backend/app.yaml` を除外（必要に応じて）
-2. または、`backend` ディレクトリから直接デプロイ
+1. `.gcloudignore` を作�Eして `backend/app.yaml` を除外（忁E��に応じて�E�E
+2. また�E、`backend` チE��レクトリから直接チE�Eロイ
 
-## 次のステップ
+## 次のスチE��チE
 
-Cloud Runに切り替える場合は、`cloudbuild.yaml` を作成します。
+Cloud Runに刁E��替える場合�E、`cloudbuild.yaml` を作�Eします、E
 
 

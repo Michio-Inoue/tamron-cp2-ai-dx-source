@@ -1,81 +1,81 @@
-# Secret Managerへの権限付与手順
+# Secret Managerへの権限付与手頁E
 
 ## サービスアカウント情報
 - **メールアドレス**: `singular-server-480006-s8@appspot.gserviceaccount.com`
-- **用途**: App Engineデフォルトサービスアカウント
+- **用送E*: App EngineチE��ォルトサービスアカウンチE
 
-## 手順
+## 手頁E
 
-### ステップ1: Secret Managerページにアクセス
+### スチE��チE: Secret Managerペ�Eジにアクセス
 
-以下のURLをブラウザで開いてください：
+以下�EURLをブラウザで開いてください�E�E
 ```
 https://console.cloud.google.com/security/secret-manager?project=singular-server-480006-s8
 ```
 
-### ステップ2: gemini-api-keyシークレットを開く
+### スチE��チE: gemini-api-keyシークレチE��を開ぁE
 
-1. `gemini-api-key` シークレットをクリック
+1. `gemini-api-key` シークレチE��をクリチE��
 
-2. **もし `gemini-api-key` が存在しない場合**：
-   - 「シークレットを作成」ボタンをクリック
-   - 以下の情報を入力：
+2. **もし `gemini-api-key` が存在しなぁE��吁E*�E�E
+   - 「シークレチE��を作�E」�EタンをクリチE��
+   - 以下�E惁E��を�E力！E
      - **名前**: `gemini-api-key`
-     - **シークレットの値**: `[REDACTED]`
-     - **リージョン**: 「自動」を選択
-   - 「作成」ボタンをクリック
-   - 作成後、シークレットをクリック
+     - **シークレチE��の値**: `[REDACTED]`
+     - **リージョン**: 「�E動」を選抁E
+   - 「作�E」�EタンをクリチE��
+   - 作�E後、シークレチE��をクリチE��
 
-### ステップ3: 権限を付与
+### スチE��チE: 権限を付丁E
 
-1. 「権限」タブをクリック
+1. 「権限」タブをクリチE��
 
-2. 「プリンシパルを追加」ボタンをクリック
+2. 「�Eリンシパルを追加」�EタンをクリチE��
 
-3. 以下の情報を入力：
+3. 以下�E惁E��を�E力！E
    - **新しいプリンシパル**: `singular-server-480006-s8@appspot.gserviceaccount.com`
-   - **ロール**: 「Secret Manager シークレット アクセサー」を選択
-     - 検索ボックスに「Secret Manager シークレット アクセサー」と入力すると見つかります
+   - **ロール**: 「Secret Manager シークレチE�� アクセサー」を選抁E
+     - 検索ボックスに「Secret Manager シークレチE�� アクセサー」と入力すると見つかりまぁE
 
-4. 「保存」ボタンをクリック
+4. 「保存」�EタンをクリチE��
 
-5. 数秒で完了します ✓
+5. 数秒で完亁E��まぁE✁E
 
-### ステップ4: 権限が正しく付与されたか確認
+### スチE��チE: 権限が正しく付与されたか確誁E
 
-「権限」タブに、以下の情報が表示されていればOK：
+「権限」タブに、以下�E惁E��が表示されてぁE��ばOK�E�E
 - **プリンシパル**: `singular-server-480006-s8@appspot.gserviceaccount.com`
-- **ロール**: `Secret Manager シークレット アクセサー`
+- **ロール**: `Secret Manager シークレチE�� アクセサー`
 
-## 次のステップ
+## 次のスチE��チE
 
-権限の付与が完了したら：
+権限�E付与が完亁E��たら�E�E
 
-1. **必要なAPIが有効化されているか確認**
+1. **忁E��なAPIが有効化されてぁE��か確誁E*
    - URL: https://console.cloud.google.com/apis/library?project=singular-server-480006-s8
-   - 以下のAPIが「有効」になっているか確認：
+   - 以下�EAPIが「有効」になってぁE��か確認！E
      - Secret Manager API
      - App Engine Admin API
      - Cloud Build API
 
-2. **バックエンドをデプロイ**
+2. **バックエンドをチE�Eロイ**
    ```powershell
    gcloud config set project singular-server-480006-s8
    cd backend
    gcloud app deploy app.yaml
    ```
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### 「プリンシパルを追加」ボタンが表示されない
+### 「�Eリンシパルを追加」�Eタンが表示されなぁE
 
-- プロジェクトの所有者または編集者権限があるか確認
-- ページを更新してみる
+- プロジェクト�E所有老E��た�E編雁E��E��限があるか確誁E
+- ペ�Eジを更新してみめE
 
-### 権限の付与が失敗する
+### 権限�E付与が失敗すめE
 
-- サービスアカウントのメールアドレスが正しいか確認
-- Secret Manager APIが有効になっているか確認
-- プロジェクトが正しく選択されているか確認
+- サービスアカウント�Eメールアドレスが正しいか確誁E
+- Secret Manager APIが有効になってぁE��か確誁E
+- プロジェクトが正しく選択されてぁE��か確誁E
 
 

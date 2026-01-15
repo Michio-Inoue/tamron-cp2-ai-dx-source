@@ -1,55 +1,55 @@
-# "Page not found" エラーの解決方法
+# "Page not found" エラーの解決方況E
 
-## 問題の原因
+## 問題�E原因
 
-「Page not found」エラーが発生する主な原因：
+「Page not found」エラーが発生する主な原因�E�E
 
-1. **デプロイが完了していない**
-   - デプロイが途中で中断された
-   - デプロイが失敗した
+1. **チE�Eロイが完亁E��てぁE��ぁE*
+   - チE�Eロイが途中で中断されぁE
+   - チE�Eロイが失敗しぁE
 
-2. **サービスが存在しない**
-   - App Engineサービスが正しく作成されていない
+2. **サービスが存在しなぁE*
+   - App Engineサービスが正しく作�EされてぁE��ぁE
 
-3. **アプリケーションが起動していない**
-   - アプリケーションの起動に失敗している
+3. **アプリケーションが起動してぁE��ぁE*
+   - アプリケーションの起動に失敗してぁE��
 
-## 解決方法
+## 解決方況E
 
-### 方法1: デプロイを再実行
+### 方況E: チE�Eロイを�E実衁E
 
 ```powershell
 cd backend
 gcloud app deploy app.yaml --project=singular-server-480006-s8
 ```
 
-デプロイには5〜10分かかります。
+チE�Eロイには5、E0刁E��かります、E
 
-### 方法2: デプロイ状態を確認
+### 方況E: チE�Eロイ状態を確誁E
 
 ```powershell
-# サービス一覧を確認
+# サービス一覧を確誁E
 gcloud app services list --project=singular-server-480006-s8
 
-# バージョン一覧を確認
+# バ�Eジョン一覧を確誁E
 gcloud app versions list --project=singular-server-480006-s8
 
-# ビルドの状態を確認
+# ビルド�E状態を確誁E
 gcloud builds list --project=singular-server-480006-s8 --limit=5
 ```
 
-### 方法3: ログを確認
+### 方況E: ログを確誁E
 
 ```powershell
-# 最新のログを確認
+# 最新のログを確誁E
 gcloud app logs read -s default --project=singular-server-480006-s8 --limit=50
 ```
 
-## 確認事項
+## 確認事頁E
 
-### 1. app.yamlの設定
+### 1. app.yamlの設宁E
 
-`backend/app.yaml` が正しく設定されているか確認：
+`backend/app.yaml` が正しく設定されてぁE��か確認！E
 
 ```yaml
 runtime: nodejs20
@@ -61,9 +61,9 @@ env_variables:
 service_account: default
 ```
 
-### 2. package.jsonの設定
+### 2. package.jsonの設宁E
 
-`backend/package.json` に `start` スクリプトがあるか確認：
+`backend/package.json` に `start` スクリプトがあるか確認！E
 
 ```json
 {
@@ -73,38 +73,38 @@ service_account: default
 }
 ```
 
-### 3. server.jsの設定
+### 3. server.jsの設宁E
 
-`backend/server.js` が正しく設定されているか確認：
+`backend/server.js` が正しく設定されてぁE��か確認！E
 
-- `app.listen()` が正しく設定されている
-- ルートエンドポイント（`/`）が定義されている
+- `app.listen()` が正しく設定されてぁE��
+- ルートエンド�Eイント！E/`�E�が定義されてぁE��
 
-## デプロイ後の確認
+## チE�Eロイ後�E確誁E
 
-デプロイが完了したら：
+チE�Eロイが完亁E��たら�E�E
 
-1. **サービス一覧を確認**：
+1. **サービス一覧を確誁E*�E�E
    ```powershell
    gcloud app services list --project=singular-server-480006-s8
    ```
 
-2. **URLにアクセス**：
+2. **URLにアクセス**�E�E
    ```
    https://singular-server-480006-s8.an.r.appspot.com
    ```
 
-3. **正常な応答を確認**：
+3. **正常な応答を確誁E*�E�E
    ```json
    {"message":"AI-DRBFM Analysis Server"}
    ```
 
-## トラブルシューティング
+## トラブルシューチE��ング
 
-### デプロイが失敗する場合
+### チE�Eロイが失敗する場吁E
 
-1. **エラーメッセージを確認**
-2. **ビルドログを確認**：
+1. **エラーメチE��ージを確誁E*
+2. **ビルドログを確誁E*�E�E
    ```powershell
    gcloud builds list --project=singular-server-480006-s8 --limit=1
    gcloud builds log BUILD_ID --project=singular-server-480006-s8
@@ -112,8 +112,8 @@ service_account: default
 
 ### よくあるエラー
 
-- **Secret Managerへのアクセスエラー**: 権限が正しく付与されているか確認
-- **依存関係のエラー**: `npm install` を再実行
-- **ポートのエラー**: App Engineは自動的にPORT環境変数を設定します
+- **Secret Managerへのアクセスエラー**: 権限が正しく付与されてぁE��か確誁E
+- **依存関係�Eエラー**: `npm install` を�E実衁E
+- **ポ�Eト�Eエラー**: App Engineは自動的にPORT環墁E��数を設定しまぁE
 
 

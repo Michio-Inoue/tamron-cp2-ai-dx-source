@@ -1,70 +1,70 @@
-# フロントエンドからAPIを呼び出すテスト
+# フロントエンドからAPIを呼び出すテスチE
 
-## ✅ バックエンドAPIが正常に動作
+## ✁EバックエンドAPIが正常に動佁E
 
-`{"メッセージ":"AI-DRBFM 分析サーバー"}` というレスポンスが返ってきました。
+`{"メチE��ージ":"AI-DRBFM 刁E��サーバ�E"}` とぁE��レスポンスが返ってきました、E
 
-## 次のステップ：フロントエンドからAPIを呼び出す
+## 次のスチE��プ：フロントエンドからAPIを呼び出ぁE
 
-### 1. ブラウザで`ai-drbfm.html`を開く
+### 1. ブラウザで`ai-drbfm.html`を開ぁE
 
-- ローカルファイルとして開く（`file://`プロトコル）
-- または、HTTPサーバーで提供（推奨）
+- ローカルファイルとして開く�E�Efile://`プロトコル�E�E
+- また�E、HTTPサーバ�Eで提供（推奨�E�E
 
-### 2. ブラウザの開発者ツールを開く
+### 2. ブラウザの開発老E��ールを開ぁE
 
-- **F12**キーを押す
+- **F12**キーを押ぁE
 - **コンソール**タブを開く
-- **ネットワーク**タブを開く（APIリクエストを確認するため）
+- **ネットワーク**タブを開く�E�EPIリクエストを確認するためE��E
 
-### 3. ファイルを選択してAI分析を実行
+### 3. ファイルを選択してAI刁E��を実衁E
 
-1. Excelファイル（.xlsx）を選択
-2. 「AI分析を実行」ボタンをクリック
-3. コンソールとネットワークタブで以下を確認：
-   - APIキーが正しく送信されているか
-   - 認証が成功しているか
-   - Gemini APIが呼び出されているか
+1. Excelファイル�E�Exlsx�E�を選抁E
+2. 「AI刁E��を実行」�EタンをクリチE��
+3. コンソールとネットワークタブで以下を確認！E
+   - APIキーが正しく送信されてぁE��ぁE
+   - 認証が�E功してぁE��ぁE
+   - Gemini APIが呼び出されてぁE��ぁE
 
-### 4. 期待される動作
+### 4. 期征E��れる動佁E
 
-- ✅ APIキーが自動的に`X-API-Key`ヘッダーに追加される
-- ✅ バックエンドAPI（`/api/gemini`）が呼び出される
-- ✅ 認証が成功し、Gemini APIが呼び出される
-- ✅ AI分析結果が表示される
+- ✁EAPIキーが�E動的に`X-API-Key`ヘッダーに追加されめE
+- ✁EバックエンドAPI�E�E/api/gemini`�E�が呼び出されめE
+- ✁E認証が�E功し、Gemini APIが呼び出されめE
+- ✁EAI刁E��結果が表示されめE
 
-### 5. トラブルシューティング
+### 5. トラブルシューチE��ング
 
 #### エラー: 401 Unauthorized
-- **原因**: APIキーが正しく送信されていない、またはAPIキーが無効
-- **確認**: ネットワークタブで`X-API-Key`ヘッダーを確認
-- **解決**: `ai-drbfm.html`の`window.BACKEND_API_KEY`が正しく設定されているか確認
+- **原因**: APIキーが正しく送信されてぁE��ぁE��また�EAPIキーが無効
+- **確誁E*: ネットワークタブで`X-API-Key`ヘッダーを確誁E
+- **解決**: `ai-drbfm.html`の`window.BACKEND_API_KEY`が正しく設定されてぁE��か確誁E
 
 #### エラー: 403 Forbidden
-- **原因**: Cloud Runサービスへのアクセスが許可されていない
-- **確認**: Cloud RunサービスのIAMポリシーを確認
-- **解決**: `allUsers`に`roles/run.invoker`を付与（Google Cloud Consoleから）
+- **原因**: Cloud Runサービスへのアクセスが許可されてぁE��ぁE
+- **確誁E*: Cloud RunサービスのIAMポリシーを確誁E
+- **解決**: `allUsers`に`roles/run.invoker`を付与！Eoogle Cloud Consoleから�E�E
 
 #### エラー: CORS
-- **原因**: CORS設定の問題
-- **確認**: バックエンドのCORS設定を確認
-- **解決**: `backend/server.js`でCORSが有効になっているか確認
+- **原因**: CORS設定�E問顁E
+- **確誁E*: バックエンド�ECORS設定を確誁E
+- **解決**: `backend/server.js`でCORSが有効になってぁE��か確誁E
 
 #### エラー: Gemini APIキーが無効
-- **原因**: Secret Managerに保存されているGemini APIキーが無効
-- **確認**: Secret Managerの`gemini-api-key`を確認
+- **原因**: Secret Managerに保存されてぁE��Gemini APIキーが無効
+- **確誁E*: Secret Managerの`gemini-api-key`を確誁E
 - **解決**: 新しいGemini APIキーをSecret Managerに追加
 
-## 現在の設定
+## 現在の設宁E
 
 - **バックエンドURL**: `https://ai-drbfm-backend-43iql33sfa-an.a.run.app`
-- **APIキー**: `Lh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`（`ai-drbfm.html`に設定済み）
-- **認証**: APIキー認証が実装済み
+- **APIキー**: `Lh8zeq73nXtaiMm5HSy4plGKNoxC9Qru`�E�Eai-drbfm.html`に設定済み�E�E
+- **認証**: APIキー認証が実裁E��み
 
-## まとめ
+## まとめE
 
-バックエンドAPIは正常に動作しています。
+バックエンドAPIは正常に動作してぁE��す、E
 
-次は、フロントエンドからAPIを呼び出して、完全な動作を確認してください。
+次は、フロントエンドからAPIを呼び出して、完�Eな動作を確認してください、E
 
-問題があれば、ブラウザの開発者ツール（F12）のコンソールタブでエラーメッセージを確認してください。
+問題があれば、ブラウザの開発老E��ール�E�E12�E��EコンソールタブでエラーメチE��ージを確認してください、E

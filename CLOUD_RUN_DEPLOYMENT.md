@@ -1,49 +1,49 @@
-# Cloud Run へのデプロイ方法
+# Cloud Run へのチE�Eロイ方況E
 
 ## App Engine vs Cloud Run
 
-現在、App Engineでデプロイしようとしていますが、Cloud Runに切り替えることも可能です。
+現在、App EngineでチE�EロイしよぁE��してぁE��すが、Cloud Runに刁E��替えることも可能です、E
 
 ### App Engineの利点
-- シンプルな設定（app.yamlのみ）
+- シンプルな設定！Epp.yamlのみ�E�E
 - 自動スケーリング
-- サーバーレス
+- サーバ�Eレス
 
 ### Cloud Runの利点
-- より柔軟な設定
-- Dockerコンテナベース
+- より柔軟な設宁E
+- DockerコンチE��ベ�Eス
 - より細かい制御が可能
 
-## Cloud Runに切り替える場合の手順
+## Cloud Runに刁E��替える場合�E手頁E
 
-### ステップ1: Dockerfileの作成
+### スチE��チE: Dockerfileの作�E
 
-`backend/Dockerfile` を作成：
+`backend/Dockerfile` を作�E�E�E
 
 ```dockerfile
 FROM node:20-slim
 
 WORKDIR /app
 
-# package.jsonとpackage-lock.jsonをコピー
+# package.jsonとpackage-lock.jsonをコピ�E
 COPY package*.json ./
 
-# 依存関係をインストール
+# 依存関係をインスト�Eル
 RUN npm ci --only=production
 
-# アプリケーションコードをコピー
+# アプリケーションコードをコピ�E
 COPY . .
 
-# ポートを公開
+# ポ�Eトを公閁E
 EXPOSE 8080
 
-# アプリケーションを起動
+# アプリケーションを起勁E
 CMD ["node", "server.js"]
 ```
 
-### ステップ2: .dockerignoreの作成
+### スチE��チE: .dockerignoreの作�E
 
-`backend/.dockerignore` を作成：
+`backend/.dockerignore` を作�E�E�E
 
 ```
 node_modules
@@ -54,21 +54,21 @@ npm-debug.log
 .gitignore
 ```
 
-### ステップ3: cloudbuild.yamlの作成
+### スチE��チE: cloudbuild.yamlの作�E
 
-`backend/cloudbuild.yaml` を作成（ユーザーが提示した内容をベースに）：
+`backend/cloudbuild.yaml` を作�E�E�ユーザーが提示した冁E��を�Eースに�E�！E
 
 ```yaml
 steps:
-  # 1. Docker イメージをビルドする
+  # 1. Docker イメージをビルドすめE
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/ai-drbfm-backend/app:latest', '.']
 
-  # 2. Artifact Registry にイメージをプッシュする
+  # 2. Artifact Registry にイメージを�EチE��ュする
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/ai-drbfm-backend/app:latest']
 
-  # 3. Cloud Run にデプロイする
+  # 3. Cloud Run にチE�Eロイする
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'run'
@@ -90,32 +90,32 @@ images:
   - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/ai-drbfm-backend/app:latest'
 ```
 
-### ステップ4: Artifact Registryの準備
+### スチE��チE: Artifact Registryの準備
 
 ```powershell
-# Artifact Registryリポジトリを作成
+# Artifact Registryリポジトリを作�E
 gcloud artifacts repositories create ai-drbfm-backend \
     --repository-format=docker \
     --location=asia-northeast1 \
     --project=singular-server-480006-s8
 ```
 
-### ステップ5: Cloud Buildでデプロイ
+### スチE��チE: Cloud BuildでチE�Eロイ
 
 ```powershell
 cd backend
 gcloud builds submit --config=cloudbuild.yaml --project=singular-server-480006-s8
 ```
 
-## 推奨事項
+## 推奨事頁E
 
-**現在の状況では、App Engineを続行することを推奨します。**
+**現在の状況では、App Engineを続行することを推奨します、E*
 
-理由：
-1. 既にApp Engineの初期化が完了している
-2. app.yamlの設定がほぼ完了している（service_accountの問題を修正済み）
-3. よりシンプルで、すぐにデプロイできる
+琁E���E�E
+1. 既にApp Engineの初期化が完亁E��てぁE��
+2. app.yamlの設定がほぼ完亁E��てぁE���E�Eervice_accountの問題を修正済み�E�E
+3. よりシンプルで、すぐにチE�Eロイできる
 
-App Engineで続行する場合は、修正したapp.yamlで再度デプロイを実行してください。
+App Engineで続行する場合�E、修正したapp.yamlで再度チE�Eロイを実行してください、E
 
 

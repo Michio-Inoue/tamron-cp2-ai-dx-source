@@ -4,38 +4,38 @@ echo Google Cloud プロジェクト設定スクリプト
 echo ========================================
 echo.
 
-echo プロジェクトID: singular-server-480006-s8
+echo プロジェクチED: singular-server-480006-s8
 echo プロジェクト名: Tamron-cp2-AI-DX
 echo.
 
-echo [1/4] 認証を確認しています...
+echo [1/4] 認証を確認してぁE��ぁE..
 gcloud auth list
 if %errorlevel% neq 0 (
-    echo 認証が必要です。ブラウザが開きます...
+    echo 認証が忁E��です。ブラウザが開きまぁE..
     gcloud auth login
 )
 
 echo.
-echo [2/4] プロジェクトを設定しています...
+echo [2/4] プロジェクトを設定してぁE��ぁE..
 gcloud config set project singular-server-480006-s8
 
 echo.
-echo [3/4] 現在のプロジェクトを確認しています...
+echo [3/4] 現在のプロジェクトを確認してぁE��ぁE..
 gcloud config get-value project
 
 echo.
-echo [4/4] プロジェクト情報を確認しています...
+echo [4/4] プロジェクト情報を確認してぁE��ぁE..
 gcloud projects describe singular-server-480006-s8 --format="table(projectId,name,projectNumber)"
 
 echo.
 echo ========================================
-echo 設定完了！
+echo 設定完亁E��E
 echo ========================================
 echo.
-echo 次のステップ:
-echo 1. Secret ManagerにAPIキーを保存
-echo 2. サービスアカウントに権限を付与
-echo 3. バックエンドをデプロイ
+echo 次のスチE��チE
+echo 1. Secret ManagerにAPIキーを保孁E
+echo 2. サービスアカウントに権限を付丁E
+echo 3. バックエンドをチE�Eロイ
 echo.
 pause
 
