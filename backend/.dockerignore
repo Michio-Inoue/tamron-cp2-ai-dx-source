@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.env
+.gcloudignore
+.git
+.gitignore
+*.md
+*.bat
+uploads/
+
+

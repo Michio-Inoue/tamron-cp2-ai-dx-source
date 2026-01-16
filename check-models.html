@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>利用可能なGeminiモデル確認</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover {
+            background-color: #357ae8;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>利用可能なGeminiモデル確認</h1>
+    <label for="apiKey">APIキー:</label>
+    <input type="password" id="apiKey" placeholder="APIキーを入力してください">
+    
+    <button onclick="checkModels('v1beta')">v1beta APIで確認</button>
+    <button onclick="checkModels('v1')">v1 APIで確認</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function checkModels(version) {
+            const apiKey = document.getElementById('apiKey').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!apiKey) {
+                resultDiv.textContent = 'エラー: APIキーを入力してください';
+                return;
+            }
+            
+            resultDiv.textContent = 'モデルリストを取得中...';
+            
+            try {
+                const url = `https://generativelanguage.googleapis.com/${version}/models?key=${apiKey}`;
+                console.log('リクエストURL:', url.replace(apiKey, 'API_KEY_HIDDEN'));
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    resultDiv.textContent = `エラー: ${response.status} ${response.statusText}\n${errorText}`;
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.models && data.models.length > 0) {
+                    const geminiModels = data.models.filter(m => 
+                        m.name && (m.name.includes('gemini') || m.name.includes('models/'))
+                    );
+                    
+                    let output = `=== ${version} APIで利用可能なモデル ===\n\n`;
+                    output += `総モデル数: ${data.models.length}\n`;
+                    output += `Geminiモデル数: ${geminiModels.length}\n\n`;
+                    
+                    output += '--- すべてのGeminiモデル ---\n';
+                    geminiModels.forEach(model => {
+                        output += `\nモデル名: ${model.name}\n`;
+                        output += `表示名: ${model.displayName || 'N/A'}\n`;
+                        output += `説明: ${model.description || 'N/A'}\n`;
+                        output += `サポートされているメソッド: ${model.supportedGenerationMethods ? model.supportedGenerationMethods.join(', ') : 'N/A'}\n`;
+                        output += '---\n';
+                    });
+                    
+                    output += '\n\n--- generateContentが利用可能なモデル ---\n';
+                    const generateContentModels = geminiModels.filter(m => 
+                        m.supportedGenerationMethods && 
+                        m.supportedGenerationMethods.includes('generateContent')
+                    );
+                    
+                    generateContentModels.forEach(model => {
+                        const shortName = model.name.replace('models/', '');
+                        output += `\n${shortName}\n`;
+                        output += `完全な名前: ${model.name}\n`;
+                    });
+                    
+                    resultDiv.textContent = output;
+                    console.log('モデルデータ:', data);
+                } else {
+                    resultDiv.textContent = 'モデルが見つかりませんでした。';
+                }
+            } catch (error) {
+                resultDiv.textContent = `エラーが発生しました: ${error.message}`;
+                console.error('エラー:', error);
+            }
+        }
+    </script>
+</body>
+</html>
+

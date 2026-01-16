@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン | タムロン設計支援AIツール</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #333;
+            margin: 0 0 10px 0;
+            font-size: 28px;
+        }
+
+        .login-header p {
+            color: #666;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1><i class="fas fa-lock"></i> ログイン</h1>
+            <p>タムロン設計支援AIツール</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <!-- ログインフォーム -->
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="loginUsername"><i class="fas fa-user"></i> ユーザー名</label>
+                <input type="text" id="loginUsername" name="username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="loginPassword"><i class="fas fa-lock"></i> パスワード</label>
+                <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
+            </div>
+            <div class="form-group" id="totpGroup">
+                <label for="totpToken"><i class="fas fa-shield-alt"></i> 2段階認証コード（6桁）<span style="color: #999; font-weight: normal;" id="totpRequired">（2FA有効時は必須）</span></label>
+                <input type="text" id="totpToken" name="totpToken" maxlength="6" pattern="[0-9]{6}" placeholder="000000" autocomplete="one-time-code">
+                <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">認証アプリ（Google Authenticatorなど）に表示されている6桁のコードを入力してください（2FAが有効な場合は必須です）</small>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">ログイン</button>
+            </div>
+        </form>
+
+    </div>
+
+    <script>
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            document.getElementById('successMessage').classList.remove('show');
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        function clearMessages() {
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            clearMessages();
+
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const totpToken = document.getElementById('totpToken').value;
+
+            // バリデーション
+            if (!username || !password) {
+                showError('ユーザー名とパスワードを入力してください');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password, totpToken: totpToken || null })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('ログインに成功しました。リダイレクトしています...');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else if (result.requiresTwoFactor) {
+                    // 2FAが必要な場合、TOTP入力を必須にする
+                    document.getElementById('totpToken').required = true;
+                    document.getElementById('totpToken').focus();
+                    showError('2段階認証コードを入力してください');
+                } else {
+                    showError(result.message || 'ログインに失敗しました');
+                }
+            } catch (error) {
+                showError('ログイン中にエラーが発生しました: ' + error.message);
+            }
+        }
+
+        // ページ読み込み時に認証状態を確認
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/api/health', {
+                    credentials: 'include'
+                });
+                
+                // 既にログインしている場合はリダイレクト
+                if (response.ok) {
+                    // トークンがあるかチェック（簡易版）
+                    const cookies = document.cookie;
+                    if (cookies.includes('token=')) {
+                        // 既にログインしている可能性があるので、メインページにリダイレクト
+                        // ただし、verifyTokenでチェックされるので、ここでは何もしない
+                    }
+                }
+            } catch (error) {
+                // エラーは無視（ログインページを表示）
+            }
+        });
+    </script>
+</body>
+</html>
